@@ -5,6 +5,7 @@ import "time"
 type Flight struct {
 	ID                  int64
 	UserID              int64
+	AircraftID          int64
 	TakeoffTime         time.Time
 	TakeoffAirportCode  string
 	LandingTime         time.Time
