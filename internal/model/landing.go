@@ -1,8 +1,10 @@
 package model
 
+import "gorm.io/gorm"
+
 type Landing struct {
-	ID           int64
-	FlightID     int64
+	gorm.Model
+	FlightID     uint
 	ApproachType ApproachType
 	Count        uint
 	NightCount   uint
