@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: avialog
+  labels:
+    app: avialog
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: avialog
+  template:
+    metadata:
+      labels:
+        app: avialog
+    spec:
+      containers:
+        - name: avialog
+          image: ghcr.io/avialog/backend:4bc0621
+          ports:
+            - containerPort: 3000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: avialog
+spec:
+  selector:
+    app: avialog
+  ports:
+    - protocol: TCP
+      port: 3000
+      targetPort: 3000
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: avialog
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: avialog.enteam.pl
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: avialog
+                port:
+                  number: 3000
