@@ -5,6 +5,6 @@ type Aircraft struct {
 	UserID             int64
 	RegistrationNumber string
 	Model              string
-	Remarks            string
+	Remarks            string // Notes
 	ImageURL           string
 }
