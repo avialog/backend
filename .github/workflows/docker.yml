@@ -28,7 +28,6 @@ jobs:
         uses: prompt/actions-commit-hash@v3
 
       - name: Log into registry ${{ env.REGISTRY }}
-#        if: github.event_name != 'pull_request'
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -40,7 +39,8 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+#          push: ${{ github.event_name != 'pull_request' }}
+          push: true
           tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.commit.outputs.short }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
