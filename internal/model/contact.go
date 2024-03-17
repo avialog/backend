@@ -1,8 +1,10 @@
 package model
 
+import "gorm.io/gorm"
+
 type Contact struct {
-	ID           int64
-	UserID       int64
+	gorm.Model
+	UserID       uint
 	AvatarURL    string
 	FirstName    string
 	LastName     string
