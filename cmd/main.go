@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	config := dto.Config{}
+	config := dto.Config{Port: 3000}
 	server := gin.Default()
 	err := server.Run(":" + strconv.Itoa(config.Port))
 	if err != nil {
