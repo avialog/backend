@@ -1,8 +1,10 @@
 package model
 
+import "gorm.io/gorm"
+
 type Passenger struct {
-	ID           int64
-	FlightID     int64
+	gorm.Model
+	FlightID     uint
 	Role         Role
 	FirstName    string
 	LastName     string
