@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: avialog
-          image: ghcr.io/avialog/backend:4bc0621
+          image: ghcr.io/avialog/backend:a6ec57c
           ports:
             - containerPort: 3000
 ---
