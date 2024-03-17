@@ -1,10 +1,12 @@
 package model
 
+import "gorm.io/gorm"
+
 type Aircraft struct {
-	ID                 int64
+	gorm.Model
 	UserID             int64
 	RegistrationNumber string
-	Model              string
+	AircraftModel      string
 	Remarks            string // Notes
 	ImageURL           string
 }
