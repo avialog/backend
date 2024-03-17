@@ -1,5 +1,5 @@
 package dto
 
 type Config struct {
-	Port int
+	Port int `json:"port"`
 }
