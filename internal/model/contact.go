@@ -2,6 +2,7 @@ package model
 
 import "gorm.io/gorm"
 
+// dany kontakt nalkezy do usera 1 to many
 type Contact struct {
 	gorm.Model
 	UserID       uint
