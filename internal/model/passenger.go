@@ -2,6 +2,7 @@ package model
 
 import "gorm.io/gorm"
 
+// pasazer nalezy do lotu
 type Passenger struct {
 	gorm.Model
 	FlightID     uint
