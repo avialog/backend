@@ -18,4 +18,7 @@ type User struct {
 	City         string
 	Company      string
 	Timezone     string
+	Contacts     []Contact  `gorm:"foreignKey:UserID"`
+	Aircraft     []Aircraft `gorm:"foreignKey:UserID"`
+	Flights      []Flight   `gorm:"foreignKey:UserID"`
 }

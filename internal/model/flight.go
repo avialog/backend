@@ -8,7 +8,11 @@ import (
 type Flight struct {
 	gorm.Model
 	UserID              uint
+	User                User
 	AircraftID          uint
+	Aircraft            Aircraft
+	Passengers          []Passenger `gorm:"foreignKey:FlightID"`
+	Landings            []Landing   `gorm:"foreignKey:FlightID"`
 	TakeoffTime         time.Time
 	TakeoffAirportCode  string
 	LandingTime         time.Time
