@@ -6,9 +6,11 @@ import (
 )
 
 type Repositories interface {
+	User() UserRepository
 }
 
 type repositories struct {
+	userRepository UserRepository
 }
 
 func NewRepositories(db *gorm.DB) (Repositories, error) {
@@ -19,5 +21,11 @@ func NewRepositories(db *gorm.DB) (Repositories, error) {
 		return nil, err
 	}
 
-	return &repositories{}, nil
+	return &repositories{
+		userRepository: newUserRepository(db),
+	}, nil
+}
+
+func (r repositories) User() UserRepository {
+	return r.userRepository
 }
