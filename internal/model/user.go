@@ -2,7 +2,6 @@ package model
 
 import (
 	"gorm.io/gorm"
-	"time"
 )
 
 type User struct {
@@ -18,5 +17,5 @@ type User struct {
 	Street       string
 	City         string
 	Company      string
-	Timezone     time.Location
+	Timezone     string
 }
