@@ -7,10 +7,10 @@ import (
 
 type AircraftRepository interface {
 	Save(aircraft model.Aircraft) (model.Aircraft, error)
-	GetById(id uint) (model.Aircraft, error)
-	GetByUserId(id uint) ([]model.Aircraft, error)
+	GetByID(id uint) (model.Aircraft, error)
+	GetByUserID(id uint) ([]model.Aircraft, error)
 	Update(aircraft model.Aircraft) (model.Aircraft, error)
-	DeleteById(id uint) error
+	DeleteByID(id uint) error
 }
 
 type aircraft struct {
@@ -32,7 +32,7 @@ func (a aircraft) Save(aircraft model.Aircraft) (model.Aircraft, error) {
 	return aircraft, nil
 }
 
-func (a aircraft) GetById(id uint) (model.Aircraft, error) {
+func (a aircraft) GetByID(id uint) (model.Aircraft, error) {
 	var aircraft model.Aircraft
 	result := a.db.First(&aircraft, id)
 	if result.Error != nil {
@@ -42,7 +42,7 @@ func (a aircraft) GetById(id uint) (model.Aircraft, error) {
 }
 
 func (a aircraft) Update(aircraft model.Aircraft) (model.Aircraft, error) {
-	if _, err := a.GetById(aircraft.ID); err != nil {
+	if _, err := a.GetByID(aircraft.ID); err != nil {
 		return model.Aircraft{}, err
 	}
 
@@ -54,8 +54,8 @@ func (a aircraft) Update(aircraft model.Aircraft) (model.Aircraft, error) {
 	return aircraft, nil
 }
 
-func (a aircraft) DeleteById(id uint) error {
-	if _, err := a.GetById(id); err != nil {
+func (a aircraft) DeleteByID(id uint) error {
+	if _, err := a.GetByID(id); err != nil {
 		return err
 	}
 
@@ -67,7 +67,7 @@ func (a aircraft) DeleteById(id uint) error {
 	return nil
 }
 
-func (a aircraft) GetByUserId(userId uint) ([]model.Aircraft, error) {
+func (a aircraft) GetByUserID(userId uint) ([]model.Aircraft, error) {
 	var aircraft []model.Aircraft
 	result := a.db.Where("user_id = ?", userId).Find(&aircraft)
 	if result.Error != nil {
