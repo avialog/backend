@@ -7,9 +7,9 @@ import (
 
 type UserRepository interface {
 	Save(user model.User) (model.User, error)
-	GetById(id uint) (model.User, error)
+	GetByID(id uint) (model.User, error)
 	Update(user model.User) (model.User, error)
-	DeleteById(id uint) error
+	DeleteByID(id uint) error
 }
 
 type user struct {
@@ -31,7 +31,7 @@ func (u user) Save(user model.User) (model.User, error) {
 	return user, nil
 }
 
-func (u user) GetById(id uint) (model.User, error) {
+func (u user) GetByID(id uint) (model.User, error) {
 	var user model.User
 	result := u.db.First(&user, id)
 	if result.Error != nil {
@@ -41,7 +41,7 @@ func (u user) GetById(id uint) (model.User, error) {
 }
 
 func (u user) Update(user model.User) (model.User, error) {
-	if _, err := u.GetById(user.ID); err != nil {
+	if _, err := u.GetByID(user.ID); err != nil {
 		return model.User{}, err
 	}
 
@@ -53,8 +53,8 @@ func (u user) Update(user model.User) (model.User, error) {
 	return user, nil
 }
 
-func (u user) DeleteById(id uint) error {
-	if _, err := u.GetById(id); err != nil {
+func (u user) DeleteByID(id uint) error {
+	if _, err := u.GetByID(id); err != nil {
 		return err
 	}
 
