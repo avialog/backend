@@ -10,7 +10,8 @@ type Repositories interface {
 }
 
 type repositories struct {
-	userRepository UserRepository
+	userRepository     UserRepository
+	aircraftRepository AircraftRepository
 }
 
 func NewRepositories(db *gorm.DB) (Repositories, error) {
@@ -22,10 +23,13 @@ func NewRepositories(db *gorm.DB) (Repositories, error) {
 	}
 
 	return &repositories{
-		userRepository: newUserRepository(db),
+		userRepository:     newUserRepository(db),
+		aircraftRepository: newAircraftRepository(db),
 	}, nil
 }
 
 func (r repositories) User() UserRepository {
 	return r.userRepository
 }
+
+func (r repositories) Aircraft() AircraftRepository { return r.aircraftRepository }

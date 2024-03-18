@@ -2,12 +2,13 @@ package model
 
 import "gorm.io/gorm"
 
-// wielke userow moze miec ten sam samolot
 type Aircraft struct {
 	gorm.Model
-	UserID             int64 //obcy
+	UserID             uint
+	User               User
 	RegistrationNumber string
 	AircraftModel      string
-	Remarks            string // Notes
+	Remarks            string
 	ImageURL           string
+	Flights            []Flight `gorm:"foreignKey:AircraftID"`
 }
