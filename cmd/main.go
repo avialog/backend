@@ -4,16 +4,25 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/repository"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"strconv"
+	"log"
+	"os"
 )
 
 func main() {
-	config := dto.Config{Port: 3000}
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
 
-	db, err := gorm.Open(postgres.Open("postgresql://localhost:5432"), &gorm.Config{}) //assign official db in future
+	config := dto.Config{
+		DSN: os.Getenv("DSN"),
+	}
+
+	db, err := gorm.Open(postgres.Open(config.DSN), &gorm.Config{})
 	if err != nil {
 		logrus.Panic(err)
 	}
@@ -27,7 +36,12 @@ func main() {
 
 	_ = repositories
 
-	err = server.Run(":" + strconv.Itoa(config.Port))
+	port := "3000"
+	if os.Getenv("PORT") != "" {
+		port = os.Getenv("PORT")
+	}
+
+	err = server.Run(":" + port)
 	if err != nil {
 		logrus.Panic(err)
 	}
