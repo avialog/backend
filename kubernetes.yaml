@@ -19,6 +19,14 @@ spec:
           image: ghcr.io/avialog/backend:a6ec57c
           ports:
             - containerPort: 3000
+          env:
+            - name: DSN
+              valueFrom:
+                secretKeyRef:
+                  name: avialog
+                  key: dsn
+            - name: GIN_MODE
+              value: release
 ---
 apiVersion: v1
 kind: Service
