@@ -2,6 +2,7 @@ package model
 
 import "gorm.io/gorm"
 
+// londowanie nalezy do lotu
 type Landing struct {
 	gorm.Model
 	FlightID     uint
