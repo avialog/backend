@@ -67,9 +67,9 @@ func (a aircraft) DeleteByID(id uint) error {
 	return nil
 }
 
-func (a aircraft) GetByUserID(userId uint) ([]model.Aircraft, error) {
+func (a aircraft) GetByUserID(userID uint) ([]model.Aircraft, error) {
 	var aircraft []model.Aircraft
-	result := a.db.Where("user_id = ?", userId).Find(&aircraft)
+	result := a.db.Where("user_id = ?", userID).Find(&aircraft)
 	if result.Error != nil {
 		return nil, result.Error
 	}
