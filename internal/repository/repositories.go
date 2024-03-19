@@ -8,12 +8,16 @@ import (
 type Repositories interface {
 	User() UserRepository
 	Landing() LandingRepository
+	Passenger() PassengerRepository
+	Aircraft() AircraftRepository
 }
 
 type repositories struct {
-	userRepository     UserRepository
+	userRepository      UserRepository
+	passengerRepository PassengerRepository
 	aircraftRepository AircraftRepository
 	landingRepository  LandingRepository
+	contactRepository  ContactRepository
 }
 
 func NewRepositories(db *gorm.DB) (Repositories, error) {
@@ -28,6 +32,8 @@ func NewRepositories(db *gorm.DB) (Repositories, error) {
 		userRepository:     newUserRepository(db),
 		aircraftRepository: newAircraftRepository(db),
 		landingRepository:  newLandingRepository(db),
+		passengerRepository: newPassengerRepository(db),
+		contactRepository:  newContactRepository(db),
 	}, nil
 }
 
@@ -36,5 +42,9 @@ func (r repositories) User() UserRepository {
 }
 
 func (r repositories) Aircraft() AircraftRepository { return r.aircraftRepository }
+
+func (r repositories) Passenger() PassengerRepository { return r.passengerRepository }
+
+func (r repositories) Contact() ContactRepository { return r.contactRepository }
 
 func (r repositories) Landing() LandingRepository { return r.landingRepository }
