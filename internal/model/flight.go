@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-// lot nalezy do usera
 type Flight struct {
 	gorm.Model
 	UserID              uint
