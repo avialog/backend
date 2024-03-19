@@ -11,15 +11,16 @@ type Repositories interface {
 	Landing() LandingRepository
 	Passenger() PassengerRepository
 	Aircraft() AircraftRepository
+	Contact() ContactRepository
 }
 
 type repositories struct {
 	userRepository      UserRepository
 	passengerRepository PassengerRepository
-	aircraftRepository AircraftRepository
-	flightRepository   FlightRepository
-	landingRepository  LandingRepository
-	contactRepository  ContactRepository
+	aircraftRepository  AircraftRepository
+	flightRepository    FlightRepository
+	landingRepository   LandingRepository
+	contactRepository   ContactRepository
 }
 
 func NewRepositories(db *gorm.DB) (Repositories, error) {
@@ -31,12 +32,12 @@ func NewRepositories(db *gorm.DB) (Repositories, error) {
 	}
 
 	return &repositories{
-		userRepository:     newUserRepository(db),
-		aircraftRepository: newAircraftRepository(db),
-		flightRepository:   newFlightRepository(db),
-		landingRepository:  newLandingRepository(db),
+		userRepository:      newUserRepository(db),
+		aircraftRepository:  newAircraftRepository(db),
+		flightRepository:    newFlightRepository(db),
+		landingRepository:   newLandingRepository(db),
 		passengerRepository: newPassengerRepository(db),
-		contactRepository:  newContactRepository(db),
+		contactRepository:   newContactRepository(db),
 	}, nil
 }
 
