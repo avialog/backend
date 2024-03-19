@@ -8,10 +8,10 @@ import (
 )
 
 type ContactService interface {
-	Save(userID uint, contactRequest dto.ContactRequest) (model.Contact, error)
+	Insert(userID uint, contactRequest dto.ContactRequest) (model.Contact, error)
 	GetByUserID(userID uint) ([]model.Contact, error)
 	Update(userID, id uint, contactRequest dto.ContactRequest) (model.Contact, error)
-	DeleteByID(id, userID uint) error
+	DeleteByID(userID, id uint) error
 }
 
 type contactService struct {
@@ -23,7 +23,7 @@ func newContactService(contactRepository repository.ContactRepository, config dt
 	return &contactService{contactRepository, config}
 }
 
-func (c contactService) Save(userID uint, contactRequest dto.ContactRequest) (model.Contact, error) {
+func (c contactService) Insert(userID uint, contactRequest dto.ContactRequest) (model.Contact, error) {
 	var contact model.Contact
 	contact.UserID = userID
 	contact.FirstName = contactRequest.FirstName
