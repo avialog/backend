@@ -7,11 +7,13 @@ import (
 
 type Repositories interface {
 	User() UserRepository
+	Passenger() PassengerRepository
 	Aircraft() AircraftRepository
 }
 
 type repositories struct {
-	userRepository     UserRepository
+	userRepository      UserRepository
+	passengerRepository PassengerRepository
 	aircraftRepository AircraftRepository
 	contactRepository  ContactRepository
 }
@@ -25,16 +27,17 @@ func NewRepositories(db *gorm.DB) (Repositories, error) {
 	}
 
 	return &repositories{
-		userRepository:     newUserRepository(db),
-		aircraftRepository: newAircraftRepository(db),
+		userRepository:      newUserRepository(db),
+		aircraftRepository:  newAircraftRepository(db),
+		passengerRepository: newPassengerRepository(db),
 		contactRepository:  newContactRepository(db),
 	}, nil
 }
 
-func (r repositories) User() UserRepository {
-	return r.userRepository
-}
+func (r repositories) User() UserRepository { return r.userRepository }
 
 func (r repositories) Aircraft() AircraftRepository { return r.aircraftRepository }
+
+func (r repositories) Passenger() PassengerRepository { return r.passengerRepository }
 
 func (r repositories) Contact() ContactRepository { return r.contactRepository }
