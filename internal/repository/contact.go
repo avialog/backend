@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
 )
@@ -10,7 +11,7 @@ type ContactRepository interface {
 	GetByID(id uint) (model.Contact, error)
 	GetByUserID(id uint) ([]model.Contact, error)
 	Update(contact model.Contact) (model.Contact, error)
-	DeleteByID(id uint) error
+	DeleteByID(userID, id uint) error
 }
 
 type contact struct {
@@ -54,14 +55,17 @@ func (c contact) Update(contact model.Contact) (model.Contact, error) {
 	return contact, nil
 }
 
-func (c contact) DeleteByID(id uint) error {
-	if _, err := c.GetByID(id); err != nil {
-		return err
-	}
+// Wykonujemy usunięcie nawet jak nie ma rekordu
+func (c contact) DeleteByID(userID, id uint) error {
 
-	result := c.db.Delete(&model.Contact{}, id)
+	result := c.db.Where("id = ? AND user_id = ?", id, userID).Delete(&model.Contact{})
+
 	if result.Error != nil {
 		return result.Error
+	}
+
+	if result.RowsAffected == 0 {
+		return errors.New("no contact found or unauthorized")
 	}
 
 	return nil

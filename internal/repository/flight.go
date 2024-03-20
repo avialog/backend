@@ -12,6 +12,7 @@ type FlightRepository interface {
 	GetByAircraftID(aircraftID uint) ([]model.Flight, error)
 	Update(flight model.Flight) (model.Flight, error)
 	DeleteByID(id uint) error
+	CountByAircraftID(userID, aircraftID uint) (int64, error)
 }
 
 type flight struct {
@@ -89,4 +90,13 @@ func (f flight) GetByAircraftID(aircraftID uint) ([]model.Flight, error) {
 	}
 
 	return flights, nil
+}
+
+func (f flight) CountByAircraftID(userID, aircraftID uint) (int64, error) {
+	var count int64
+	result := f.db.Model(&model.Flight{}).Where("aircraft_id = ? AND user_id = ?", aircraftID, userID).Count(&count)
+	if result.Error != nil {
+		return 0, result.Error
+	}
+	return count, nil
 }
