@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:generate mockgen -source=contact.go -destination=contact_mock.go -package repository
 type ContactRepository interface {
 	Save(contact model.Contact) (model.Contact, error)
 	GetByUserIDAndID(userID, id uint) (model.Contact, error)
@@ -38,7 +39,7 @@ func (c contact) GetByUserIDAndID(userID, id uint) (model.Contact, error) {
 	if result.Error != nil {
 		return model.Contact{}, result.Error
 	}
-	
+
 	return contact, nil
 }
 
@@ -71,5 +72,6 @@ func (c contact) GetByUserID(userID uint) ([]model.Contact, error) {
 	if result.Error != nil {
 		return nil, result.Error
 	}
+
 	return contact, nil
 }

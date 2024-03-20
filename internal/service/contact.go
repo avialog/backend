@@ -24,15 +24,16 @@ func newContactService(contactRepository repository.ContactRepository, config dt
 }
 
 func (c contactService) InsertContact(userID uint, contactRequest dto.ContactRequest) (model.Contact, error) {
-	var contact model.Contact
-	contact.UserID = userID
-	contact.FirstName = contactRequest.FirstName
-	contact.LastName = contactRequest.LastName
-	contact.Phone = contactRequest.Phone
-	contact.AvatarURL = contactRequest.AvatarURL
-	contact.Company = contactRequest.Company
-	contact.EmailAddress = contactRequest.EmailAddress
-	contact.Note = contactRequest.Note
+	contact := model.Contact{
+		UserID:       userID,
+		FirstName:    contactRequest.FirstName,
+		LastName:     contactRequest.LastName,
+		Phone:        contactRequest.Phone,
+		AvatarURL:    contactRequest.AvatarURL,
+		Company:      contactRequest.Company,
+		EmailAddress: contactRequest.EmailAddress,
+		Note:         contactRequest.Note,
+	}
 	return c.contactRepository.Save(contact)
 }
 
