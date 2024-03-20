@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:generate mockgen -source=aircraft.go -destination=aircraft_mock.go -package repository
 type AircraftRepository interface {
 	Save(aircraft model.Aircraft) (model.Aircraft, error)
 	GetByID(id uint) (model.Aircraft, error)
