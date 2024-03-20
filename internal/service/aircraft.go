@@ -27,12 +27,13 @@ func newAircraftService(aircraftRepository repository.AircraftRepository, flight
 }
 
 func (a aircraftService) InsertAircraft(userID uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
-	var aircraft model.Aircraft
-	aircraft.UserID = userID
-	aircraft.AircraftModel = aircraftRequest.AircraftModel
-	aircraft.RegistrationNumber = aircraftRequest.RegistrationNumber
-	aircraft.ImageURL = aircraftRequest.ImageURL
-	aircraft.Remarks = aircraftRequest.Remarks
+	aircraft := model.Aircraft{
+		UserID:             userID,
+		AircraftModel:      aircraftRequest.AircraftModel,
+		RegistrationNumber: aircraftRequest.RegistrationNumber,
+		ImageURL:           aircraftRequest.ImageURL,
+		Remarks:            aircraftRequest.Remarks,
+	}
 
 	return a.aircraftRepository.Save(aircraft)
 }
