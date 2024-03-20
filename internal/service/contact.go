@@ -8,10 +8,10 @@ import (
 )
 
 type ContactService interface {
-	Insert(userID uint, contactRequest dto.ContactRequest) (model.Contact, error)
-	GetByUserID(userID uint) ([]model.Contact, error)
-	Update(userID, id uint, contactRequest dto.ContactRequest) (model.Contact, error)
-	DeleteByID(userID, id uint) error
+	InsertContact(userID uint, contactRequest dto.ContactRequest) (model.Contact, error)
+	GetUserContacts(userID uint) ([]model.Contact, error)
+	UpdateContact(userID, id uint, contactRequest dto.ContactRequest) (model.Contact, error)
+	DeleteContact(userID, id uint) error
 }
 
 type contactService struct {
@@ -23,7 +23,7 @@ func newContactService(contactRepository repository.ContactRepository, config dt
 	return &contactService{contactRepository, config}
 }
 
-func (c contactService) Insert(userID uint, contactRequest dto.ContactRequest) (model.Contact, error) {
+func (c contactService) InsertContact(userID uint, contactRequest dto.ContactRequest) (model.Contact, error) {
 	var contact model.Contact
 	contact.UserID = userID
 	contact.FirstName = contactRequest.FirstName
@@ -36,22 +36,28 @@ func (c contactService) Insert(userID uint, contactRequest dto.ContactRequest) (
 	return c.contactRepository.Save(contact)
 }
 
-func (c contactService) GetByUserID(userID uint) ([]model.Contact, error) {
+func (c contactService) GetUserContacts(userID uint) ([]model.Contact, error) {
 	return c.contactRepository.GetByUserID(userID)
 }
 
-// Zwraca error jeżeli nie udało się nic usunąć (bo np. nie było co usunąć lub "chcemy usunąć nie nasz kontakt")
-func (c contactService) DeleteByID(userID, id uint) error {
-	return c.contactRepository.DeleteByID(userID, id)
+func (c contactService) DeleteContact(userID, id uint) error {
+	rowsAffected, err := c.contactRepository.DeleteByUserIDAndID(userID, id)
+	if err != nil {
+		return err
+	}
+
+	if rowsAffected == 0 {
+		return errors.New("no contact to delete or unauthorized to delete contact")
+	}
+	return nil
 }
 
-// tu nie da się uniknąć wysłania 2 zapytań
-func (c contactService) Update(userID, id uint, contactRequest dto.ContactRequest) (model.Contact, error) {
-	contact, err := c.contactRepository.GetByID(id) //pobieram być może obcy rekord
+func (c contactService) UpdateContact(userID, id uint, contactRequest dto.ContactRequest) (model.Contact, error) {
+	contact, err := c.contactRepository.GetByUserIDAndID(userID, id)
 	if err != nil {
 		return model.Contact{}, err
 	}
-	//ale tu sprawdzam czy nie jest obcy, jak jest obcy to wywalam
+
 	if contact.UserID != userID {
 		return model.Contact{}, errors.New("unauthorized to update contact")
 	}

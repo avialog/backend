@@ -1,17 +1,16 @@
 package repository
 
 import (
-	"errors"
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
 )
 
 type ContactRepository interface {
 	Save(contact model.Contact) (model.Contact, error)
-	GetByID(id uint) (model.Contact, error)
-	GetByUserID(id uint) ([]model.Contact, error)
+	GetByUserIDAndID(userID, id uint) (model.Contact, error)
+	GetByUserID(userID uint) ([]model.Contact, error)
 	Update(contact model.Contact) (model.Contact, error)
-	DeleteByID(userID, id uint) error
+	DeleteByUserIDAndID(userID, id uint) (int64, error)
 }
 
 type contact struct {
@@ -33,17 +32,18 @@ func (c contact) Save(contact model.Contact) (model.Contact, error) {
 	return contact, nil
 }
 
-func (c contact) GetByID(id uint) (model.Contact, error) {
+func (c contact) GetByUserIDAndID(userID, id uint) (model.Contact, error) {
 	var contact model.Contact
-	result := c.db.First(&contact, id)
+	result := c.db.Where("user_id = ? AND id = ?", userID, id).First(&contact)
 	if result.Error != nil {
 		return model.Contact{}, result.Error
 	}
+	
 	return contact, nil
 }
 
 func (c contact) Update(contact model.Contact) (model.Contact, error) {
-	if _, err := c.GetByID(contact.ID); err != nil {
+	if _, err := c.GetByUserIDAndID(contact.UserID, contact.ID); err != nil {
 		return model.Contact{}, err
 	}
 
@@ -55,20 +55,14 @@ func (c contact) Update(contact model.Contact) (model.Contact, error) {
 	return contact, nil
 }
 
-// Wykonujemy usunięcie nawet jak nie ma rekordu
-func (c contact) DeleteByID(userID, id uint) error {
+func (c contact) DeleteByUserIDAndID(userID, id uint) (int64, error) {
 
 	result := c.db.Where("id = ? AND user_id = ?", id, userID).Delete(&model.Contact{})
-
 	if result.Error != nil {
-		return result.Error
+		return 0, result.Error
 	}
 
-	if result.RowsAffected == 0 {
-		return errors.New("no contact found or unauthorized")
-	}
-
-	return nil
+	return result.RowsAffected, nil
 }
 
 func (c contact) GetByUserID(userID uint) ([]model.Contact, error) {
