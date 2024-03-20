@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
 )
@@ -8,9 +9,9 @@ import (
 type AircraftRepository interface {
 	Save(aircraft model.Aircraft) (model.Aircraft, error)
 	GetByID(id uint) (model.Aircraft, error)
-	GetByUserID(id uint) ([]model.Aircraft, error)
+	GetByUserID(userID uint) ([]model.Aircraft, error)
 	Update(aircraft model.Aircraft) (model.Aircraft, error)
-	DeleteByID(id uint) error
+	DeleteByID(userID, id uint) error
 }
 
 type aircraft struct {
@@ -54,14 +55,14 @@ func (a aircraft) Update(aircraft model.Aircraft) (model.Aircraft, error) {
 	return aircraft, nil
 }
 
-func (a aircraft) DeleteByID(id uint) error {
-	if _, err := a.GetByID(id); err != nil {
-		return err
-	}
-
-	result := a.db.Delete(&model.Aircraft{}, id)
+// Kolejny raz wykonujemy usuwanie do bazy nie wiedząc czy samolot istnieje
+func (a aircraft) DeleteByID(userID, id uint) error {
+	result := a.db.Where("id = ? AND user_id = ?", id, userID).Delete(&model.Aircraft{})
 	if result.Error != nil {
 		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("unauthorized to delete aircraft or aircraft not found")
 	}
 
 	return nil

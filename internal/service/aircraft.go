@@ -12,7 +12,7 @@ type AircraftService interface {
 	GetByUserID(userID uint) ([]model.Aircraft, error)
 	Update(userID, id uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error)
 	DeleteByID(userID, id uint) error
-	CountFlightsByID(id uint) (int, error)
+	CountFlightsByID(userID, id uint) (int, error)
 }
 
 type aircraftService struct {
@@ -41,12 +41,13 @@ func (a aircraftService) GetByUserID(userID uint) ([]model.Aircraft, error) {
 	return a.aircraftRepository.GetByUserID(userID)
 }
 
+// nie da się uniknąć pobrania rekordu
 func (a aircraftService) Update(userID, id uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
 	aircraft, err := a.aircraftRepository.GetByID(id)
 	if err != nil {
 		return model.Aircraft{}, err
 	}
-
+	//ale tu już sprawdzam czy nie chcę przypadkiem czyjegoś podmienić
 	if aircraft.UserID != userID {
 		return model.Aircraft{}, errors.New("unauthorized to update aircraft")
 	}
@@ -59,25 +60,21 @@ func (a aircraftService) Update(userID, id uint, aircraftRequest dto.AircraftReq
 	return a.aircraftRepository.Update(aircraft)
 }
 
+// użytkownik usuwa samolot
 func (a aircraftService) DeleteByID(userID, id uint) error {
-	flights, err := a.flightRepository.GetByAircraftID(id)
-	if len(flights) > 0 {
-		return errors.New("the plane has assigned flights")
-	}
-
-	aircraft, err := a.aircraftRepository.GetByID(id)
+	numberOfFlights, err := a.flightRepository.CountByAircraftID(userID, id) //czy to już nie za dużo, czy należy tu sprawdzać na podstawie userID?
 	if err != nil {
 		return err
 	}
-
-	if aircraft.UserID != userID {
-		return errors.New("unauthorized to delete aircraft")
+	//jeżeli ilość lotów większa od zera to  nie pozwalamy usunąć
+	if numberOfFlights > 0 {
+		return errors.New("the plane has assigned flights")
 	}
-
-	return a.aircraftRepository.DeleteByID(id)
+	//usuwamy loty bazując na id użytkownia
+	return a.aircraftRepository.DeleteByID(userID, id)
 }
 
-func (a aircraftService) CountFlightsByID(id uint) (int, error) {
+func (a aircraftService) CountFlightsByID(userID, id uint) (int, error) {
 	flights, err := a.flightRepository.GetByAircraftID(id)
 	if err != nil {
 		return 0, err

@@ -40,25 +40,18 @@ func (c contactService) GetByUserID(userID uint) ([]model.Contact, error) {
 	return c.contactRepository.GetByUserID(userID)
 }
 
-func (c contactService) DeleteByID(id, userID uint) error {
-	contact, err := c.contactRepository.GetByID(id)
-	if err != nil {
-		return err
-	}
-
-	if contact.UserID != userID {
-		return errors.New("unauthorized to delete contact")
-	}
-
-	return c.contactRepository.DeleteByID(id)
+// Zwraca error jeżeli nie udało się nic usunąć (bo np. nie było co usunąć lub "chcemy usunąć nie nasz kontakt")
+func (c contactService) DeleteByID(userID, id uint) error {
+	return c.contactRepository.DeleteByID(userID, id)
 }
 
+// tu nie da się uniknąć wysłania 2 zapytań
 func (c contactService) Update(userID, id uint, contactRequest dto.ContactRequest) (model.Contact, error) {
-	contact, err := c.contactRepository.GetByID(id)
+	contact, err := c.contactRepository.GetByID(id) //pobieram być może obcy rekord
 	if err != nil {
 		return model.Contact{}, err
 	}
-
+	//ale tu sprawdzam czy nie jest obcy, jak jest obcy to wywalam
 	if contact.UserID != userID {
 		return model.Contact{}, errors.New("unauthorized to update contact")
 	}
