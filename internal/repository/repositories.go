@@ -5,6 +5,7 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:generate mockgen -source=repositories.go -destination=repositories_mock.go -package repository
 type Repositories interface {
 	User() UserRepository
 	Flight() FlightRepository
