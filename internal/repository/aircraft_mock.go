@@ -54,21 +54,6 @@ func (mr *MockAircraftRepositoryMockRecorder) DeleteByUserIDAndID(userID, id any
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByUserIDAndID", reflect.TypeOf((*MockAircraftRepository)(nil).DeleteByUserIDAndID), userID, id)
 }
 
-// GetByID mocks base method.
-func (m *MockAircraftRepository) GetByID(id uint) (model.Aircraft, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetByID", id)
-	ret0, _ := ret[0].(model.Aircraft)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// GetByID indicates an expected call of GetByID.
-func (mr *MockAircraftRepositoryMockRecorder) GetByID(id any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockAircraftRepository)(nil).GetByID), id)
-}
-
 // GetByUserID mocks base method.
 func (m *MockAircraftRepository) GetByUserID(userID uint) ([]model.Aircraft, error) {
 	m.ctrl.T.Helper()
@@ -82,6 +67,21 @@ func (m *MockAircraftRepository) GetByUserID(userID uint) ([]model.Aircraft, err
 func (mr *MockAircraftRepositoryMockRecorder) GetByUserID(userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUserID", reflect.TypeOf((*MockAircraftRepository)(nil).GetByUserID), userID)
+}
+
+// GetByUserIDAndID mocks base method.
+func (m *MockAircraftRepository) GetByUserIDAndID(userID, id uint) (model.Aircraft, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByUserIDAndID", userID, id)
+	ret0, _ := ret[0].(model.Aircraft)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByUserIDAndID indicates an expected call of GetByUserIDAndID.
+func (mr *MockAircraftRepositoryMockRecorder) GetByUserIDAndID(userID, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUserIDAndID", reflect.TypeOf((*MockAircraftRepository)(nil).GetByUserIDAndID), userID, id)
 }
 
 // Save mocks base method.
