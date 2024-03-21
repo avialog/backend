@@ -92,7 +92,7 @@ var _ = Describe("UserService", func() {
 		Context("when user exists", func() {
 			It("should return user and no error", func() {
 				// given
-				userRepoMock.EXPECT().Update(gomock.Any()).Return(mockUser, nil)
+				userRepoMock.EXPECT().Update(mockUser).Return(mockUser, nil)
 
 				// when
 				user, err := userService.UpdateProfile(uint(1), userRequest)
@@ -105,7 +105,7 @@ var _ = Describe("UserService", func() {
 		Context("when user does not exist", func() {
 			It("should return error", func() {
 				// given
-				userRepoMock.EXPECT().Update(gomock.Any()).Return(model.User{}, errors.New("user not found"))
+				userRepoMock.EXPECT().Update(mockUser).Return(model.User{}, errors.New("user not found"))
 
 				// when
 				user, err := userService.UpdateProfile(uint(1), userRequest)
