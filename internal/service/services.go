@@ -7,20 +7,25 @@ import (
 
 type Services interface {
 	Contact() ContactService
+	Aircraft() AircraftService
 }
 
 type services struct {
-	contactService ContactService
+	contactService  ContactService
+	aircraftService AircraftService
 }
 
 func NewServices(repositories repository.Repositories, config dto.Config) Services {
 	contactService := newContactService(repositories.Contact(), config)
-	
+	aircraftService := newAircraftService(repositories.Aircraft(), repositories.Flight(), config)
 	return &services{
-		contactService: contactService,
+		contactService:  contactService,
+		aircraftService: aircraftService,
 	}
 }
 
 func (s services) Contact() ContactService {
 	return s.contactService
 }
+
+func (s services) Aircraft() AircraftService { return s.aircraftService }
