@@ -15,6 +15,7 @@ var _ = Describe("AircraftService", func() {
 		aircraftService  AircraftService
 		aircraftRepoCtrl *gomock.Controller
 		aircraftRepoMock *repository.MockAircraftRepository
+		flightRepoCtrl   *gomock.Controller
 		flightRepoMock   *repository.MockFlightRepository
 		aircraftRequest  dto.AircraftRequest
 		mockAircraft     model.Aircraft
@@ -24,7 +25,8 @@ var _ = Describe("AircraftService", func() {
 	BeforeEach(func() {
 		aircraftRepoCtrl = gomock.NewController(GinkgoT())
 		aircraftRepoMock = repository.NewMockAircraftRepository(aircraftRepoCtrl)
-		flightRepoMock = repository.NewMockFlightRepository(aircraftRepoCtrl)
+		flightRepoCtrl = gomock.NewController(GinkgoT())
+		flightRepoMock = repository.NewMockFlightRepository(flightRepoCtrl)
 		aircraftService = newAircraftService(aircraftRepoMock, flightRepoMock, dto.Config{})
 		aircraftRequest = dto.AircraftRequest{
 			AircraftModel:      "Cessna 172",
@@ -48,6 +50,7 @@ var _ = Describe("AircraftService", func() {
 
 	AfterEach(func() {
 		aircraftRepoCtrl.Finish()
+		flightRepoCtrl.Finish()
 	})
 
 	Describe("InsertAircraft", func() {
@@ -101,7 +104,7 @@ var _ = Describe("AircraftService", func() {
 
 				// then
 				Expect(err).To(BeNil())
-				Expect(len(aircraft)).To(Equal(2))
+				Expect(aircraft).To(HaveLen(2))
 				Expect(aircraft[0]).To(Equal(mockAircraftArr[0]))
 				Expect(aircraft[1]).To(Equal(mockAircraftArr[1]))
 			})
@@ -130,7 +133,7 @@ var _ = Describe("AircraftService", func() {
 
 				// then
 				Expect(err.Error()).To(Equal("failed to get aircraft"))
-				Expect(len(aircraft)).To(Equal(0))
+				Expect(aircraft).To(BeEmpty())
 				Expect(aircraft).To(Equal([]model.Aircraft{}))
 			})
 		})
