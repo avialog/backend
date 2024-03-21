@@ -8,7 +8,7 @@ import (
 //go:generate mockgen -source=aircraft.go -destination=aircraft_mock.go -package repository
 type AircraftRepository interface {
 	Save(aircraft model.Aircraft) (model.Aircraft, error)
-	GetByID(id uint) (model.Aircraft, error)
+	GetByUserIDAndID(userID, id uint) (model.Aircraft, error)
 	GetByUserID(userID uint) ([]model.Aircraft, error)
 	Update(aircraft model.Aircraft) (model.Aircraft, error)
 	DeleteByUserIDAndID(userID, id uint) (int64, error)
@@ -33,9 +33,9 @@ func (a aircraft) Save(aircraft model.Aircraft) (model.Aircraft, error) {
 	return aircraft, nil
 }
 
-func (a aircraft) GetByID(id uint) (model.Aircraft, error) {
+func (a aircraft) GetByUserIDAndID(userID, id uint) (model.Aircraft, error) {
 	var aircraft model.Aircraft
-	result := a.db.First(&aircraft, id)
+	result := a.db.Where("user_id = ? AND id = ?", userID, id).First(&aircraft)
 	if result.Error != nil {
 		return model.Aircraft{}, result.Error
 	}
@@ -43,7 +43,7 @@ func (a aircraft) GetByID(id uint) (model.Aircraft, error) {
 }
 
 func (a aircraft) Update(aircraft model.Aircraft) (model.Aircraft, error) {
-	if _, err := a.GetByID(aircraft.ID); err != nil {
+	if _, err := a.GetByUserIDAndID(aircraft.UserID, aircraft.ID); err != nil {
 		return model.Aircraft{}, err
 	}
 

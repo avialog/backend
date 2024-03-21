@@ -83,7 +83,7 @@ var _ = Describe("ContactService", func() {
 				Expect(insertedContact.Note).To(Equal(contactRequest.Note))
 			})
 		})
-		Context("when contact request is invalid", func() {
+		Context("when save to database fails", func() {
 			It("should return error", func() {
 				// given
 				contactRepoMock.EXPECT().Save(mockContact).Return(model.Contact{}, errors.New("failed to save contact"))
@@ -117,10 +117,10 @@ var _ = Describe("ContactService", func() {
 		Context("when user has no contacts", func() {
 			It("should return empty contacts", func() {
 				// given
-				contactRepoMock.EXPECT().GetByUserID(uint(3)).Return([]model.Contact{}, nil)
+				contactRepoMock.EXPECT().GetByUserID(uint(1)).Return([]model.Contact{}, nil)
 
 				// when
-				contacts, err := contactService.GetUserContacts(3)
+				contacts, err := contactService.GetUserContacts(1)
 
 				// then
 				Expect(err).To(BeNil())
@@ -143,7 +143,7 @@ var _ = Describe("ContactService", func() {
 	})
 
 	Describe("DeleteContact", func() {
-		Context("when contact is deleted", func() {
+		Context("when contact is deleted successfully", func() {
 			It("should return no error", func() {
 				// given
 				contactRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(int64(1), nil)
