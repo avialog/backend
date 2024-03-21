@@ -43,7 +43,7 @@ func (a aircraftService) GetUserAircraft(userID uint) ([]model.Aircraft, error) 
 }
 
 func (a aircraftService) UpdateAircraft(userID, id uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
-	aircraft, err := a.aircraftRepository.GetByID(id)
+	aircraft, err := a.aircraftRepository.GetByUserIDAndID(userID, id)
 	if err != nil {
 		return model.Aircraft{}, err
 	}
