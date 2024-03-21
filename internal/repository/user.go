@@ -4,7 +4,7 @@ import (
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
 )
-
+//go:generate mockgen -source=user.go -destination=user_mock.go -package repository
 type UserRepository interface {
 	Save(user model.User) (model.User, error)
 	GetByID(id uint) (model.User, error)
