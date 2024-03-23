@@ -21,17 +21,16 @@ func newUserService(userRepository repository.UserRepository, config dto.Config)
 	return &userService{userRepository: userRepository, config: config}
 }
 
-func (u userService) GetProfile(id uint) (model.User, error) {
+func (u *userService) GetProfile(id uint) (model.User, error) {
 	return u.userRepository.GetByID(id)
 }
 
-func (u userService) UpdateProfile(id uint, userRequest dto.UserRequest) (model.User, error) {
+func (u *userService) UpdateProfile(id uint, userRequest dto.UserRequest) (model.User, error) {
 	user := model.User{
 		Model:        gorm.Model{ID: id},
 		FirstName:    userRequest.FirstName,
 		LastName:     userRequest.LastName,
 		Email:        userRequest.Email,
-		PasswordHash: userRequest.PasswordHash,
 		AvatarURL:    userRequest.AvatarURL,
 		SignatureURL: userRequest.SignatureURL,
 		Country:      userRequest.Country,

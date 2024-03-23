@@ -40,12 +40,11 @@ func (m *MockContactRepository) EXPECT() *MockContactRepositoryMockRecorder {
 }
 
 // DeleteByUserIDAndID mocks base method.
-func (m *MockContactRepository) DeleteByUserIDAndID(userID, id uint) (int64, error) {
+func (m *MockContactRepository) DeleteByUserIDAndID(userID, id uint) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteByUserIDAndID", userID, id)
-	ret0, _ := ret[0].(int64)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // DeleteByUserIDAndID indicates an expected call of DeleteByUserIDAndID.

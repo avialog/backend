@@ -156,7 +156,7 @@ var _ = Describe("AircraftService", func() {
 			It("should return error", func() {
 				// given
 				flightRepoMock.EXPECT().CountByAircraftID(uint(1), uint(1)).Return(int64(0), nil)
-				aircraftRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(int64(0), errors.New("failed to delete aircraft"))
+				aircraftRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(errors.New("failed to delete aircraft"))
 
 				// when
 				err := aircraftService.DeleteAircraft(uint(1), uint(1))
@@ -169,7 +169,7 @@ var _ = Describe("AircraftService", func() {
 			It("should return no error", func() {
 				// given
 				flightRepoMock.EXPECT().CountByAircraftID(uint(1), uint(1)).Return(int64(0), nil)
-				aircraftRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(int64(1), nil)
+				aircraftRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(nil)
 
 				// when
 				err := aircraftService.DeleteAircraft(uint(1), uint(1))
@@ -194,7 +194,7 @@ var _ = Describe("AircraftService", func() {
 			It("should return error", func() {
 				// given
 				flightRepoMock.EXPECT().CountByAircraftID(uint(1), uint(1)).Return(int64(0), nil)
-				aircraftRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(int64(0), nil)
+				aircraftRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(errors.New("no aircraft to delete or unauthorized to delete aircraft"))
 
 				// when
 				err := aircraftService.DeleteAircraft(uint(1), uint(1))
