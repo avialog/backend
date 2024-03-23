@@ -23,7 +23,7 @@ func newContactService(contactRepository repository.ContactRepository, config dt
 	return &contactService{contactRepository, config}
 }
 
-func (c contactService) InsertContact(userID uint, contactRequest dto.ContactRequest) (model.Contact, error) {
+func (c *contactService) InsertContact(userID uint, contactRequest dto.ContactRequest) (model.Contact, error) {
 	contact := model.Contact{
 		UserID:       userID,
 		FirstName:    contactRequest.FirstName,
@@ -37,23 +37,20 @@ func (c contactService) InsertContact(userID uint, contactRequest dto.ContactReq
 	return c.contactRepository.Save(contact)
 }
 
-func (c contactService) GetUserContacts(userID uint) ([]model.Contact, error) {
+func (c *contactService) GetUserContacts(userID uint) ([]model.Contact, error) {
 	return c.contactRepository.GetByUserID(userID)
 }
 
-func (c contactService) DeleteContact(userID, id uint) error {
-	rowsAffected, err := c.contactRepository.DeleteByUserIDAndID(userID, id)
+func (c *contactService) DeleteContact(userID, id uint) error {
+	err := c.contactRepository.DeleteByUserIDAndID(userID, id)
 	if err != nil {
 		return err
 	}
 
-	if rowsAffected == 0 {
-		return errors.New("no contact to delete or unauthorized to delete contact")
-	}
 	return nil
 }
 
-func (c contactService) UpdateContact(userID, id uint, contactRequest dto.ContactRequest) (model.Contact, error) {
+func (c *contactService) UpdateContact(userID, id uint, contactRequest dto.ContactRequest) (model.Contact, error) {
 	contact, err := c.contactRepository.GetByUserIDAndID(userID, id)
 	if err != nil {
 		return model.Contact{}, err
