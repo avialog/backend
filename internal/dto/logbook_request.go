@@ -6,6 +6,7 @@ import (
 )
 
 type LogbookRequest struct {
+	AircraftID          uint             `json:"aircraft_id"`
 	TakeoffTime         time.Time        `json:"takeoff_time"`
 	TakeoffAirportCode  string           `json:"takeoff_airport_code"`
 	LandingTime         time.Time        `json:"landing_time"`

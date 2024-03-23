@@ -9,7 +9,6 @@ type User struct {
 	FirstName    string
 	LastName     string
 	Email        string
-	PasswordHash string
 	AvatarURL    string
 	SignatureURL string
 	Country      Country

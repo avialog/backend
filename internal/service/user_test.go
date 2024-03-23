@@ -29,7 +29,6 @@ var _ = Describe("UserService", func() {
 			FirstName:    "test_user",
 			LastName:     "test_last_name",
 			Email:        "test@test.com",
-			PasswordHash: "password",
 			AvatarURL:    "https://example.com/avatar.jpg",
 			SignatureURL: "https://example.com/signature.jpg",
 			Country:      "US",
