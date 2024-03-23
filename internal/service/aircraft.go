@@ -26,7 +26,7 @@ func newAircraftService(aircraftRepository repository.AircraftRepository, flight
 	return &aircraftService{aircraftRepository: aircraftRepository, flightRepository: flightRepository, config: config}
 }
 
-func (a aircraftService) InsertAircraft(userID uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
+func (a *aircraftService) InsertAircraft(userID uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
 	aircraft := model.Aircraft{
 		UserID:             userID,
 		AircraftModel:      aircraftRequest.AircraftModel,
@@ -38,11 +38,11 @@ func (a aircraftService) InsertAircraft(userID uint, aircraftRequest dto.Aircraf
 	return a.aircraftRepository.Save(aircraft)
 }
 
-func (a aircraftService) GetUserAircraft(userID uint) ([]model.Aircraft, error) {
+func (a *aircraftService) GetUserAircraft(userID uint) ([]model.Aircraft, error) {
 	return a.aircraftRepository.GetByUserID(userID)
 }
 
-func (a aircraftService) UpdateAircraft(userID, id uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
+func (a *aircraftService) UpdateAircraft(userID, id uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
 	aircraft, err := a.aircraftRepository.GetByUserIDAndID(userID, id)
 	if err != nil {
 		return model.Aircraft{}, err
@@ -60,7 +60,7 @@ func (a aircraftService) UpdateAircraft(userID, id uint, aircraftRequest dto.Air
 	return a.aircraftRepository.Update(aircraft)
 }
 
-func (a aircraftService) DeleteAircraft(userID, id uint) error {
+func (a *aircraftService) DeleteAircraft(userID, id uint) error {
 	numberOfFlights, err := a.flightRepository.CountByAircraftID(userID, id)
 	if err != nil {
 		return err
@@ -82,7 +82,7 @@ func (a aircraftService) DeleteAircraft(userID, id uint) error {
 	return nil
 }
 
-func (a aircraftService) CountAircraftFlights(userID, id uint) (int64, error) {
+func (a *aircraftService) CountAircraftFlights(userID, id uint) (int64, error) {
 	numberOfFlights, err := a.flightRepository.CountByAircraftID(userID, id)
 	if err != nil {
 		return 0, err

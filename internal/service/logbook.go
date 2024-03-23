@@ -9,9 +9,9 @@ import (
 )
 
 type LogbookService interface {
-	InsertLogbookEntry(userID, aircraftID uint, logbookRequest dto.LogbookRequest) error
+	InsertLogbookEntry(userID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error)
 	DeleteLogbookEntry(userID, id uint) error
-	UpdateLogbookEntry(userID, id uint, logbookRequest dto.LogbookRequest) error
+	UpdateLogbookEntry(userID, id uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error)
 	GetLogbookEntries(userID uint, start, end time.Time) ([]dto.LogbookResponse, error)
 }
 
@@ -19,15 +19,23 @@ type logbookService struct {
 	flightRepository    repository.FlightRepository
 	landingRepository   repository.LandingRepository
 	passengerRepository repository.PassengerRepository
+	aircraftRepository  repository.AircraftRepository
 	config              dto.Config
 }
 
 func newLogbookService(flightRepository repository.FlightRepository, landingRepository repository.LandingRepository,
-	passengerRepository repository.PassengerRepository, config dto.Config) LogbookService {
-	return &logbookService{flightRepository, landingRepository, passengerRepository, config}
+	passengerRepository repository.PassengerRepository, aircraftRepository repository.AircraftRepository, config dto.Config) LogbookService {
+	return &logbookService{flightRepository, landingRepository, passengerRepository, aircraftRepository, config}
 }
 
-func (l logbookService) InsertLogbookEntry(userID, aircraftID uint, logbookRequest dto.LogbookRequest) error {
+func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
+	var logbookResponse dto.LogbookResponse
+	landingEntries := make([]dto.LandingEntry, 0)
+	passengerEntries := make([]dto.PassengerEntry, 0)
+
+	if _, err := l.aircraftRepository.GetByUserIDAndID(userID, logbookRequest.AircraftID); err != nil {
+		return dto.LogbookResponse{}, errors.New("aircraft does not belong to user")
+	}
 
 	tx := l.flightRepository.Begin()
 
@@ -40,7 +48,7 @@ func (l logbookService) InsertLogbookEntry(userID, aircraftID uint, logbookReque
 
 	flight := model.Flight{
 		UserID:              userID,
-		AircraftID:          aircraftID,
+		AircraftID:          logbookRequest.AircraftID,
 		TakeoffTime:         logbookRequest.TakeoffTime,
 		TakeoffAirportCode:  logbookRequest.TakeoffAirportCode,
 		LandingTime:         logbookRequest.LandingTime,
@@ -66,7 +74,7 @@ func (l logbookService) InsertLogbookEntry(userID, aircraftID uint, logbookReque
 	insertedFlight, err := l.flightRepository.SaveTx(tx, flight)
 	if err != nil {
 		tx.Rollback()
-		return err
+		return dto.LogbookResponse{}, err
 	}
 
 	for _, passengerEntry := range logbookRequest.Passengers {
@@ -81,10 +89,20 @@ func (l logbookService) InsertLogbookEntry(userID, aircraftID uint, logbookReque
 			Note:         passengerEntry.Note,
 		}
 
-		if _, err := l.passengerRepository.SaveTx(tx, passenger); err != nil {
+		passenger, err := l.passengerRepository.SaveTx(tx, passenger)
+		if err != nil {
 			tx.Rollback()
-			return err
+			return dto.LogbookResponse{}, err
 		}
+		passengerEntries = append(passengerEntries, dto.PassengerEntry{
+			Role:         passenger.Role,
+			FirstName:    passenger.FirstName,
+			LastName:     passenger.LastName,
+			Company:      passenger.Company,
+			Phone:        passenger.Phone,
+			EmailAddress: passenger.EmailAddress,
+			Note:         passenger.Note,
+		})
 	}
 
 	for _, landingEntry := range logbookRequest.Landings {
@@ -96,18 +114,57 @@ func (l logbookService) InsertLogbookEntry(userID, aircraftID uint, logbookReque
 			DayCount:     landingEntry.DayCount,
 			AirportCode:  landingEntry.AirportCode,
 		}
-
-		if _, err := l.landingRepository.SaveTx(tx, landing); err != nil {
+		landing, err := l.landingRepository.SaveTx(tx, landing)
+		if err != nil {
 			tx.Rollback()
-			return err
+			return dto.LogbookResponse{}, err
 		}
+		landingEntries = append(landingEntries, dto.LandingEntry{
+			ApproachType: landing.ApproachType,
+			Count:        landing.Count,
+			NightCount:   landing.NightCount,
+			DayCount:     landing.DayCount,
+			AirportCode:  landing.AirportCode,
+		})
 	}
 
-	return nil
+	logbookResponse = dto.LogbookResponse{
+		TakeoffTime:         insertedFlight.TakeoffTime,
+		TakeoffAirportCode:  insertedFlight.TakeoffAirportCode,
+		LandingTime:         insertedFlight.LandingTime,
+		LandingAirportCode:  insertedFlight.LandingAirportCode,
+		Style:               insertedFlight.Style,
+		Remarks:             insertedFlight.Remarks,
+		PersonalRemarks:     insertedFlight.PersonalRemarks,
+		TotalBlockTime:      insertedFlight.TotalBlockTime,
+		PilotInCommandTime:  insertedFlight.PilotInCommandTime,
+		SecondInCommandTime: insertedFlight.SecondInCommandTime,
+		DualReceivedTime:    insertedFlight.DualReceivedTime,
+		DualGivenTime:       insertedFlight.DualGivenTime,
+		MultiPilotTime:      insertedFlight.MultiPilotTime,
+		NightTime:           insertedFlight.NightTime,
+		IFRTime:             insertedFlight.IFRTime,
+		IFRActualTime:       insertedFlight.IFRActualTime,
+		IFRSimulatedTime:    insertedFlight.IFRSimulatedTime,
+		CrossCountryTime:    insertedFlight.CrossCountryTime,
+		SimulatorTime:       insertedFlight.SimulatorTime,
+		SignatureURL:        insertedFlight.SignatureURL,
+		Passengers:          passengerEntries,
+		Landings:            landingEntries,
+	}
+	return logbookResponse, nil
 }
 
-func (l logbookService) DeleteLogbookEntry(userID, id uint) error {
-	// init transaction
+func (l *logbookService) DeleteLogbookEntry(userID, id uint) error {
+	flight, err := l.flightRepository.GetByID(id)
+	if err != nil {
+		return err
+	}
+
+	if flight.UserID != userID {
+		return errors.New("flight does not belong to user")
+	}
+
 	tx := l.flightRepository.Begin()
 
 	defer func() {
@@ -117,32 +174,16 @@ func (l logbookService) DeleteLogbookEntry(userID, id uint) error {
 		tx.Commit()
 	}()
 
-	// transaction operations
-
-	// check if flight exists
-	flight, err := l.flightRepository.GetByIDTx(tx, id)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	// check if flight belongs to user
-	if flight.UserID != userID {
-		tx.Rollback()
-		return errors.New("flight does not belong to user")
-	}
-
-	// delete all landings
 	if err := l.landingRepository.DeleteByFlightIDTx(tx, id); err != nil {
 		tx.Rollback()
 		return err
 	}
-	// delete all passengers
+
 	if err := l.passengerRepository.DeleteByFlightIDTx(tx, id); err != nil {
 		tx.Rollback()
 		return err
 	}
-	// delete flight
+
 	if err := l.flightRepository.DeleteByIDTx(tx, id); err != nil {
 		tx.Rollback()
 		return err
@@ -151,10 +192,9 @@ func (l logbookService) DeleteLogbookEntry(userID, id uint) error {
 	return nil
 }
 
-// czy nie zabiera zbyt dużo pamięci/jakieś usprawnienia, paginacja?
-func (l logbookService) GetLogbookEntries(userID uint, start, end time.Time) ([]dto.LogbookResponse, error) {
-	var logbookResponses []dto.LogbookResponse
-	// get all flights for user
+func (l *logbookService) GetLogbookEntries(userID uint, start, end time.Time) ([]dto.LogbookResponse, error) {
+	logbookResponses := make([]dto.LogbookResponse, 0)
+
 	flights, err := l.flightRepository.GetByUserIDAndDate(userID, start, end)
 	if err != nil {
 		return nil, err
@@ -162,13 +202,11 @@ func (l logbookService) GetLogbookEntries(userID uint, start, end time.Time) ([]
 
 	for _, flight := range flights {
 
-		// get all landings for flight
 		landings, err := l.landingRepository.GetByFlightID(flight.ID)
 		if err != nil {
 			return nil, err
 		}
 
-		// create landing entries for flight
 		var landingEntries []dto.LandingEntry
 
 		for _, landing := range landings {
@@ -181,13 +219,11 @@ func (l logbookService) GetLogbookEntries(userID uint, start, end time.Time) ([]
 			})
 		}
 
-		// get all passengers for flight
 		passengers, err := l.passengerRepository.GetByFlightID(flight.ID)
 		if err != nil {
 			return nil, err
 		}
 
-		// create passenger entries for flight
 		var passengerEntries []dto.PassengerEntry
 
 		for _, passenger := range passengers {
@@ -202,7 +238,6 @@ func (l logbookService) GetLogbookEntries(userID uint, start, end time.Time) ([]
 			})
 		}
 
-		// create logbook response
 		logbookResponse := dto.LogbookResponse{
 			TakeoffTime:         flight.TakeoffTime,
 			TakeoffAirportCode:  flight.TakeoffAirportCode,
@@ -234,8 +269,24 @@ func (l logbookService) GetLogbookEntries(userID uint, start, end time.Time) ([]
 	return logbookResponses, nil
 }
 
-func (l logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.LogbookRequest) error {
-	// start transaction
+func (l *logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
+	var logbookResponse dto.LogbookResponse
+	landingEntries := make([]dto.LandingEntry, 0)
+	passengerEntries := make([]dto.PassengerEntry, 0)
+
+	flight, err := l.flightRepository.GetByID(id)
+	if err != nil {
+		return dto.LogbookResponse{}, err
+	}
+
+	if flight.UserID != userID {
+		return dto.LogbookResponse{}, errors.New("flight does not belong to user")
+	}
+
+	if _, err := l.aircraftRepository.GetByUserIDAndID(userID, logbookRequest.AircraftID); err != nil {
+		return dto.LogbookResponse{}, errors.New("aircraft does not belong to user")
+	}
+
 	tx := l.flightRepository.Begin()
 
 	defer func() {
@@ -245,19 +296,7 @@ func (l logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.L
 		tx.Commit()
 	}()
 
-	// Check if flight exists and belongs to user
-	flight, err := l.flightRepository.GetByIDTx(tx, id)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-
-	if flight.UserID != userID {
-		tx.Rollback()
-		return errors.New("flight does not belong to user")
-	}
-
-	// Aktualizacja danych lotu
+	flight.AircraftID = logbookRequest.AircraftID
 	flight.TakeoffTime = logbookRequest.TakeoffTime
 	flight.TakeoffAirportCode = logbookRequest.TakeoffAirportCode
 	flight.LandingTime = logbookRequest.LandingTime
@@ -279,19 +318,16 @@ func (l logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.L
 	flight.SimulatorTime = logbookRequest.SimulatorTime
 	flight.SignatureURL = logbookRequest.SignatureURL
 
-	// update flight
 	if _, err := l.flightRepository.UpdateTx(tx, flight); err != nil {
 		tx.Rollback()
-		return err
+		return dto.LogbookResponse{}, err
 	}
 
-	// delete old passengers
 	if err := l.passengerRepository.DeleteByFlightIDTx(tx, id); err != nil {
 		tx.Rollback()
-		return err
+		return dto.LogbookResponse{}, err
 	}
 
-	// insert new passengers
 	for _, passengerEntry := range logbookRequest.Passengers {
 		passenger := model.Passenger{
 			FlightID:     flight.ID,
@@ -306,17 +342,24 @@ func (l logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.L
 
 		if _, err := l.passengerRepository.SaveTx(tx, passenger); err != nil {
 			tx.Rollback()
-			return err
+			return dto.LogbookResponse{}, err
 		}
+		passengerEntries = append(passengerEntries, dto.PassengerEntry{
+			Role:         passenger.Role,
+			FirstName:    passenger.FirstName,
+			LastName:     passenger.LastName,
+			Company:      passenger.Company,
+			Phone:        passenger.Phone,
+			EmailAddress: passenger.EmailAddress,
+			Note:         passenger.Note,
+		})
 	}
 
-	// delete old landings
 	if err := l.landingRepository.DeleteByFlightIDTx(tx, id); err != nil {
 		tx.Rollback()
-		return err
+		return dto.LogbookResponse{}, err
 	}
 
-	// insert new landings
 	for _, landingEntry := range logbookRequest.Landings {
 		landing := model.Landing{
 			FlightID:     flight.ID,
@@ -329,9 +372,41 @@ func (l logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.L
 
 		if _, err := l.landingRepository.SaveTx(tx, landing); err != nil {
 			tx.Rollback()
-			return err
+			return dto.LogbookResponse{}, err
 		}
+		landingEntries = append(landingEntries, dto.LandingEntry{
+			ApproachType: landing.ApproachType,
+			Count:        landing.Count,
+			NightCount:   landing.NightCount,
+			DayCount:     landing.DayCount,
+			AirportCode:  landing.AirportCode,
+		})
 	}
 
-	return nil
+	logbookResponse = dto.LogbookResponse{
+		TakeoffTime:         flight.TakeoffTime,
+		TakeoffAirportCode:  flight.TakeoffAirportCode,
+		LandingTime:         flight.LandingTime,
+		LandingAirportCode:  flight.LandingAirportCode,
+		Style:               flight.Style,
+		Remarks:             flight.Remarks,
+		PersonalRemarks:     flight.PersonalRemarks,
+		TotalBlockTime:      flight.TotalBlockTime,
+		PilotInCommandTime:  flight.PilotInCommandTime,
+		SecondInCommandTime: flight.SecondInCommandTime,
+		DualReceivedTime:    flight.DualReceivedTime,
+		DualGivenTime:       flight.DualGivenTime,
+		MultiPilotTime:      flight.MultiPilotTime,
+		NightTime:           flight.NightTime,
+		IFRTime:             flight.IFRTime,
+		IFRActualTime:       flight.IFRActualTime,
+		IFRSimulatedTime:    flight.IFRSimulatedTime,
+		CrossCountryTime:    flight.CrossCountryTime,
+		SimulatorTime:       flight.SimulatorTime,
+		SignatureURL:        flight.SignatureURL,
+		Passengers:          passengerEntries,
+		Landings:            landingEntries,
+	}
+
+	return logbookResponse, nil
 }

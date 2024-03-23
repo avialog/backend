@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
 )
@@ -11,7 +12,7 @@ type AircraftRepository interface {
 	GetByUserIDAndID(userID, id uint) (model.Aircraft, error)
 	GetByUserID(userID uint) ([]model.Aircraft, error)
 	Update(aircraft model.Aircraft) (model.Aircraft, error)
-	DeleteByUserIDAndID(userID, id uint) (int64, error)
+	DeleteByUserIDAndID(userID, id uint) error
 }
 
 type aircraft struct {
@@ -24,7 +25,7 @@ func newAircraftRepository(db *gorm.DB) AircraftRepository {
 	}
 }
 
-func (a aircraft) Save(aircraft model.Aircraft) (model.Aircraft, error) {
+func (a *aircraft) Save(aircraft model.Aircraft) (model.Aircraft, error) {
 	result := a.db.Create(&aircraft)
 	if result.Error != nil {
 		return model.Aircraft{}, result.Error
@@ -33,7 +34,7 @@ func (a aircraft) Save(aircraft model.Aircraft) (model.Aircraft, error) {
 	return aircraft, nil
 }
 
-func (a aircraft) GetByUserIDAndID(userID, id uint) (model.Aircraft, error) {
+func (a *aircraft) GetByUserIDAndID(userID, id uint) (model.Aircraft, error) {
 	var aircraft model.Aircraft
 	result := a.db.Where("user_id = ? AND id = ?", userID, id).First(&aircraft)
 	if result.Error != nil {
@@ -42,7 +43,7 @@ func (a aircraft) GetByUserIDAndID(userID, id uint) (model.Aircraft, error) {
 	return aircraft, nil
 }
 
-func (a aircraft) Update(aircraft model.Aircraft) (model.Aircraft, error) {
+func (a *aircraft) Update(aircraft model.Aircraft) (model.Aircraft, error) {
 	if _, err := a.GetByUserIDAndID(aircraft.UserID, aircraft.ID); err != nil {
 		return model.Aircraft{}, err
 	}
@@ -55,16 +56,20 @@ func (a aircraft) Update(aircraft model.Aircraft) (model.Aircraft, error) {
 	return aircraft, nil
 }
 
-func (a aircraft) DeleteByUserIDAndID(userID, id uint) (int64, error) {
+func (a *aircraft) DeleteByUserIDAndID(userID, id uint) error {
 	result := a.db.Where("id = ? AND user_id = ?", id, userID).Delete(&model.Aircraft{})
 	if result.Error != nil {
-		return 0, result.Error
+		return result.Error
 	}
 
-	return result.RowsAffected, nil
+	if result.RowsAffected == 0 {
+		return errors.New("aircraft cannot be deleted")
+	}
+
+	return nil
 }
 
-func (a aircraft) GetByUserID(userID uint) ([]model.Aircraft, error) {
+func (a *aircraft) GetByUserID(userID uint) ([]model.Aircraft, error) {
 	var aircraft []model.Aircraft
 	result := a.db.Where("user_id = ?", userID).Find(&aircraft)
 	if result.Error != nil {
