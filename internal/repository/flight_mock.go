@@ -14,6 +14,7 @@ import (
 
 	model "github.com/avialog/backend/internal/model"
 	gomock "go.uber.org/mock/gomock"
+	gorm "gorm.io/gorm"
 )
 
 // MockFlightRepository is a mock of FlightRepository interface.
@@ -37,6 +38,20 @@ func NewMockFlightRepository(ctrl *gomock.Controller) *MockFlightRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockFlightRepository) EXPECT() *MockFlightRepositoryMockRecorder {
 	return m.recorder
+}
+
+// Begin mocks base method.
+func (m *MockFlightRepository) Begin() *gorm.DB {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Begin")
+	ret0, _ := ret[0].(*gorm.DB)
+	return ret0
+}
+
+// Begin indicates an expected call of Begin.
+func (mr *MockFlightRepositoryMockRecorder) Begin() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Begin", reflect.TypeOf((*MockFlightRepository)(nil).Begin))
 }
 
 // CountByAircraftID mocks base method.
