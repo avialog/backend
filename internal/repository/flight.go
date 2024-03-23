@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
 	"time"
@@ -33,11 +34,11 @@ func newFlightRepository(db *gorm.DB) FlightRepository {
 	}
 }
 
-func (f flight) Begin() *gorm.DB {
+func (f *flight) Begin() *gorm.DB {
 	return f.db.Begin()
 }
 
-func (f flight) Save(flight model.Flight) (model.Flight, error) {
+func (f *flight) Save(flight model.Flight) (model.Flight, error) {
 	result := f.db.Create(&flight)
 	if result.Error != nil {
 		return model.Flight{}, result.Error
@@ -46,8 +47,7 @@ func (f flight) Save(flight model.Flight) (model.Flight, error) {
 	return flight, nil
 }
 
-// SPECJALNY SAVE POD TRANSAKCJE:
-func (f flight) SaveTx(tx *gorm.DB, flight model.Flight) (model.Flight, error) {
+func (f *flight) SaveTx(tx *gorm.DB, flight model.Flight) (model.Flight, error) {
 	result := tx.Create(&flight)
 	if result.Error != nil {
 		return model.Flight{}, result.Error
@@ -56,8 +56,7 @@ func (f flight) SaveTx(tx *gorm.DB, flight model.Flight) (model.Flight, error) {
 	return flight, nil
 }
 
-// //////////////////////////////
-func (f flight) GetByID(id uint) (model.Flight, error) {
+func (f *flight) GetByID(id uint) (model.Flight, error) {
 	var flight model.Flight
 	result := f.db.First(&flight, id)
 
@@ -67,7 +66,7 @@ func (f flight) GetByID(id uint) (model.Flight, error) {
 	return flight, nil
 }
 
-func (f flight) Update(flight model.Flight) (model.Flight, error) {
+func (f *flight) Update(flight model.Flight) (model.Flight, error) {
 	if _, err := f.GetByID(flight.ID); err != nil {
 		return model.Flight{}, err
 	}
@@ -80,7 +79,7 @@ func (f flight) Update(flight model.Flight) (model.Flight, error) {
 	return flight, nil
 }
 
-func (f flight) UpdateTx(tx *gorm.DB, flight model.Flight) (model.Flight, error) {
+func (f *flight) UpdateTx(tx *gorm.DB, flight model.Flight) (model.Flight, error) {
 	if _, err := f.GetByIDTx(tx, flight.ID); err != nil { //is this necessary?
 		return model.Flight{}, err
 	}
@@ -93,20 +92,18 @@ func (f flight) UpdateTx(tx *gorm.DB, flight model.Flight) (model.Flight, error)
 	return flight, nil
 }
 
-func (f flight) DeleteByID(id uint) error {
-	if _, err := f.GetByID(id); err != nil {
-		return err
-	}
-
+func (f *flight) DeleteByID(id uint) error {
 	result := f.db.Delete(&model.Flight{}, id)
 	if result.Error != nil {
 		return result.Error
 	}
-
+	if result.RowsAffected == 0 {
+		return errors.New("flight cannot be deleted")
+	}
 	return nil
 }
 
-func (f flight) GetByUserID(userID uint) ([]model.Flight, error) {
+func (f *flight) GetByUserID(userID uint) ([]model.Flight, error) {
 	var flights []model.Flight
 
 	result := f.db.Where("user_id = ?", userID).Find(&flights)
@@ -117,7 +114,7 @@ func (f flight) GetByUserID(userID uint) ([]model.Flight, error) {
 	return flights, nil
 }
 
-func (f flight) GetByAircraftID(aircraftID uint) ([]model.Flight, error) {
+func (f *flight) GetByAircraftID(aircraftID uint) ([]model.Flight, error) {
 	var flights []model.Flight
 
 	result := f.db.Where("aircraft_id = ?", aircraftID).Find(&flights)
@@ -128,7 +125,7 @@ func (f flight) GetByAircraftID(aircraftID uint) ([]model.Flight, error) {
 	return flights, nil
 }
 
-func (f flight) CountByAircraftID(userID, aircraftID uint) (int64, error) {
+func (f *flight) CountByAircraftID(userID, aircraftID uint) (int64, error) {
 	var count int64
 	result := f.db.Model(&model.Flight{}).Where("aircraft_id = ? AND user_id = ?", aircraftID, userID).Count(&count)
 	if result.Error != nil {
@@ -137,10 +134,10 @@ func (f flight) CountByAircraftID(userID, aircraftID uint) (int64, error) {
 	return count, nil
 }
 
-func (f flight) GetByUserIDAndDate(userID uint, start, end time.Time) ([]model.Flight, error) {
+func (f *flight) GetByUserIDAndDate(userID uint, start, end time.Time) ([]model.Flight, error) {
 	var flights []model.Flight
 
-	result := f.db.Where("user_id = ? AND takeoff_time >= ? AND landing_time <= ?", userID, start, end).Find(&flights)
+	result := f.db.Where("user_id = ? AND takeoff_time >= ? AND takeoff_time <= ?", userID, start, end).Find(&flights)
 	if result.Error != nil {
 		return nil, result.Error
 	}
@@ -148,8 +145,7 @@ func (f flight) GetByUserIDAndDate(userID uint, start, end time.Time) ([]model.F
 	return flights, nil
 }
 
-// Też nie sprawdzam czy istnieje rekord w bazie bo to już sprawdzam w serwisie
-func (f flight) DeleteByIDTx(tx *gorm.DB, id uint) error {
+func (f *flight) DeleteByIDTx(tx *gorm.DB, id uint) error {
 	result := tx.Delete(&model.Flight{}, id)
 	if result.Error != nil {
 		return result.Error
@@ -158,7 +154,7 @@ func (f flight) DeleteByIDTx(tx *gorm.DB, id uint) error {
 	return nil
 }
 
-func (f flight) GetByIDTx(tx *gorm.DB, id uint) (model.Flight, error) {
+func (f *flight) GetByIDTx(tx *gorm.DB, id uint) (model.Flight, error) {
 	var flight model.Flight
 	result := tx.First(&flight, id)
 	if result.Error != nil {

@@ -42,16 +42,16 @@ func NewRepositories(db *gorm.DB) (Repositories, error) {
 	}, nil
 }
 
-func (r repositories) User() UserRepository {
+func (r *repositories) User() UserRepository {
 	return r.userRepository
 }
 
-func (r repositories) Aircraft() AircraftRepository { return r.aircraftRepository }
+func (r *repositories) Aircraft() AircraftRepository { return r.aircraftRepository }
 
-func (r repositories) Flight() FlightRepository { return r.flightRepository }
+func (r *repositories) Flight() FlightRepository { return r.flightRepository }
 
-func (r repositories) Passenger() PassengerRepository { return r.passengerRepository }
+func (r *repositories) Passenger() PassengerRepository { return r.passengerRepository }
 
-func (r repositories) Contact() ContactRepository { return r.contactRepository }
+func (r *repositories) Contact() ContactRepository { return r.contactRepository }
 
-func (r repositories) Landing() LandingRepository { return r.landingRepository }
+func (r *repositories) Landing() LandingRepository { return r.landingRepository }

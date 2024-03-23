@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"errors"
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
 )
@@ -11,7 +12,7 @@ type ContactRepository interface {
 	GetByUserIDAndID(userID, id uint) (model.Contact, error)
 	GetByUserID(userID uint) ([]model.Contact, error)
 	Update(contact model.Contact) (model.Contact, error)
-	DeleteByUserIDAndID(userID, id uint) (int64, error)
+	DeleteByUserIDAndID(userID, id uint) error
 }
 
 type contact struct {
@@ -24,7 +25,7 @@ func newContactRepository(db *gorm.DB) ContactRepository {
 	}
 }
 
-func (c contact) Save(contact model.Contact) (model.Contact, error) {
+func (c *contact) Save(contact model.Contact) (model.Contact, error) {
 	result := c.db.Create(&contact)
 	if result.Error != nil {
 		return model.Contact{}, result.Error
@@ -33,7 +34,7 @@ func (c contact) Save(contact model.Contact) (model.Contact, error) {
 	return contact, nil
 }
 
-func (c contact) GetByUserIDAndID(userID, id uint) (model.Contact, error) {
+func (c *contact) GetByUserIDAndID(userID, id uint) (model.Contact, error) {
 	var contact model.Contact
 	result := c.db.Where("user_id = ? AND id = ?", userID, id).First(&contact)
 	if result.Error != nil {
@@ -43,7 +44,7 @@ func (c contact) GetByUserIDAndID(userID, id uint) (model.Contact, error) {
 	return contact, nil
 }
 
-func (c contact) Update(contact model.Contact) (model.Contact, error) {
+func (c *contact) Update(contact model.Contact) (model.Contact, error) {
 	if _, err := c.GetByUserIDAndID(contact.UserID, contact.ID); err != nil {
 		return model.Contact{}, err
 	}
@@ -56,17 +57,20 @@ func (c contact) Update(contact model.Contact) (model.Contact, error) {
 	return contact, nil
 }
 
-func (c contact) DeleteByUserIDAndID(userID, id uint) (int64, error) {
+func (c *contact) DeleteByUserIDAndID(userID, id uint) error {
 
 	result := c.db.Where("id = ? AND user_id = ?", id, userID).Delete(&model.Contact{})
 	if result.Error != nil {
-		return 0, result.Error
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return errors.New("contact cannot be deleted")
 	}
 
-	return result.RowsAffected, nil
+	return nil
 }
 
-func (c contact) GetByUserID(userID uint) ([]model.Contact, error) {
+func (c *contact) GetByUserID(userID uint) ([]model.Contact, error) {
 	var contact []model.Contact
 	result := c.db.Where("user_id = ?", userID).Find(&contact)
 	if result.Error != nil {
