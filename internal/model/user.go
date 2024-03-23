@@ -6,8 +6,8 @@ import (
 
 type User struct {
 	gorm.Model
-	FirstName    string
-	LastName     string
+	FirstName    string `gorm:"required; not null; default:null"`
+	LastName     string `gorm:"required; not null; default:null"`
 	Email        string
 	AvatarURL    string
 	SignatureURL string
