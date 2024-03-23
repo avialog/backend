@@ -11,9 +11,11 @@ package repository
 
 import (
 	reflect "reflect"
+	time "time"
 
 	model "github.com/avialog/backend/internal/model"
 	gomock "go.uber.org/mock/gomock"
+	gorm "gorm.io/gorm"
 )
 
 // MockFlightRepository is a mock of FlightRepository interface.
@@ -37,6 +39,20 @@ func NewMockFlightRepository(ctrl *gomock.Controller) *MockFlightRepository {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockFlightRepository) EXPECT() *MockFlightRepositoryMockRecorder {
 	return m.recorder
+}
+
+// Begin mocks base method.
+func (m *MockFlightRepository) Begin() *gorm.DB {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Begin")
+	ret0, _ := ret[0].(*gorm.DB)
+	return ret0
+}
+
+// Begin indicates an expected call of Begin.
+func (mr *MockFlightRepositoryMockRecorder) Begin() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Begin", reflect.TypeOf((*MockFlightRepository)(nil).Begin))
 }
 
 // CountByAircraftID mocks base method.
@@ -66,6 +82,20 @@ func (m *MockFlightRepository) DeleteByID(id uint) error {
 func (mr *MockFlightRepositoryMockRecorder) DeleteByID(id any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByID", reflect.TypeOf((*MockFlightRepository)(nil).DeleteByID), id)
+}
+
+// DeleteByIDTx mocks base method.
+func (m *MockFlightRepository) DeleteByIDTx(tx *gorm.DB, id uint) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteByIDTx", tx, id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteByIDTx indicates an expected call of DeleteByIDTx.
+func (mr *MockFlightRepositoryMockRecorder) DeleteByIDTx(tx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteByIDTx", reflect.TypeOf((*MockFlightRepository)(nil).DeleteByIDTx), tx, id)
 }
 
 // GetByAircraftID mocks base method.
@@ -98,6 +128,21 @@ func (mr *MockFlightRepositoryMockRecorder) GetByID(id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByID", reflect.TypeOf((*MockFlightRepository)(nil).GetByID), id)
 }
 
+// GetByIDTx mocks base method.
+func (m *MockFlightRepository) GetByIDTx(tx *gorm.DB, id uint) (model.Flight, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByIDTx", tx, id)
+	ret0, _ := ret[0].(model.Flight)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByIDTx indicates an expected call of GetByIDTx.
+func (mr *MockFlightRepositoryMockRecorder) GetByIDTx(tx, id any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByIDTx", reflect.TypeOf((*MockFlightRepository)(nil).GetByIDTx), tx, id)
+}
+
 // GetByUserID mocks base method.
 func (m *MockFlightRepository) GetByUserID(userID uint) ([]model.Flight, error) {
 	m.ctrl.T.Helper()
@@ -111,6 +156,21 @@ func (m *MockFlightRepository) GetByUserID(userID uint) ([]model.Flight, error) 
 func (mr *MockFlightRepositoryMockRecorder) GetByUserID(userID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUserID", reflect.TypeOf((*MockFlightRepository)(nil).GetByUserID), userID)
+}
+
+// GetByUserIDAndDate mocks base method.
+func (m *MockFlightRepository) GetByUserIDAndDate(userID uint, start, end time.Time) ([]model.Flight, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetByUserIDAndDate", userID, start, end)
+	ret0, _ := ret[0].([]model.Flight)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetByUserIDAndDate indicates an expected call of GetByUserIDAndDate.
+func (mr *MockFlightRepositoryMockRecorder) GetByUserIDAndDate(userID, start, end any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUserIDAndDate", reflect.TypeOf((*MockFlightRepository)(nil).GetByUserIDAndDate), userID, start, end)
 }
 
 // Save mocks base method.
@@ -128,6 +188,21 @@ func (mr *MockFlightRepositoryMockRecorder) Save(flight any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockFlightRepository)(nil).Save), flight)
 }
 
+// SaveTx mocks base method.
+func (m *MockFlightRepository) SaveTx(tx *gorm.DB, flight model.Flight) (model.Flight, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SaveTx", tx, flight)
+	ret0, _ := ret[0].(model.Flight)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// SaveTx indicates an expected call of SaveTx.
+func (mr *MockFlightRepositoryMockRecorder) SaveTx(tx, flight any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SaveTx", reflect.TypeOf((*MockFlightRepository)(nil).SaveTx), tx, flight)
+}
+
 // Update mocks base method.
 func (m *MockFlightRepository) Update(flight model.Flight) (model.Flight, error) {
 	m.ctrl.T.Helper()
@@ -141,4 +216,19 @@ func (m *MockFlightRepository) Update(flight model.Flight) (model.Flight, error)
 func (mr *MockFlightRepositoryMockRecorder) Update(flight any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockFlightRepository)(nil).Update), flight)
+}
+
+// UpdateTx mocks base method.
+func (m *MockFlightRepository) UpdateTx(tx *gorm.DB, flight model.Flight) (model.Flight, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "UpdateTx", tx, flight)
+	ret0, _ := ret[0].(model.Flight)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateTx indicates an expected call of UpdateTx.
+func (mr *MockFlightRepositoryMockRecorder) UpdateTx(tx, flight any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateTx", reflect.TypeOf((*MockFlightRepository)(nil).UpdateTx), tx, flight)
 }

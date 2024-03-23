@@ -1,9 +1,11 @@
 package repository
 
 import (
+	"errors"
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
 )
+
 //go:generate mockgen -source=user.go -destination=user_mock.go -package repository
 type UserRepository interface {
 	Save(user model.User) (model.User, error)
@@ -22,7 +24,7 @@ func newUserRepository(db *gorm.DB) UserRepository {
 	}
 }
 
-func (u user) Save(user model.User) (model.User, error) {
+func (u *user) Save(user model.User) (model.User, error) {
 	result := u.db.Create(&user)
 	if result.Error != nil {
 		return model.User{}, result.Error
@@ -31,7 +33,7 @@ func (u user) Save(user model.User) (model.User, error) {
 	return user, nil
 }
 
-func (u user) GetByID(id uint) (model.User, error) {
+func (u *user) GetByID(id uint) (model.User, error) {
 	var user model.User
 	result := u.db.First(&user, id)
 	if result.Error != nil {
@@ -40,7 +42,7 @@ func (u user) GetByID(id uint) (model.User, error) {
 	return user, nil
 }
 
-func (u user) Update(user model.User) (model.User, error) {
+func (u *user) Update(user model.User) (model.User, error) {
 	if _, err := u.GetByID(user.ID); err != nil {
 		return model.User{}, err
 	}
@@ -53,15 +55,13 @@ func (u user) Update(user model.User) (model.User, error) {
 	return user, nil
 }
 
-func (u user) DeleteByID(id uint) error {
-	if _, err := u.GetByID(id); err != nil {
-		return err
-	}
-
+func (u *user) DeleteByID(id uint) error {
 	result := u.db.Delete(&model.User{}, id)
 	if result.Error != nil {
 		return result.Error
 	}
-
+	if result.RowsAffected == 0 {
+		return errors.New("user cannot be deleted")
+	}
 	return nil
 }
