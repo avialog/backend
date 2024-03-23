@@ -146,7 +146,7 @@ var _ = Describe("ContactService", func() {
 		Context("when contact is deleted successfully", func() {
 			It("should return no error", func() {
 				// given
-				contactRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(int64(1), nil)
+				contactRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(nil)
 
 				// when
 				err := contactService.DeleteContact(uint(1), uint(1))
@@ -158,7 +158,7 @@ var _ = Describe("ContactService", func() {
 		Context("when delete operation fails", func() {
 			It("should return error", func() {
 				// given
-				contactRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(int64(0), errors.New("failed to delete contact"))
+				contactRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(errors.New("failed to delete contact"))
 
 				// when
 				err := contactService.DeleteContact(uint(1), uint(1))
@@ -170,7 +170,7 @@ var _ = Describe("ContactService", func() {
 		Context("when unauthorized to delete contact", func() {
 			It("should return error", func() {
 				// given
-				contactRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(int64(0), nil)
+				contactRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(errors.New("no contact to delete or unauthorized to delete contact"))
 
 				// when
 				err := contactService.DeleteContact(uint(1), uint(1))
