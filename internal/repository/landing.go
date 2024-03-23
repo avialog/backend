@@ -11,6 +11,8 @@ type LandingRepository interface {
 	GetByFlightID(flightID uint) ([]model.Landing, error)
 	Update(landing model.Landing) (model.Landing, error)
 	DeleteByID(id uint) error
+	SaveTx(tx *gorm.DB, landing model.Landing) (model.Landing, error)
+	DeleteByFlightIDTx(tx *gorm.DB, flightID uint) error
 }
 
 type landing struct {
@@ -31,6 +33,18 @@ func (l landing) Save(landing model.Landing) (model.Landing, error) {
 
 	return landing, nil
 }
+
+// SPECJALNY SAVE POD TRANSAKCJE
+func (l landing) SaveTx(tx *gorm.DB, landing model.Landing) (model.Landing, error) {
+	result := tx.Create(&landing)
+	if result.Error != nil {
+		return model.Landing{}, result.Error
+	}
+
+	return landing, nil
+}
+
+///////////////////////////////
 
 func (l landing) GetByID(id uint) (model.Landing, error) {
 	var landing model.Landing
@@ -74,4 +88,14 @@ func (l landing) GetByFlightID(flightID uint) ([]model.Landing, error) {
 		return nil, result.Error
 	}
 	return landings, nil
+}
+
+// to tak czy siak musi się wykonać ponieważ, transakcja
+func (l landing) DeleteByFlightIDTx(tx *gorm.DB, flightID uint) error {
+	result := tx.Delete(&model.Landing{}, "flight_id = ?", flightID)
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
 }
