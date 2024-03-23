@@ -70,15 +70,11 @@ func (a *aircraftService) DeleteAircraft(userID, id uint) error {
 		return errors.New("the plane has assigned flights")
 	}
 
-	rowsAffected, err := a.aircraftRepository.DeleteByUserIDAndID(userID, id)
+	err = a.aircraftRepository.DeleteByUserIDAndID(userID, id)
 	if err != nil {
 		return err
 	}
 
-	if rowsAffected == 0 {
-		return errors.New("no aircraft to delete or unauthorized to delete aircraft")
-
-	}
 	return nil
 }
 
