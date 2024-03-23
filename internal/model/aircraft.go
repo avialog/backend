@@ -4,9 +4,9 @@ import "gorm.io/gorm"
 
 type Aircraft struct {
 	gorm.Model
-	UserID             uint
+	UserID             uint `gorm:"required; not null; default:null"`
 	User               User
-	RegistrationNumber string
+	RegistrationNumber string `gorm:"required; not null; default:null"`
 	AircraftModel      string
 	Remarks            string
 	ImageURL           string
