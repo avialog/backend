@@ -150,7 +150,9 @@ func (f *flight) DeleteByIDTx(tx *gorm.DB, id uint) error {
 	if result.Error != nil {
 		return result.Error
 	}
-
+	if result.RowsAffected == 0 {
+		return errors.New("flight cannot be deleted")
+	}
 	return nil
 }
 

@@ -40,9 +40,6 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 	tx := l.flightRepository.Begin()
 
 	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
 		tx.Commit()
 	}()
 
@@ -168,9 +165,6 @@ func (l *logbookService) DeleteLogbookEntry(userID, id uint) error {
 	tx := l.flightRepository.Begin()
 
 	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
 		tx.Commit()
 	}()
 
@@ -290,9 +284,6 @@ func (l *logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.
 	tx := l.flightRepository.Begin()
 
 	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
 		tx.Commit()
 	}()
 
