@@ -10,7 +10,7 @@ const (
 	StyleZ2  Style = "Z2"
 )
 
-var availableStyles = []Style{
+var AvailableStyles = []Style{
 	StyleVFR,
 	StyleIFR,
 	StyleY,

@@ -4,9 +4,9 @@ import "gorm.io/gorm"
 
 type Landing struct {
 	gorm.Model
-	FlightID     uint         `gorm:"required; not null; default:null"`
-	ApproachType ApproachType `gorm:"required; not null; default:null"`
-	Count        uint         `gorm:"required; not null; default:null"`
+	FlightID     uint         `gorm:"required; not null; default:null" validate:"required"`
+	ApproachType ApproachType `gorm:"required; not null; default:null" validate:"required,approach_type"`
+	Count        uint         `gorm:"required; not null; default:null" validate:"required"`
 	NightCount   uint
 	DayCount     uint
 	AirportCode  string

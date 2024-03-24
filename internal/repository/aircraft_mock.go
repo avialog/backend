@@ -39,6 +39,21 @@ func (m *MockAircraftRepository) EXPECT() *MockAircraftRepositoryMockRecorder {
 	return m.recorder
 }
 
+// Create mocks base method.
+func (m *MockAircraftRepository) Create(aircraft model.Aircraft) (model.Aircraft, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", aircraft)
+	ret0, _ := ret[0].(model.Aircraft)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockAircraftRepositoryMockRecorder) Create(aircraft any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockAircraftRepository)(nil).Create), aircraft)
+}
+
 // DeleteByUserIDAndID mocks base method.
 func (m *MockAircraftRepository) DeleteByUserIDAndID(userID, id uint) error {
 	m.ctrl.T.Helper()
@@ -96,19 +111,4 @@ func (m *MockAircraftRepository) Save(aircraft model.Aircraft) (model.Aircraft, 
 func (mr *MockAircraftRepositoryMockRecorder) Save(aircraft any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockAircraftRepository)(nil).Save), aircraft)
-}
-
-// Update mocks base method.
-func (m *MockAircraftRepository) Update(aircraft model.Aircraft) (model.Aircraft, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", aircraft)
-	ret0, _ := ret[0].(model.Aircraft)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Update indicates an expected call of Update.
-func (mr *MockAircraftRepositoryMockRecorder) Update(aircraft any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockAircraftRepository)(nil).Update), aircraft)
 }
