@@ -7,12 +7,12 @@ import (
 )
 
 type PassengerRepository interface {
-	Save(passenger model.Passenger) (model.Passenger, error)
+	Create(passenger model.Passenger) (model.Passenger, error)
 	GetByID(id uint) (model.Passenger, error)
 	GetByFlightID(id uint) ([]model.Passenger, error)
-	Update(passenger model.Passenger) (model.Passenger, error)
+	Save(passenger model.Passenger) (model.Passenger, error)
 	DeleteByID(id uint) error
-	SaveTx(tx *gorm.DB, passenger model.Passenger) (model.Passenger, error)
+	CreateTx(tx *gorm.DB, passenger model.Passenger) (model.Passenger, error)
 	DeleteByFlightIDTx(tx *gorm.DB, flightID uint) error
 }
 
@@ -26,7 +26,7 @@ func newPassengerRepository(db *gorm.DB) PassengerRepository {
 	}
 }
 
-func (a *passenger) Save(passenger model.Passenger) (model.Passenger, error) {
+func (a *passenger) Create(passenger model.Passenger) (model.Passenger, error) {
 	result := a.db.Create(&passenger)
 	if result.Error != nil {
 		return model.Passenger{}, result.Error
@@ -35,7 +35,7 @@ func (a *passenger) Save(passenger model.Passenger) (model.Passenger, error) {
 	return passenger, nil
 }
 
-func (a *passenger) SaveTx(tx *gorm.DB, passenger model.Passenger) (model.Passenger, error) {
+func (a *passenger) CreateTx(tx *gorm.DB, passenger model.Passenger) (model.Passenger, error) {
 	result := tx.Create(&passenger)
 	if result.Error != nil {
 		return model.Passenger{}, result.Error
@@ -55,7 +55,7 @@ func (a *passenger) GetByID(id uint) (model.Passenger, error) {
 	return passenger, nil
 }
 
-func (a *passenger) Update(passenger model.Passenger) (model.Passenger, error) {
+func (a *passenger) Save(passenger model.Passenger) (model.Passenger, error) {
 	if _, err := a.GetByID(passenger.ID); err != nil {
 		return model.Passenger{}, err
 	}

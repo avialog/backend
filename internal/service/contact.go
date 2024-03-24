@@ -34,7 +34,7 @@ func (c *contactService) InsertContact(userID uint, contactRequest dto.ContactRe
 		EmailAddress: contactRequest.EmailAddress,
 		Note:         contactRequest.Note,
 	}
-	return c.contactRepository.Save(contact)
+	return c.contactRepository.Create(contact)
 }
 
 func (c *contactService) GetUserContacts(userID uint) ([]model.Contact, error) {
@@ -68,5 +68,5 @@ func (c *contactService) UpdateContact(userID, id uint, contactRequest dto.Conta
 	contact.EmailAddress = contactRequest.EmailAddress
 	contact.Note = contactRequest.Note
 
-	return c.contactRepository.Update(contact)
+	return c.contactRepository.Save(contact)
 }

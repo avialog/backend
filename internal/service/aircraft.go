@@ -2,9 +2,11 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
+	"github.com/go-playground/validator/v10"
 )
 
 type AircraftService interface {
@@ -18,12 +20,13 @@ type AircraftService interface {
 type aircraftService struct {
 	aircraftRepository repository.AircraftRepository
 	flightRepository   repository.FlightRepository
+	validator          *validator.Validate
 	config             dto.Config
 }
 
 func newAircraftService(aircraftRepository repository.AircraftRepository, flightRepository repository.FlightRepository,
-	config dto.Config) AircraftService {
-	return &aircraftService{aircraftRepository: aircraftRepository, flightRepository: flightRepository, config: config}
+	config dto.Config, validator *validator.Validate) AircraftService {
+	return &aircraftService{aircraftRepository: aircraftRepository, flightRepository: flightRepository, config: config, validator: validator}
 }
 
 func (a *aircraftService) InsertAircraft(userID uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
@@ -34,8 +37,34 @@ func (a *aircraftService) InsertAircraft(userID uint, aircraftRequest dto.Aircra
 		ImageURL:           aircraftRequest.ImageURL,
 		Remarks:            aircraftRequest.Remarks,
 	}
+	//tu walidacja
 
-	return a.aircraftRepository.Save(aircraft)
+	err := a.validator.Struct(aircraft)
+	if err != nil {
+		var invalidValidationError *validator.InvalidValidationError
+		if errors.As(err, &invalidValidationError) {
+			fmt.Println(err)
+			return model.Aircraft{}, err
+		}
+
+		for _, err := range err.(validator.ValidationErrors) {
+			fmt.Println("Namespace: ", err.Namespace())
+			fmt.Println("Field: ", err.Field())
+			fmt.Println("StructNamespace: ", err.StructNamespace())
+			fmt.Println("StructField: ", err.StructField())
+			fmt.Println("Tag: ", err.Tag())
+			fmt.Println("ActualTag: ", err.ActualTag())
+			fmt.Println("Kind: ", err.Kind())
+			fmt.Println("Type: ", err.Type())
+			fmt.Println("Value: ", err.Value())
+			fmt.Println("Param: ", err.Param())
+			fmt.Println()
+		}
+
+		return model.Aircraft{}, fmt.Errorf("field %s can't be empty", err.(validator.ValidationErrors)[0].Field())
+	}
+	//koniec walidacji
+	return a.aircraftRepository.Create(aircraft)
 }
 
 func (a *aircraftService) GetUserAircraft(userID uint) ([]model.Aircraft, error) {
@@ -57,7 +86,7 @@ func (a *aircraftService) UpdateAircraft(userID, id uint, aircraftRequest dto.Ai
 	aircraft.ImageURL = aircraftRequest.ImageURL
 	aircraft.Remarks = aircraftRequest.Remarks
 
-	return a.aircraftRepository.Update(aircraft)
+	return a.aircraftRepository.Save(aircraft)
 }
 
 func (a *aircraftService) DeleteAircraft(userID, id uint) error {

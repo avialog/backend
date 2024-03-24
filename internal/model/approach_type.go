@@ -6,6 +6,6 @@ const (
 	ApproachTypeVisual ApproachType = "VISUAL"
 )
 
-var availableApproachTypes = []ApproachType{
+var AvailableApproachTypes = []ApproachType{
 	ApproachTypeVisual,
 }

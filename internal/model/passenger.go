@@ -4,11 +4,11 @@ import "gorm.io/gorm"
 
 type Passenger struct {
 	gorm.Model
-	FlightID     uint `gorm:"required; not null; default:null"`
-	Flight       Flight
-	Role         Role   `gorm:"required; not null; default:null"`
-	FirstName    string `gorm:"required; not null; default:null"`
-	LastName     string `gorm:"required; not null; default:null"`
+	FlightID     uint   `gorm:"required; not null; default:null" validate:"required"`
+	Flight       Flight `validate:"-"`
+	Role         Role   `gorm:"required; not null; default:null" validate:"required,role"`
+	FirstName    string `gorm:"required; not null; default:null" validate:"required"`
+	LastName     string
 	Company      string
 	Phone        string
 	EmailAddress string

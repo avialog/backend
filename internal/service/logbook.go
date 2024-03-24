@@ -68,7 +68,7 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 		SignatureURL:        logbookRequest.SignatureURL,
 	}
 
-	insertedFlight, err := l.flightRepository.SaveTx(tx, flight)
+	insertedFlight, err := l.flightRepository.CreateTx(tx, flight)
 	if err != nil {
 		tx.Rollback()
 		return dto.LogbookResponse{}, err
@@ -86,7 +86,7 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 			Note:         passengerEntry.Note,
 		}
 
-		passenger, err := l.passengerRepository.SaveTx(tx, passenger)
+		passenger, err := l.passengerRepository.CreateTx(tx, passenger)
 		if err != nil {
 			tx.Rollback()
 			return dto.LogbookResponse{}, err
@@ -111,7 +111,7 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 			DayCount:     landingEntry.DayCount,
 			AirportCode:  landingEntry.AirportCode,
 		}
-		landing, err := l.landingRepository.SaveTx(tx, landing)
+		landing, err := l.landingRepository.CreateTx(tx, landing)
 		if err != nil {
 			tx.Rollback()
 			return dto.LogbookResponse{}, err
@@ -309,7 +309,7 @@ func (l *logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.
 	flight.SimulatorTime = logbookRequest.SimulatorTime
 	flight.SignatureURL = logbookRequest.SignatureURL
 
-	if _, err := l.flightRepository.UpdateTx(tx, flight); err != nil {
+	if _, err := l.flightRepository.SaveTx(tx, flight); err != nil {
 		tx.Rollback()
 		return dto.LogbookResponse{}, err
 	}
@@ -331,7 +331,7 @@ func (l *logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.
 			Note:         passengerEntry.Note,
 		}
 
-		if _, err := l.passengerRepository.SaveTx(tx, passenger); err != nil {
+		if _, err := l.passengerRepository.CreateTx(tx, passenger); err != nil {
 			tx.Rollback()
 			return dto.LogbookResponse{}, err
 		}
@@ -361,7 +361,7 @@ func (l *logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.
 			AirportCode:  landingEntry.AirportCode,
 		}
 
-		if _, err := l.landingRepository.SaveTx(tx, landing); err != nil {
+		if _, err := l.landingRepository.CreateTx(tx, landing); err != nil {
 			tx.Rollback()
 			return dto.LogbookResponse{}, err
 		}

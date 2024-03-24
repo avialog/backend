@@ -57,7 +57,7 @@ var _ = Describe("ContactService", func() {
 		Context("when contact request is valid", func() {
 			It("should insert contact and return no error", func() {
 				// given
-				contactRepoMock.EXPECT().Save(mockContact).Return(model.Contact{
+				contactRepoMock.EXPECT().Create(mockContact).Return(model.Contact{
 					UserID:       uint(1),
 					FirstName:    contactRequest.FirstName,
 					LastName:     contactRequest.LastName,
@@ -86,7 +86,7 @@ var _ = Describe("ContactService", func() {
 		Context("when save to database fails", func() {
 			It("should return error", func() {
 				// given
-				contactRepoMock.EXPECT().Save(mockContact).Return(model.Contact{}, errors.New("failed to save contact"))
+				contactRepoMock.EXPECT().Create(mockContact).Return(model.Contact{}, errors.New("failed to save contact"))
 
 				// when
 				insertedContact, err := contactService.InsertContact(uint(1), contactRequest)
@@ -211,7 +211,7 @@ var _ = Describe("ContactService", func() {
 			It("should return error", func() {
 				// given
 				contactRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(model.Contact{UserID: uint(1)}, nil)
-				contactRepoMock.EXPECT().Update(mockContact).Return(model.Contact{}, errors.New("failed to update contact"))
+				contactRepoMock.EXPECT().Save(mockContact).Return(model.Contact{}, errors.New("failed to update contact"))
 
 				// when
 				updatedContact, err := contactService.UpdateContact(uint(1), uint(1), contactRequest)
@@ -225,7 +225,7 @@ var _ = Describe("ContactService", func() {
 			It("should return updated contact", func() {
 				// given
 				contactRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockContact, nil)
-				contactRepoMock.EXPECT().Update(mockContact).Return(mockContact, nil)
+				contactRepoMock.EXPECT().Save(mockContact).Return(mockContact, nil)
 
 				// when
 				updatedContact, err := contactService.UpdateContact(uint(1), uint(1), contactRequest)

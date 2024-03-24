@@ -4,11 +4,11 @@ import "gorm.io/gorm"
 
 type Contact struct {
 	gorm.Model
-	UserID       uint `gorm:"required; not null; default:null"`
-	User         User
+	UserID       uint `gorm:"required; not null; default:null" validate:"required"`
+	User         User `validate:"-"`
 	AvatarURL    string
-	FirstName    string `gorm:"required; not null; default:null"`
-	LastName     string `gorm:"required; not null; default:null"`
+	FirstName    string `gorm:"required; not null; default:null" validate:"required"`
+	LastName     string
 	Company      string
 	Phone        string
 	EmailAddress string
