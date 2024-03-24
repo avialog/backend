@@ -7,12 +7,12 @@ import (
 )
 
 type LandingRepository interface {
-	Save(landing model.Landing) (model.Landing, error)
+	Create(landing model.Landing) (model.Landing, error)
 	GetByID(id uint) (model.Landing, error)
 	GetByFlightID(flightID uint) ([]model.Landing, error)
-	Update(landing model.Landing) (model.Landing, error)
+	Save(landing model.Landing) (model.Landing, error)
 	DeleteByID(id uint) error
-	SaveTx(tx *gorm.DB, landing model.Landing) (model.Landing, error)
+	CreateTx(tx *gorm.DB, landing model.Landing) (model.Landing, error)
 	DeleteByFlightIDTx(tx *gorm.DB, flightID uint) error
 }
 
@@ -26,7 +26,7 @@ func newLandingRepository(db *gorm.DB) LandingRepository {
 	}
 }
 
-func (l *landing) Save(landing model.Landing) (model.Landing, error) {
+func (l *landing) Create(landing model.Landing) (model.Landing, error) {
 	result := l.db.Create(&landing)
 	if result.Error != nil {
 		return model.Landing{}, result.Error
@@ -35,7 +35,7 @@ func (l *landing) Save(landing model.Landing) (model.Landing, error) {
 	return landing, nil
 }
 
-func (l *landing) SaveTx(tx *gorm.DB, landing model.Landing) (model.Landing, error) {
+func (l *landing) CreateTx(tx *gorm.DB, landing model.Landing) (model.Landing, error) {
 	result := tx.Create(&landing)
 	if result.Error != nil {
 		return model.Landing{}, result.Error
@@ -53,7 +53,7 @@ func (l *landing) GetByID(id uint) (model.Landing, error) {
 	return landing, nil
 }
 
-func (l *landing) Update(landing model.Landing) (model.Landing, error) {
+func (l *landing) Save(landing model.Landing) (model.Landing, error) {
 	if _, err := l.GetByID(landing.ID); err != nil {
 		return model.Landing{}, err
 	}

@@ -39,6 +39,21 @@ func (m *MockContactRepository) EXPECT() *MockContactRepositoryMockRecorder {
 	return m.recorder
 }
 
+// Create mocks base method.
+func (m *MockContactRepository) Create(contact model.Contact) (model.Contact, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Create", contact)
+	ret0, _ := ret[0].(model.Contact)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Create indicates an expected call of Create.
+func (mr *MockContactRepositoryMockRecorder) Create(contact any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockContactRepository)(nil).Create), contact)
+}
+
 // DeleteByUserIDAndID mocks base method.
 func (m *MockContactRepository) DeleteByUserIDAndID(userID, id uint) error {
 	m.ctrl.T.Helper()
@@ -96,19 +111,4 @@ func (m *MockContactRepository) Save(contact model.Contact) (model.Contact, erro
 func (mr *MockContactRepositoryMockRecorder) Save(contact any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockContactRepository)(nil).Save), contact)
-}
-
-// Update mocks base method.
-func (m *MockContactRepository) Update(contact model.Contact) (model.Contact, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", contact)
-	ret0, _ := ret[0].(model.Contact)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Update indicates an expected call of Update.
-func (mr *MockContactRepositoryMockRecorder) Update(contact any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockContactRepository)(nil).Update), contact)
 }

@@ -5,6 +5,7 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
+	"github.com/avialog/backend/internal/utils"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
@@ -27,7 +28,8 @@ var _ = Describe("AircraftService", func() {
 		aircraftRepoMock = repository.NewMockAircraftRepository(aircraftRepoCtrl)
 		flightRepoCtrl = gomock.NewController(GinkgoT())
 		flightRepoMock = repository.NewMockFlightRepository(flightRepoCtrl)
-		aircraftService = newAircraftService(aircraftRepoMock, flightRepoMock, dto.Config{})
+		validator := utils.GetValidator()
+		aircraftService = newAircraftService(aircraftRepoMock, flightRepoMock, dto.Config{}, validator)
 		aircraftRequest = dto.AircraftRequest{
 			AircraftModel:      "Cessna 172",
 			RegistrationNumber: "N12345",
@@ -57,7 +59,7 @@ var _ = Describe("AircraftService", func() {
 		Context("when aircraft request is valid", func() {
 			It("should insert aircraft and return no error", func() {
 				// given
-				aircraftRepoMock.EXPECT().Save(mockAircraft).Return(model.Aircraft{
+				aircraftRepoMock.EXPECT().Create(mockAircraft).Return(model.Aircraft{
 					UserID:             uint(1),
 					AircraftModel:      "Cessna 172",
 					RegistrationNumber: "N12345",
@@ -81,7 +83,7 @@ var _ = Describe("AircraftService", func() {
 		Context("when save to database fails", func() {
 			It("should return error", func() {
 				// given
-				aircraftRepoMock.EXPECT().Save(mockAircraft).Return(model.Aircraft{}, errors.New("failed to save aircraft"))
+				aircraftRepoMock.EXPECT().Create(mockAircraft).Return(model.Aircraft{}, errors.New("failed to save aircraft"))
 
 				// when
 				insertedAircraft, err := aircraftService.InsertAircraft(uint(1), aircraftRequest)
@@ -236,7 +238,7 @@ var _ = Describe("AircraftService", func() {
 			It("should return error", func() {
 				// given
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockAircraft, nil)
-				aircraftRepoMock.EXPECT().Update(mockAircraft).Return(model.Aircraft{}, errors.New("failed to update aircraft"))
+				aircraftRepoMock.EXPECT().Save(mockAircraft).Return(model.Aircraft{}, errors.New("failed to update aircraft"))
 
 				// when
 				updatedAircraft, err := aircraftService.UpdateAircraft(uint(1), uint(1), aircraftRequest)
@@ -250,7 +252,7 @@ var _ = Describe("AircraftService", func() {
 			It("should return updated contact", func() {
 				// given
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockAircraft, nil)
-				aircraftRepoMock.EXPECT().Update(mockAircraft).Return(mockAircraft, nil)
+				aircraftRepoMock.EXPECT().Save(mockAircraft).Return(mockAircraft, nil)
 
 				// when
 				updatedAircraft, err := aircraftService.UpdateAircraft(uint(1), uint(1), aircraftRequest)
