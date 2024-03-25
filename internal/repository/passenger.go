@@ -12,8 +12,8 @@ type PassengerRepository interface {
 	GetByFlightID(id uint) ([]model.Passenger, error)
 	Save(passenger model.Passenger) (model.Passenger, error)
 	DeleteByID(id uint) error
-	CreateTx(tx *gorm.DB, passenger model.Passenger) (model.Passenger, error)
-	DeleteByFlightIDTx(tx *gorm.DB, flightID uint) error
+	CreateTx(tx Database, passenger model.Passenger) (model.Passenger, error)
+	DeleteByFlightIDTx(tx Database, flightID uint) error
 }
 
 type passenger struct {
@@ -35,7 +35,7 @@ func (a *passenger) Create(passenger model.Passenger) (model.Passenger, error) {
 	return passenger, nil
 }
 
-func (a *passenger) CreateTx(tx *gorm.DB, passenger model.Passenger) (model.Passenger, error) {
+func (a *passenger) CreateTx(tx Database, passenger model.Passenger) (model.Passenger, error) {
 	result := tx.Create(&passenger)
 	if result.Error != nil {
 		return model.Passenger{}, result.Error
@@ -90,7 +90,7 @@ func (a *passenger) GetByFlightID(flightID uint) ([]model.Passenger, error) {
 	return passengers, nil
 }
 
-func (a *passenger) DeleteByFlightIDTx(tx *gorm.DB, flightID uint) error {
+func (a *passenger) DeleteByFlightIDTx(tx Database, flightID uint) error {
 	result := tx.Where("flight_id = ?", flightID).Delete(&model.Passenger{})
 	if result.Error != nil {
 		return result.Error

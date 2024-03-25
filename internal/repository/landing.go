@@ -12,8 +12,8 @@ type LandingRepository interface {
 	GetByFlightID(flightID uint) ([]model.Landing, error)
 	Save(landing model.Landing) (model.Landing, error)
 	DeleteByID(id uint) error
-	CreateTx(tx *gorm.DB, landing model.Landing) (model.Landing, error)
-	DeleteByFlightIDTx(tx *gorm.DB, flightID uint) error
+	CreateTx(tx Database, landing model.Landing) (model.Landing, error)
+	DeleteByFlightIDTx(tx Database, flightID uint) error
 }
 
 type landing struct {
@@ -35,7 +35,7 @@ func (l *landing) Create(landing model.Landing) (model.Landing, error) {
 	return landing, nil
 }
 
-func (l *landing) CreateTx(tx *gorm.DB, landing model.Landing) (model.Landing, error) {
+func (l *landing) CreateTx(tx Database, landing model.Landing) (model.Landing, error) {
 	result := tx.Create(&landing)
 	if result.Error != nil {
 		return model.Landing{}, result.Error
@@ -88,7 +88,7 @@ func (l *landing) GetByFlightID(flightID uint) ([]model.Landing, error) {
 	return landings, nil
 }
 
-func (l *landing) DeleteByFlightIDTx(tx *gorm.DB, flightID uint) error {
+func (l *landing) DeleteByFlightIDTx(tx Database, flightID uint) error {
 	result := tx.Delete(&model.Landing{}, "flight_id = ?", flightID)
 	if result.Error != nil {
 		return result.Error

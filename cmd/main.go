@@ -7,6 +7,7 @@ import (
 	"github.com/avialog/backend/internal/repository"
 	"github.com/avialog/backend/internal/service"
 	"github.com/avialog/backend/internal/utils"
+	"github.com/go-playground/validator/v10"
 	"github.com/sirupsen/logrus"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -32,43 +33,36 @@ func main() {
 
 	repositories, err := repository.NewRepositories(db)
 	_ = service.NewServices(repositories, config, utils.GetValidator())
-	user := model.User{
-		Model: gorm.Model{ID: 2},
+
+	x := utils.GetValidator()
+	passenger := model.Passenger{
+		FlightID:     uint(1),
+		Role:         "ds",
+		FirstName:    "John",
+		LastName:     "Doe",
+		Company:      "Company",
+		Phone:        "123456789",
+		EmailAddress: "esee",
+		Note:         "note",
 	}
-	result := db.Model(&user).Updates(model.User{FirstName: "ddd"})
-	if result.Error != nil {
-		fmt.Println("nie ma takiego użytkownika")
+	err = x.Struct(passenger)
+	if err != nil {
+
+		for _, err := range err.(validator.ValidationErrors) {
+			fmt.Println("Namespace: ", err.Namespace())
+			fmt.Println("Field: ", err.Field()) //TOOOO
+			fmt.Println("StructNamespace: ", err.StructNamespace())
+			fmt.Println("StructField: ", err.StructField())
+			fmt.Println("Tag: ", err.Tag())
+			fmt.Println("ActualTag: ", err.ActualTag())
+			fmt.Println("Kind: ", err.Kind())
+			fmt.Println("Type: ", err.Type())
+			fmt.Println("Value: ", err.Value())
+			fmt.Println("Param: ", err.Param())
+			fmt.Println("pole... required")
+		}
+
 	}
-	fmt.Println(result.RowsAffected)
-	//x := utils.GetValidator()
-	//passenger := model.Passenger{
-	//	FlightID:     uint(1),
-	//	Role:         "ds",
-	//	FirstName:    "John",
-	//	LastName:     "Doe",
-	//	Company:      "Company",
-	//	Phone:        "123456789",
-	//	EmailAddress: "esee",
-	//	Note:         "note",
-	//}
-	//err = x.Struct(passenger)
-	//if err != nil {
-	//
-	//	for _, err := range err.(validator.ValidationErrors) {
-	//		fmt.Println("Namespace: ", err.Namespace())
-	//		fmt.Println("Field: ", err.Field()) //TOOOO
-	//		fmt.Println("StructNamespace: ", err.StructNamespace())
-	//		fmt.Println("StructField: ", err.StructField())
-	//		fmt.Println("Tag: ", err.Tag())
-	//		fmt.Println("ActualTag: ", err.ActualTag())
-	//		fmt.Println("Kind: ", err.Kind())
-	//		fmt.Println("Type: ", err.Type())
-	//		fmt.Println("Value: ", err.Value())
-	//		fmt.Println("Param: ", err.Param())
-	//		fmt.Println("pole... required")
-	//	}
-	//
-	//}
 
 	//_ = repositories
 	//
