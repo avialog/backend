@@ -38,10 +38,9 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 	}
 
 	tx := l.flightRepository.Begin()
-
-	defer func() {
-		tx.Commit()
-	}()
+	// zrób expect na begin
+	// zwróc zamockowany database
+	// na zamockowanym db zrób expecta na rollback/commit
 
 	flight := model.Flight{
 		UserID:              userID,
@@ -149,6 +148,9 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 		Passengers:          passengerEntries,
 		Landings:            landingEntries,
 	}
+
+	tx.Commit()
+
 	return logbookResponse, nil
 }
 
@@ -163,10 +165,6 @@ func (l *logbookService) DeleteLogbookEntry(userID, id uint) error {
 	}
 
 	tx := l.flightRepository.Begin()
-
-	defer func() {
-		tx.Commit()
-	}()
 
 	if err := l.landingRepository.DeleteByFlightIDTx(tx, id); err != nil {
 		tx.Rollback()
@@ -183,6 +181,7 @@ func (l *logbookService) DeleteLogbookEntry(userID, id uint) error {
 		return err
 	}
 
+	tx.Commit()
 	return nil
 }
 
@@ -282,10 +281,6 @@ func (l *logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.
 	}
 
 	tx := l.flightRepository.Begin()
-
-	defer func() {
-		tx.Commit()
-	}()
 
 	flight.AircraftID = logbookRequest.AircraftID
 	flight.TakeoffTime = logbookRequest.TakeoffTime
@@ -398,6 +393,8 @@ func (l *logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.
 		Passengers:          passengerEntries,
 		Landings:            landingEntries,
 	}
+
+	tx.Commit()
 
 	return logbookResponse, nil
 }

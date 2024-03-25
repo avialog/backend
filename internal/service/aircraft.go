@@ -37,33 +37,22 @@ func (a *aircraftService) InsertAircraft(userID uint, aircraftRequest dto.Aircra
 		ImageURL:           aircraftRequest.ImageURL,
 		Remarks:            aircraftRequest.Remarks,
 	}
-	//tu walidacja
 
 	err := a.validator.Struct(aircraft)
 	if err != nil {
 		var invalidValidationError *validator.InvalidValidationError
 		if errors.As(err, &invalidValidationError) {
-			fmt.Println(err)
 			return model.Aircraft{}, err
 		}
 
-		for _, err := range err.(validator.ValidationErrors) {
-			fmt.Println("Namespace: ", err.Namespace())
-			fmt.Println("Field: ", err.Field())
-			fmt.Println("StructNamespace: ", err.StructNamespace())
-			fmt.Println("StructField: ", err.StructField())
-			fmt.Println("Tag: ", err.Tag())
-			fmt.Println("ActualTag: ", err.ActualTag())
-			fmt.Println("Kind: ", err.Kind())
-			fmt.Println("Type: ", err.Type())
-			fmt.Println("Value: ", err.Value())
-			fmt.Println("Param: ", err.Param())
-			fmt.Println()
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			for _, vErr := range validationErrors {
+				return model.Aircraft{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
+			}
 		}
-
-		return model.Aircraft{}, fmt.Errorf("field %s can't be empty", err.(validator.ValidationErrors)[0].Field())
 	}
-	//koniec walidacji
+
 	return a.aircraftRepository.Create(aircraft)
 }
 
@@ -85,6 +74,21 @@ func (a *aircraftService) UpdateAircraft(userID, id uint, aircraftRequest dto.Ai
 	aircraft.RegistrationNumber = aircraftRequest.RegistrationNumber
 	aircraft.ImageURL = aircraftRequest.ImageURL
 	aircraft.Remarks = aircraftRequest.Remarks
+
+	err = a.validator.Struct(aircraft)
+	if err != nil {
+		var invalidValidationError *validator.InvalidValidationError
+		if errors.As(err, &invalidValidationError) {
+			return model.Aircraft{}, err
+		}
+
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			for _, vErr := range validationErrors {
+				return model.Aircraft{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
+			}
+		}
+	}
 
 	return a.aircraftRepository.Save(aircraft)
 }
