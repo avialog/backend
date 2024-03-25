@@ -32,14 +32,14 @@ var _ = Describe("AircraftService", func() {
 		aircraftService = newAircraftService(aircraftRepoMock, flightRepoMock, dto.Config{}, validator)
 		aircraftRequest = dto.AircraftRequest{
 			AircraftModel:      "Cessna 172",
-			RegistrationNumber: "N12345",
+			RegistrationNumber: "B550",
 			ImageURL:           "https://example.com/image.jpg",
 			Remarks:            "This is a test aircraft",
 		}
 		mockAircraft = model.Aircraft{
 			UserID:             uint(1),
 			AircraftModel:      "Cessna 172",
-			RegistrationNumber: "N12345",
+			RegistrationNumber: "B550",
 			ImageURL:           "https://example.com/image.jpg",
 			Remarks:            "This is a test aircraft",
 		}
@@ -59,13 +59,7 @@ var _ = Describe("AircraftService", func() {
 		Context("when aircraft request is valid", func() {
 			It("should insert aircraft and return no error", func() {
 				// given
-				aircraftRepoMock.EXPECT().Create(mockAircraft).Return(model.Aircraft{
-					UserID:             uint(1),
-					AircraftModel:      "Cessna 172",
-					RegistrationNumber: "N12345",
-					ImageURL:           "https://example.com/image.jpg",
-					Remarks:            "This is a test aircraft",
-				}, nil)
+				aircraftRepoMock.EXPECT().Create(mockAircraft).Return(mockAircraft, nil)
 
 				// when
 				insertedAircraft, err := aircraftService.InsertAircraft(uint(1), aircraftRequest)
@@ -92,6 +86,35 @@ var _ = Describe("AircraftService", func() {
 				Expect(err.Error()).To(Equal("failed to save aircraft"))
 				Expect(insertedAircraft).To(Equal(model.Aircraft{}))
 			})
+		})
+		Context("when aircraft request doesn't have registration number", func() {
+			It("should return error", func() {
+				// given
+				aircraftRequest.RegistrationNumber = ""
+
+				// when
+				insertedAircraft, err := aircraftService.InsertAircraft(uint(1), aircraftRequest)
+
+				// then
+				Expect(err.Error()).To(Equal("invalid data in field: RegistrationNumber"))
+				Expect(insertedAircraft).To(Equal(model.Aircraft{}))
+
+			})
+		})
+		Context("when aircraft request doesn't have aircraft model", func() {
+			It("should return error", func() {
+				// given
+				aircraftRequest.AircraftModel = ""
+
+				// when
+				insertedAircraft, err := aircraftService.InsertAircraft(uint(1), aircraftRequest)
+
+				// then
+				Expect(err.Error()).To(Equal("invalid data in field: AircraftModel"))
+				Expect(insertedAircraft).To(Equal(model.Aircraft{}))
+
+			})
+
 		})
 	})
 
@@ -261,6 +284,35 @@ var _ = Describe("AircraftService", func() {
 				Expect(err).To(BeNil())
 				Expect(updatedAircraft).To(Equal(mockAircraft))
 			})
+		})
+		Context("when aircraft request doesn't have registration number", func() {
+			It("should return error", func() {
+				// given
+				aircraftRequest.RegistrationNumber = ""
+				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockAircraft, nil)
+				// when
+				updatedAircraft, err := aircraftService.UpdateAircraft(uint(1), uint(1), aircraftRequest)
+
+				// then
+				Expect(err.Error()).To(Equal("invalid data in field: RegistrationNumber"))
+				Expect(updatedAircraft).To(Equal(model.Aircraft{}))
+
+			})
+
+		})
+		Context("when aircraft request doesn't have aircraft model", func() {
+			It("should return error", func() {
+				// given
+				aircraftRequest.AircraftModel = ""
+				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockAircraft, nil)
+				// when
+				updatedAircraft, err := aircraftService.UpdateAircraft(uint(1), uint(1), aircraftRequest)
+
+				// then
+				Expect(err.Error()).To(Equal("invalid data in field: AircraftModel"))
+				Expect(updatedAircraft).To(Equal(model.Aircraft{}))
+			})
+
 		})
 	})
 

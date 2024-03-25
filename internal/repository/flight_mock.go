@@ -15,7 +15,6 @@ import (
 
 	model "github.com/avialog/backend/internal/model"
 	gomock "go.uber.org/mock/gomock"
-	gorm "gorm.io/gorm"
 )
 
 // MockFlightRepository is a mock of FlightRepository interface.
@@ -42,10 +41,10 @@ func (m *MockFlightRepository) EXPECT() *MockFlightRepositoryMockRecorder {
 }
 
 // Begin mocks base method.
-func (m *MockFlightRepository) Begin() *gorm.DB {
+func (m *MockFlightRepository) Begin() Database {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Begin")
-	ret0, _ := ret[0].(*gorm.DB)
+	ret0, _ := ret[0].(Database)
 	return ret0
 }
 
@@ -86,7 +85,7 @@ func (mr *MockFlightRepositoryMockRecorder) Create(flight any) *gomock.Call {
 }
 
 // CreateTx mocks base method.
-func (m *MockFlightRepository) CreateTx(tx *gorm.DB, flight model.Flight) (model.Flight, error) {
+func (m *MockFlightRepository) CreateTx(tx Database, flight model.Flight) (model.Flight, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateTx", tx, flight)
 	ret0, _ := ret[0].(model.Flight)
@@ -115,7 +114,7 @@ func (mr *MockFlightRepositoryMockRecorder) DeleteByID(id any) *gomock.Call {
 }
 
 // DeleteByIDTx mocks base method.
-func (m *MockFlightRepository) DeleteByIDTx(tx *gorm.DB, id uint) error {
+func (m *MockFlightRepository) DeleteByIDTx(tx Database, id uint) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteByIDTx", tx, id)
 	ret0, _ := ret[0].(error)
@@ -159,7 +158,7 @@ func (mr *MockFlightRepositoryMockRecorder) GetByID(id any) *gomock.Call {
 }
 
 // GetByIDTx mocks base method.
-func (m *MockFlightRepository) GetByIDTx(tx *gorm.DB, id uint) (model.Flight, error) {
+func (m *MockFlightRepository) GetByIDTx(tx Database, id uint) (model.Flight, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByIDTx", tx, id)
 	ret0, _ := ret[0].(model.Flight)
@@ -219,7 +218,7 @@ func (mr *MockFlightRepositoryMockRecorder) Save(flight any) *gomock.Call {
 }
 
 // SaveTx mocks base method.
-func (m *MockFlightRepository) SaveTx(tx *gorm.DB, flight model.Flight) (model.Flight, error) {
+func (m *MockFlightRepository) SaveTx(tx Database, flight model.Flight) (model.Flight, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SaveTx", tx, flight)
 	ret0, _ := ret[0].(model.Flight)
