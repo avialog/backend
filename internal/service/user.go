@@ -42,5 +42,3 @@ func (u *userService) UpdateProfile(id uint, userRequest dto.UserRequest) (model
 
 	return u.userRepository.Save(user)
 }
-
-//email nie do zmiany wywialić
