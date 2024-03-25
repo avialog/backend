@@ -6,6 +6,7 @@ import (
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
 	"github.com/avialog/backend/internal/utils"
+	"github.com/go-playground/validator/v10"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
@@ -21,6 +22,7 @@ var _ = Describe("AircraftService", func() {
 		aircraftRequest  dto.AircraftRequest
 		mockAircraft     model.Aircraft
 		mockAircraftArr  []model.Aircraft
+		validator        *validator.Validate
 	)
 
 	BeforeEach(func() {
@@ -28,7 +30,7 @@ var _ = Describe("AircraftService", func() {
 		aircraftRepoMock = repository.NewMockAircraftRepository(aircraftRepoCtrl)
 		flightRepoCtrl = gomock.NewController(GinkgoT())
 		flightRepoMock = repository.NewMockFlightRepository(flightRepoCtrl)
-		validator := utils.GetValidator()
+		validator = utils.GetValidator()
 		aircraftService = newAircraftService(aircraftRepoMock, flightRepoMock, dto.Config{}, validator)
 		aircraftRequest = dto.AircraftRequest{
 			AircraftModel:      "Cessna 172",
