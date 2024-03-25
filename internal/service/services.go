@@ -21,10 +21,10 @@ type services struct {
 }
 
 func NewServices(repositories repository.Repositories, config dto.Config, validator *validator.Validate) Services {
-	contactService := newContactService(repositories.Contact(), config)
+	contactService := newContactService(repositories.Contact(), config, validator)
 	aircraftService := newAircraftService(repositories.Aircraft(), repositories.Flight(), config, validator)
 	userService := newUserService(repositories.User(), config)
-	logbookService := newLogbookService(repositories.Flight(), repositories.Landing(), repositories.Passenger(), repositories.Aircraft(), config)
+	logbookService := newLogbookService(repositories.Flight(), repositories.Landing(), repositories.Passenger(), repositories.Aircraft(), config, validator)
 	return &services{
 		contactService:  contactService,
 		aircraftService: aircraftService,
