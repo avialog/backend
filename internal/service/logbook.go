@@ -2,9 +2,11 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
+	"github.com/go-playground/validator/v10"
 	"time"
 )
 
@@ -20,12 +22,15 @@ type logbookService struct {
 	landingRepository   repository.LandingRepository
 	passengerRepository repository.PassengerRepository
 	aircraftRepository  repository.AircraftRepository
+	validator           *validator.Validate
 	config              dto.Config
 }
 
 func newLogbookService(flightRepository repository.FlightRepository, landingRepository repository.LandingRepository,
-	passengerRepository repository.PassengerRepository, aircraftRepository repository.AircraftRepository, config dto.Config) LogbookService {
-	return &logbookService{flightRepository, landingRepository, passengerRepository, aircraftRepository, config}
+	passengerRepository repository.PassengerRepository, aircraftRepository repository.AircraftRepository,
+	config dto.Config, validator *validator.Validate) LogbookService {
+	return &logbookService{flightRepository, landingRepository,
+		passengerRepository, aircraftRepository, validator, config}
 }
 
 func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
@@ -67,6 +72,23 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 		SignatureURL:        logbookRequest.SignatureURL,
 	}
 
+	err := l.validator.Struct(flight)
+	if err != nil {
+		tx.Rollback()
+		var invalidValidationError *validator.InvalidValidationError
+		if errors.As(err, &invalidValidationError) {
+			return dto.LogbookResponse{}, err
+		}
+
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			for _, vErr := range validationErrors {
+
+				return dto.LogbookResponse{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
+			}
+		}
+	}
+
 	insertedFlight, err := l.flightRepository.CreateTx(tx, flight)
 	if err != nil {
 		tx.Rollback()
@@ -85,7 +107,24 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 			Note:         passengerEntry.Note,
 		}
 
-		passenger, err := l.passengerRepository.CreateTx(tx, passenger)
+		err := l.validator.Struct(passenger)
+		if err != nil {
+			tx.Rollback()
+			var invalidValidationError *validator.InvalidValidationError
+			if errors.As(err, &invalidValidationError) {
+				return dto.LogbookResponse{}, err
+			}
+
+			var validationErrors validator.ValidationErrors
+			if errors.As(err, &validationErrors) {
+				for _, vErr := range validationErrors {
+
+					return dto.LogbookResponse{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
+				}
+			}
+		}
+
+		passenger, err = l.passengerRepository.CreateTx(tx, passenger)
 		if err != nil {
 			tx.Rollback()
 			return dto.LogbookResponse{}, err
@@ -110,7 +149,25 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 			DayCount:     landingEntry.DayCount,
 			AirportCode:  landingEntry.AirportCode,
 		}
-		landing, err := l.landingRepository.CreateTx(tx, landing)
+
+		err := l.validator.Struct(landing)
+		if err != nil {
+			tx.Rollback()
+			var invalidValidationError *validator.InvalidValidationError
+			if errors.As(err, &invalidValidationError) {
+				return dto.LogbookResponse{}, err
+			}
+
+			var validationErrors validator.ValidationErrors
+			if errors.As(err, &validationErrors) {
+				for _, vErr := range validationErrors {
+
+					return dto.LogbookResponse{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
+				}
+			}
+		}
+
+		landing, err = l.landingRepository.CreateTx(tx, landing)
 		if err != nil {
 			tx.Rollback()
 			return dto.LogbookResponse{}, err
@@ -304,6 +361,23 @@ func (l *logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.
 	flight.SimulatorTime = logbookRequest.SimulatorTime
 	flight.SignatureURL = logbookRequest.SignatureURL
 
+	err = l.validator.Struct(flight)
+	if err != nil {
+		tx.Rollback()
+		var invalidValidationError *validator.InvalidValidationError
+		if errors.As(err, &invalidValidationError) {
+			return dto.LogbookResponse{}, err
+		}
+
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			for _, vErr := range validationErrors {
+
+				return dto.LogbookResponse{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
+			}
+		}
+	}
+
 	if _, err := l.flightRepository.SaveTx(tx, flight); err != nil {
 		tx.Rollback()
 		return dto.LogbookResponse{}, err
@@ -324,6 +398,23 @@ func (l *logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.
 			Phone:        passengerEntry.Phone,
 			EmailAddress: passengerEntry.EmailAddress,
 			Note:         passengerEntry.Note,
+		}
+
+		err = l.validator.Struct(passenger)
+		if err != nil {
+			tx.Rollback()
+			var invalidValidationError *validator.InvalidValidationError
+			if errors.As(err, &invalidValidationError) {
+				return dto.LogbookResponse{}, err
+			}
+
+			var validationErrors validator.ValidationErrors
+			if errors.As(err, &validationErrors) {
+				for _, vErr := range validationErrors {
+
+					return dto.LogbookResponse{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
+				}
+			}
 		}
 
 		if _, err := l.passengerRepository.CreateTx(tx, passenger); err != nil {
@@ -354,6 +445,23 @@ func (l *logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.
 			NightCount:   landingEntry.NightCount,
 			DayCount:     landingEntry.DayCount,
 			AirportCode:  landingEntry.AirportCode,
+		}
+
+		err = l.validator.Struct(landing)
+		if err != nil {
+			tx.Rollback()
+			var invalidValidationError *validator.InvalidValidationError
+			if errors.As(err, &invalidValidationError) {
+				return dto.LogbookResponse{}, err
+			}
+
+			var validationErrors validator.ValidationErrors
+			if errors.As(err, &validationErrors) {
+				for _, vErr := range validationErrors {
+
+					return dto.LogbookResponse{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
+				}
+			}
 		}
 
 		if _, err := l.landingRepository.CreateTx(tx, landing); err != nil {
