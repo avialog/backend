@@ -5,6 +5,8 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
+	"github.com/avialog/backend/internal/utils"
+	"github.com/go-playground/validator/v10"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
@@ -18,12 +20,14 @@ var _ = Describe("ContactService", func() {
 		contactRequest  dto.ContactRequest
 		mockContact     model.Contact
 		mockContacts    []model.Contact
+		validator       *validator.Validate
 	)
 
 	BeforeEach(func() {
 		contactRepoCtrl = gomock.NewController(GinkgoT())
 		contactRepoMock = repository.NewMockContactRepository(contactRepoCtrl)
-		contactService = newContactService(contactRepoMock, dto.Config{})
+		validator = utils.GetValidator()
+		contactService = newContactService(contactRepoMock, dto.Config{}, validator)
 		contactRequest = dto.ContactRequest{
 			FirstName:    "John",
 			LastName:     "Doe",
@@ -93,6 +97,19 @@ var _ = Describe("ContactService", func() {
 
 				// then
 				Expect(err.Error()).To(Equal("failed to save contact"))
+				Expect(insertedContact).To(Equal(model.Contact{}))
+			})
+		})
+		Context("when contact request doesn't have first name", func() {
+			It("should return error", func() {
+				// given
+				contactRequest.FirstName = ""
+
+				// when
+				insertedContact, err := contactService.InsertContact(uint(1), contactRequest)
+
+				// then
+				Expect(err.Error()).To(Equal("invalid data in field: FirstName"))
 				Expect(insertedContact).To(Equal(model.Contact{}))
 			})
 		})
@@ -233,6 +250,19 @@ var _ = Describe("ContactService", func() {
 				// then
 				Expect(err).To(BeNil())
 				Expect(updatedContact).To(Equal(mockContact))
+			})
+		})
+		Context("when contact request doesn't have first name", func() {
+			It("should return error", func() {
+				// given
+				contactRequest.FirstName = ""
+				contactRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockContact, nil)
+				// when
+				updatedContact, err := contactService.UpdateContact(uint(1), uint(1), contactRequest)
+
+				// then
+				Expect(err.Error()).To(Equal("invalid data in field: FirstName"))
+				Expect(updatedContact).To(Equal(model.Contact{}))
 			})
 		})
 	})
