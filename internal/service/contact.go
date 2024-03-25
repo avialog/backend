@@ -2,9 +2,11 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
+	"github.com/go-playground/validator/v10"
 )
 
 type ContactService interface {
@@ -16,11 +18,12 @@ type ContactService interface {
 
 type contactService struct {
 	contactRepository repository.ContactRepository
+	validator         *validator.Validate
 	config            dto.Config
 }
 
-func newContactService(contactRepository repository.ContactRepository, config dto.Config) ContactService {
-	return &contactService{contactRepository, config}
+func newContactService(contactRepository repository.ContactRepository, config dto.Config, validator *validator.Validate) ContactService {
+	return &contactService{contactRepository, validator, config}
 }
 
 func (c *contactService) InsertContact(userID uint, contactRequest dto.ContactRequest) (model.Contact, error) {
@@ -34,6 +37,22 @@ func (c *contactService) InsertContact(userID uint, contactRequest dto.ContactRe
 		EmailAddress: contactRequest.EmailAddress,
 		Note:         contactRequest.Note,
 	}
+
+	err := c.validator.Struct(contact)
+	if err != nil {
+		var invalidValidationError *validator.InvalidValidationError
+		if errors.As(err, &invalidValidationError) {
+			return model.Contact{}, err
+		}
+
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			for _, vErr := range validationErrors {
+				return model.Contact{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
+			}
+		}
+	}
+
 	return c.contactRepository.Create(contact)
 }
 
@@ -67,6 +86,21 @@ func (c *contactService) UpdateContact(userID, id uint, contactRequest dto.Conta
 	contact.Company = contactRequest.Company
 	contact.EmailAddress = contactRequest.EmailAddress
 	contact.Note = contactRequest.Note
+
+	err = c.validator.Struct(contact)
+	if err != nil {
+		var invalidValidationError *validator.InvalidValidationError
+		if errors.As(err, &invalidValidationError) {
+			return model.Contact{}, err
+		}
+
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			for _, vErr := range validationErrors {
+				return model.Contact{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
+			}
+		}
+	}
 
 	return c.contactRepository.Save(contact)
 }
