@@ -5,7 +5,7 @@ import (
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
 )
-
+//go:generate mockgen -source=passenger.go -destination=passenger_mock.go -package repository
 type PassengerRepository interface {
 	Create(passenger model.Passenger) (model.Passenger, error)
 	GetByID(id uint) (model.Passenger, error)
