@@ -15,25 +15,25 @@ import (
 
 var _ = Describe("LogbookService", func() {
 	var (
-		logbookService    LogbookService
-		flightRepoCtrl    *gomock.Controller
-		flightRepoMock    *repository.MockFlightRepository
-		landingRepoCtrl   *gomock.Controller
-		landingRepoMock   *repository.MockLandingRepository
-		passengerRepoCtrl *gomock.Controller
-		passengerRepoMock *repository.MockPassengerRepository
-		aircraftRepoCtrl  *gomock.Controller
-		aircraftRepoMock  *repository.MockAircraftRepository
-		databaseCtrl      *gomock.Controller
-		databaseMock      *repository.MockDatabase
-		validator         *validator.Validate
-		logbookRequest    dto.LogbookRequest
-		fixedTime         time.Time
-		mockFlight        model.Flight
-		//mockPassengerOne         model.Passenger
+		logbookService           LogbookService
+		flightRepoCtrl           *gomock.Controller
+		flightRepoMock           *repository.MockFlightRepository
+		landingRepoCtrl          *gomock.Controller
+		landingRepoMock          *repository.MockLandingRepository
+		passengerRepoCtrl        *gomock.Controller
+		passengerRepoMock        *repository.MockPassengerRepository
+		aircraftRepoCtrl         *gomock.Controller
+		aircraftRepoMock         *repository.MockAircraftRepository
+		databaseCtrl             *gomock.Controller
+		databaseMock             *repository.MockDatabase
+		validator                *validator.Validate
+		logbookRequest           dto.LogbookRequest
+		fixedTime                time.Time
+		mockFlight               model.Flight
+		mockPassengerOne         model.Passenger
 		mockInsertedPassengerOne model.Passenger
 
-		//mockPassengerTwo         model.Passenger
+		mockPassengerTwo         model.Passenger
 		mockInsertedPassengerTwo model.Passenger
 		mockLandingOne           model.Landing
 		mockInsertedLandingOne   model.Landing
@@ -164,16 +164,16 @@ var _ = Describe("LogbookService", func() {
 			SimulatorTime:       12 * time.Hour,
 			SignatureURL:        "https://signature.com",
 		}
-		//mockPassengerOne = model.Passenger{
-		//	FlightID:     uint(3),
-		//	Role:         model.RolePilotInCommand,
-		//	FirstName:    "John",
-		//	LastName:     "Doe",
-		//	Company:      "Company",
-		//	Phone:        "1234567890",
-		//	EmailAddress: "test@test.com",
-		//	Note:         "Note",
-		//}
+		mockPassengerOne = model.Passenger{
+			FlightID:     uint(3),
+			Role:         model.RolePilotInCommand,
+			FirstName:    "John",
+			LastName:     "Doe",
+			Company:      "Company",
+			Phone:        "1234567890",
+			EmailAddress: "test@test.com",
+			Note:         "Note",
+		}
 		mockInsertedPassengerOne = model.Passenger{
 			Model:        gorm.Model{ID: uint(1)},
 			FlightID:     uint(3),
@@ -185,17 +185,17 @@ var _ = Describe("LogbookService", func() {
 			EmailAddress: "test@test.com",
 			Note:         "Note",
 		}
-		//mockPassengerTwo = model.Passenger{
-		//	Model:        gorm.Model{ID: uint(2)},
-		//	FlightID:     uint(3),
-		//	Role:         model.RoleSecondInCommand,
-		//	FirstName:    "Jane",
-		//	LastName:     "Doe",
-		//	Company:      "Company",
-		//	Phone:        "1234567890",
-		//	EmailAddress: "testing@test.com",
-		//	Note:         "Note",
-		//}
+		mockPassengerTwo = model.Passenger{
+			Model:        gorm.Model{ID: uint(2)},
+			FlightID:     uint(3),
+			Role:         model.RoleSecondInCommand,
+			FirstName:    "Jane",
+			LastName:     "Doe",
+			Company:      "Company",
+			Phone:        "1234567890",
+			EmailAddress: "testing@test.com",
+			Note:         "Note",
+		}
 		mockInsertedPassengerTwo = model.Passenger{
 			Model:        gorm.Model{ID: uint(2)},
 			FlightID:     uint(3),
@@ -258,8 +258,8 @@ var _ = Describe("LogbookService", func() {
 				// given
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().CreateTx(databaseMock, mockFlight).Return(mockInsertedFlight, nil)
-				passengerRepoMock.EXPECT().CreateTx(databaseMock, gomock.Any()).Return(mockInsertedPassengerOne, nil)
-				passengerRepoMock.EXPECT().CreateTx(databaseMock, gomock.Any()).Return(mockInsertedPassengerTwo, nil)
+				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerTwo).Return(mockInsertedPassengerOne, nil)
+				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerTwo).Return(mockInsertedPassengerTwo, nil)
 				landingRepoMock.EXPECT().CreateTx(databaseMock, mockLandingOne).Return(mockInsertedLandingOne, nil)
 				landingRepoMock.EXPECT().CreateTx(databaseMock, mockLandingTwo).Return(mockInsertedLandingTwo, nil)
 
@@ -293,10 +293,10 @@ var _ = Describe("LogbookService", func() {
 				Expect(logbookResponse.CrossCountryTime).To(Equal(logbookRequest.CrossCountryTime))
 				Expect(logbookResponse.SimulatorTime).To(Equal(logbookRequest.SimulatorTime))
 				Expect(logbookResponse.SignatureURL).To(Equal(logbookRequest.SignatureURL))
-				//Expect(logbookResponse.Passengers).To(HaveLen(2))
-				//Expect(logbookResponse.Passengers).To(Equal(logbookRequest.Passengers))
-				//Expect(logbookResponse.Landings).To(HaveLen(2))
-				//Expect(logbookResponse.Landings).To(Equal(logbookRequest.Landings))
+				Expect(logbookResponse.Passengers).To(HaveLen(2))
+				Expect(logbookResponse.Passengers).To(Equal(logbookRequest.Passengers))
+				Expect(logbookResponse.Landings).To(HaveLen(2))
+				Expect(logbookResponse.Landings).To(Equal(logbookRequest.Landings))
 
 			})
 		})
