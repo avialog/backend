@@ -106,7 +106,7 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 			EmailAddress: passengerEntry.EmailAddress,
 			Note:         passengerEntry.Note,
 		}
-
+		fmt.Println(passenger.FirstName)
 		err := l.validator.Struct(passenger)
 		if err != nil {
 			tx.Rollback()
