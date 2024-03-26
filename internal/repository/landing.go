@@ -6,6 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:generate mockgen -source=landing.go -destination=landing_mock.go -package repository
 type LandingRepository interface {
 	Create(landing model.Landing) (model.Landing, error)
 	GetByID(id uint) (model.Landing, error)
