@@ -12,8 +12,8 @@ import (
 
 type LogbookService interface {
 	InsertLogbookEntry(userID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error)
-	DeleteLogbookEntry(userID, id uint) error
-	UpdateLogbookEntry(userID, id uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error)
+	DeleteLogbookEntry(userID, flightID uint) error
+	UpdateLogbookEntry(userID, flightID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error)
 	GetLogbookEntries(userID uint, start, end time.Time) ([]dto.LogbookResponse, error)
 }
 
@@ -43,9 +43,6 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 	}
 
 	tx := l.flightRepository.Begin()
-	// zrób expect na begin
-	// zwróc zamockowany database
-	// na zamockowanym db zrób expecta na rollback/commit
 
 	flight := model.Flight{
 		UserID:              userID,
@@ -106,7 +103,7 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 			EmailAddress: passengerEntry.EmailAddress,
 			Note:         passengerEntry.Note,
 		}
-		fmt.Println(passenger.FirstName)
+
 		err := l.validator.Struct(passenger)
 		if err != nil {
 			tx.Rollback()
@@ -211,8 +208,8 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 	return logbookResponse, nil
 }
 
-func (l *logbookService) DeleteLogbookEntry(userID, id uint) error {
-	flight, err := l.flightRepository.GetByID(id)
+func (l *logbookService) DeleteLogbookEntry(userID, flightID uint) error {
+	flight, err := l.flightRepository.GetByID(flightID)
 	if err != nil {
 		return err
 	}
@@ -223,17 +220,17 @@ func (l *logbookService) DeleteLogbookEntry(userID, id uint) error {
 
 	tx := l.flightRepository.Begin()
 
-	if err := l.landingRepository.DeleteByFlightIDTx(tx, id); err != nil {
+	if err := l.landingRepository.DeleteByFlightIDTx(tx, flightID); err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	if err := l.passengerRepository.DeleteByFlightIDTx(tx, id); err != nil {
+	if err := l.passengerRepository.DeleteByFlightIDTx(tx, flightID); err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	if err := l.flightRepository.DeleteByIDTx(tx, id); err != nil {
+	if err := l.flightRepository.DeleteByIDTx(tx, flightID); err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -247,18 +244,20 @@ func (l *logbookService) GetLogbookEntries(userID uint, start, end time.Time) ([
 
 	flights, err := l.flightRepository.GetByUserIDAndDate(userID, start, end)
 	if err != nil {
-		return nil, err
+		return logbookResponses, err
+	}
+
+	if len(flights) == 0 {
+		return logbookResponses, nil
 	}
 
 	for _, flight := range flights {
-
 		landings, err := l.landingRepository.GetByFlightID(flight.ID)
 		if err != nil {
-			return nil, err
+			return logbookResponses, err
 		}
 
-		var landingEntries []dto.LandingEntry
-
+		landingEntries := make([]dto.LandingEntry, 0)
 		for _, landing := range landings {
 			landingEntries = append(landingEntries, dto.LandingEntry{
 				ApproachType: landing.ApproachType,
@@ -271,10 +270,10 @@ func (l *logbookService) GetLogbookEntries(userID uint, start, end time.Time) ([
 
 		passengers, err := l.passengerRepository.GetByFlightID(flight.ID)
 		if err != nil {
-			return nil, err
+			return logbookResponses, err
 		}
 
-		var passengerEntries []dto.PassengerEntry
+		passengerEntries := make([]dto.PassengerEntry, 0)
 
 		for _, passenger := range passengers {
 			passengerEntries = append(passengerEntries, dto.PassengerEntry{
@@ -319,12 +318,12 @@ func (l *logbookService) GetLogbookEntries(userID uint, start, end time.Time) ([
 	return logbookResponses, nil
 }
 
-func (l *logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
+func (l *logbookService) UpdateLogbookEntry(userID, flightID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
 	var logbookResponse dto.LogbookResponse
 	landingEntries := make([]dto.LandingEntry, 0)
 	passengerEntries := make([]dto.PassengerEntry, 0)
 
-	flight, err := l.flightRepository.GetByID(id)
+	flight, err := l.flightRepository.GetByID(flightID)
 	if err != nil {
 		return dto.LogbookResponse{}, err
 	}
@@ -383,7 +382,7 @@ func (l *logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.
 		return dto.LogbookResponse{}, err
 	}
 
-	if err := l.passengerRepository.DeleteByFlightIDTx(tx, id); err != nil {
+	if err := l.passengerRepository.DeleteByFlightIDTx(tx, flightID); err != nil {
 		tx.Rollback()
 		return dto.LogbookResponse{}, err
 	}
@@ -432,7 +431,7 @@ func (l *logbookService) UpdateLogbookEntry(userID, id uint, logbookRequest dto.
 		})
 	}
 
-	if err := l.landingRepository.DeleteByFlightIDTx(tx, id); err != nil {
+	if err := l.landingRepository.DeleteByFlightIDTx(tx, flightID); err != nil {
 		tx.Rollback()
 		return dto.LogbookResponse{}, err
 	}
