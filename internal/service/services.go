@@ -3,6 +3,7 @@ package service
 import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/repository"
+	"github.com/go-playground/validator/v10"
 )
 
 type Services interface {
@@ -19,11 +20,11 @@ type services struct {
 	logbookService  LogbookService
 }
 
-func NewServices(repositories repository.Repositories, config dto.Config) Services {
-	contactService := newContactService(repositories.Contact(), config)
-	aircraftService := newAircraftService(repositories.Aircraft(), repositories.Flight(), config)
+func NewServices(repositories repository.Repositories, config dto.Config, validator *validator.Validate) Services {
+	contactService := newContactService(repositories.Contact(), config, validator)
+	aircraftService := newAircraftService(repositories.Aircraft(), repositories.Flight(), config, validator)
 	userService := newUserService(repositories.User(), config)
-	logbookService := newLogbookService(repositories.Flight(), repositories.Landing(), repositories.Passenger(), repositories.Aircraft(), config)
+	logbookService := newLogbookService(repositories.Flight(), repositories.Landing(), repositories.Passenger(), repositories.Aircraft(), config, validator)
 	return &services{
 		contactService:  contactService,
 		aircraftService: aircraftService,

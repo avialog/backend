@@ -8,10 +8,10 @@ import (
 
 //go:generate mockgen -source=aircraft.go -destination=aircraft_mock.go -package repository
 type AircraftRepository interface {
-	Save(aircraft model.Aircraft) (model.Aircraft, error)
+	Create(aircraft model.Aircraft) (model.Aircraft, error)
 	GetByUserIDAndID(userID, id uint) (model.Aircraft, error)
 	GetByUserID(userID uint) ([]model.Aircraft, error)
-	Update(aircraft model.Aircraft) (model.Aircraft, error)
+	Save(aircraft model.Aircraft) (model.Aircraft, error)
 	DeleteByUserIDAndID(userID, id uint) error
 }
 
@@ -25,7 +25,7 @@ func newAircraftRepository(db *gorm.DB) AircraftRepository {
 	}
 }
 
-func (a *aircraft) Save(aircraft model.Aircraft) (model.Aircraft, error) {
+func (a *aircraft) Create(aircraft model.Aircraft) (model.Aircraft, error) {
 	result := a.db.Create(&aircraft)
 	if result.Error != nil {
 		return model.Aircraft{}, result.Error
@@ -43,11 +43,7 @@ func (a *aircraft) GetByUserIDAndID(userID, id uint) (model.Aircraft, error) {
 	return aircraft, nil
 }
 
-func (a *aircraft) Update(aircraft model.Aircraft) (model.Aircraft, error) {
-	if _, err := a.GetByUserIDAndID(aircraft.UserID, aircraft.ID); err != nil {
-		return model.Aircraft{}, err
-	}
-
+func (a *aircraft) Save(aircraft model.Aircraft) (model.Aircraft, error) {
 	result := a.db.Save(&aircraft)
 	if result.Error != nil {
 		return model.Aircraft{}, result.Error

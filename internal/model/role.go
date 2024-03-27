@@ -14,7 +14,7 @@ const (
 	RoleOther                          Role = "OTH"
 )
 
-var availableRoles = []Role{
+var AvailableRoles = []Role{
 	RolePilotInCommand,
 	RoleSecondInCommand,
 	RoleDual,

@@ -41,8 +41,6 @@ var _ = Describe("UserService", func() {
 		userRequest = dto.UserRequest{
 			FirstName:    "test_user",
 			LastName:     "test_last_name",
-			Email:        "test@test.com",
-			PasswordHash: "password",
 			AvatarURL:    "https://example.com/avatar.jpg",
 			SignatureURL: "https://example.com/signature.jpg",
 			Country:      "US",
@@ -91,8 +89,8 @@ var _ = Describe("UserService", func() {
 		Context("when user exists", func() {
 			It("should return user and no error", func() {
 				// given
-				userRepoMock.EXPECT().Update(mockUser).Return(mockUser, nil)
-
+				userRepoMock.EXPECT().Save(mockUser).Return(mockUser, nil)
+				userRepoMock.EXPECT().GetByID(uint(1)).Return(mockUser, nil)
 				// when
 				user, err := userService.UpdateProfile(uint(1), userRequest)
 
@@ -104,8 +102,7 @@ var _ = Describe("UserService", func() {
 		Context("when user does not exist", func() {
 			It("should return error", func() {
 				// given
-				userRepoMock.EXPECT().Update(mockUser).Return(model.User{}, errors.New("user not found"))
-
+				userRepoMock.EXPECT().GetByID(uint(1)).Return(model.User{}, errors.New("user not found"))
 				// when
 				user, err := userService.UpdateProfile(uint(1), userRequest)
 

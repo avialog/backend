@@ -8,10 +8,10 @@ import (
 
 //go:generate mockgen -source=contact.go -destination=contact_mock.go -package repository
 type ContactRepository interface {
-	Save(contact model.Contact) (model.Contact, error)
+	Create(contact model.Contact) (model.Contact, error)
 	GetByUserIDAndID(userID, id uint) (model.Contact, error)
 	GetByUserID(userID uint) ([]model.Contact, error)
-	Update(contact model.Contact) (model.Contact, error)
+	Save(contact model.Contact) (model.Contact, error)
 	DeleteByUserIDAndID(userID, id uint) error
 }
 
@@ -25,7 +25,7 @@ func newContactRepository(db *gorm.DB) ContactRepository {
 	}
 }
 
-func (c *contact) Save(contact model.Contact) (model.Contact, error) {
+func (c *contact) Create(contact model.Contact) (model.Contact, error) {
 	result := c.db.Create(&contact)
 	if result.Error != nil {
 		return model.Contact{}, result.Error
@@ -44,11 +44,7 @@ func (c *contact) GetByUserIDAndID(userID, id uint) (model.Contact, error) {
 	return contact, nil
 }
 
-func (c *contact) Update(contact model.Contact) (model.Contact, error) {
-	if _, err := c.GetByUserIDAndID(contact.UserID, contact.ID); err != nil {
-		return model.Contact{}, err
-	}
-
+func (c *contact) Save(contact model.Contact) (model.Contact, error) {
 	result := c.db.Save(&contact)
 	if result.Error != nil {
 		return model.Contact{}, result.Error
