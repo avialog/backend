@@ -170,7 +170,7 @@ var _ = Describe("AircraftService", func() {
 		Context("when fail to count flights", func() {
 			It("should return error", func() {
 				// given
-				flightRepoMock.EXPECT().CountByAircraftID(uint(1), uint(1)).Return(int64(0), errors.New("failed to count flights"))
+				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(0), errors.New("failed to count flights"))
 
 				// when
 				err := aircraftService.DeleteAircraft(uint(1), uint(1))
@@ -182,7 +182,7 @@ var _ = Describe("AircraftService", func() {
 		Context("when fail to delete aircraft", func() {
 			It("should return error", func() {
 				// given
-				flightRepoMock.EXPECT().CountByAircraftID(uint(1), uint(1)).Return(int64(0), nil)
+				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(0), nil)
 				aircraftRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(errors.New("failed to delete aircraft"))
 
 				// when
@@ -195,7 +195,7 @@ var _ = Describe("AircraftService", func() {
 		Context("when aircraft has no flights assigned and user is authorized", func() {
 			It("should return no error", func() {
 				// given
-				flightRepoMock.EXPECT().CountByAircraftID(uint(1), uint(1)).Return(int64(0), nil)
+				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(0), nil)
 				aircraftRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(nil)
 
 				// when
@@ -208,7 +208,7 @@ var _ = Describe("AircraftService", func() {
 		Context("when aircraft has assigned flights", func() {
 			It("should return error", func() {
 				//given
-				flightRepoMock.EXPECT().CountByAircraftID(uint(1), uint(1)).Return(int64(1), nil)
+				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(1), nil)
 
 				// when
 				err := aircraftService.DeleteAircraft(uint(1), uint(1))
@@ -220,7 +220,7 @@ var _ = Describe("AircraftService", func() {
 		Context("when unauthorized to delete aircraft", func() {
 			It("should return error", func() {
 				// given
-				flightRepoMock.EXPECT().CountByAircraftID(uint(1), uint(1)).Return(int64(0), nil)
+				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(0), nil)
 				aircraftRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(errors.New("no aircraft to delete or unauthorized to delete aircraft"))
 
 				// when
@@ -322,7 +322,7 @@ var _ = Describe("AircraftService", func() {
 		Context("when fail to count flights", func() {
 			It("should return error", func() {
 				// given
-				flightRepoMock.EXPECT().CountByAircraftID(uint(1), uint(1)).Return(int64(0), errors.New("failed to count flights"))
+				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(0), errors.New("failed to count flights"))
 
 				// when
 				count, err := aircraftService.CountAircraftFlights(uint(1), uint(1))
@@ -335,7 +335,7 @@ var _ = Describe("AircraftService", func() {
 		Context("when count flights successfully", func() {
 			It("should return number of flights and no error", func() {
 				// given
-				flightRepoMock.EXPECT().CountByAircraftID(uint(1), uint(1)).Return(int64(5), nil)
+				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(5), nil)
 
 				// when
 				count, err := aircraftService.CountAircraftFlights(uint(1), uint(1))

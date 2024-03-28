@@ -54,19 +54,19 @@ func (mr *MockFlightRepositoryMockRecorder) Begin() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Begin", reflect.TypeOf((*MockFlightRepository)(nil).Begin))
 }
 
-// CountByAircraftID mocks base method.
-func (m *MockFlightRepository) CountByAircraftID(userID, aircraftID uint) (int64, error) {
+// CountByUserIDAndAircraftID mocks base method.
+func (m *MockFlightRepository) CountByUserIDAndAircraftID(userID, aircraftID uint) (int64, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CountByAircraftID", userID, aircraftID)
+	ret := m.ctrl.Call(m, "CountByUserIDAndAircraftID", userID, aircraftID)
 	ret0, _ := ret[0].(int64)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CountByAircraftID indicates an expected call of CountByAircraftID.
-func (mr *MockFlightRepositoryMockRecorder) CountByAircraftID(userID, aircraftID any) *gomock.Call {
+// CountByUserIDAndAircraftID indicates an expected call of CountByUserIDAndAircraftID.
+func (mr *MockFlightRepositoryMockRecorder) CountByUserIDAndAircraftID(userID, aircraftID any) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountByAircraftID", reflect.TypeOf((*MockFlightRepository)(nil).CountByAircraftID), userID, aircraftID)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountByUserIDAndAircraftID", reflect.TypeOf((*MockFlightRepository)(nil).CountByUserIDAndAircraftID), userID, aircraftID)
 }
 
 // Create mocks base method.
