@@ -80,7 +80,6 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
 			for _, vErr := range validationErrors {
-
 				return dto.LogbookResponse{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
 			}
 		}
@@ -245,10 +244,6 @@ func (l *logbookService) GetLogbookEntries(userID uint, start, end time.Time) ([
 	flights, err := l.flightRepository.GetByUserIDAndDate(userID, start, end)
 	if err != nil {
 		return logbookResponses, err
-	}
-
-	if len(flights) == 0 {
-		return logbookResponses, nil
 	}
 
 	for _, flight := range flights {
