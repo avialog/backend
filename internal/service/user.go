@@ -4,7 +4,6 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
-	"gorm.io/gorm"
 )
 
 type UserService interface {
@@ -26,19 +25,20 @@ func (u *userService) GetProfile(id uint) (model.User, error) {
 }
 
 func (u *userService) UpdateProfile(id uint, userRequest dto.UserRequest) (model.User, error) {
-	user := model.User{
-		Model:        gorm.Model{ID: id},
-		FirstName:    userRequest.FirstName,
-		LastName:     userRequest.LastName,
-		Email:        userRequest.Email,
-		AvatarURL:    userRequest.AvatarURL,
-		SignatureURL: userRequest.SignatureURL,
-		Country:      userRequest.Country,
-		Phone:        userRequest.Phone,
-		Street:       userRequest.Street,
-		City:         userRequest.City,
-		Company:      userRequest.Company,
-		Timezone:     userRequest.Timezone,
+	user, err := u.userRepository.GetByID(id)
+	if err != nil {
+		return model.User{}, err
 	}
-	return u.userRepository.Update(user)
+	user.FirstName = userRequest.FirstName
+	user.LastName = userRequest.LastName
+	user.AvatarURL = userRequest.AvatarURL
+	user.SignatureURL = userRequest.SignatureURL
+	user.Country = userRequest.Country
+	user.Phone = userRequest.Phone
+	user.Street = userRequest.Street
+	user.City = userRequest.City
+	user.Company = userRequest.Company
+	user.Timezone = userRequest.Timezone
+
+	return u.userRepository.Save(user)
 }

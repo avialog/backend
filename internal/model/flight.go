@@ -7,17 +7,17 @@ import (
 
 type Flight struct {
 	gorm.Model
-	UserID              uint
-	User                User
-	AircraftID          uint
-	Aircraft            Aircraft
-	Passengers          []Passenger `gorm:"foreignKey:FlightID"`
-	Landings            []Landing   `gorm:"foreignKey:FlightID"`
-	TakeoffTime         time.Time
-	TakeoffAirportCode  string
-	LandingTime         time.Time
-	LandingAirportCode  string
-	Style               Style
+	UserID              uint        `gorm:"required; not null; default:null" validate:"required"`
+	User                User        `validate:"-"`
+	AircraftID          uint        `gorm:"required; not null; default:null" validate:"required"`
+	Aircraft            Aircraft    `validate:"-"`
+	Passengers          []Passenger `gorm:"foreignKey:FlightID" validate:"-"`
+	Landings            []Landing   `gorm:"foreignKey:FlightID" validate:"-"`
+	TakeoffTime         time.Time   `gorm:"required; not null; default:null" validate:"required"`
+	TakeoffAirportCode  string      `gorm:"required; not null; default:null" validate:"required"`
+	LandingTime         time.Time   `gorm:"required; not null; default:null" validate:"required"`
+	LandingAirportCode  string      `gorm:"required; not null; default:null" validate:"required"`
+	Style               Style       `gorm:"required; not null; default:null" validate:"required,style"`
 	Remarks             string
 	PersonalRemarks     string
 	TotalBlockTime      time.Duration

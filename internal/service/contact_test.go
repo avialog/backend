@@ -5,6 +5,8 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
+	"github.com/avialog/backend/internal/utils"
+	"github.com/go-playground/validator/v10"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
@@ -18,12 +20,14 @@ var _ = Describe("ContactService", func() {
 		contactRequest  dto.ContactRequest
 		mockContact     model.Contact
 		mockContacts    []model.Contact
+		validator       *validator.Validate
 	)
 
 	BeforeEach(func() {
 		contactRepoCtrl = gomock.NewController(GinkgoT())
 		contactRepoMock = repository.NewMockContactRepository(contactRepoCtrl)
-		contactService = newContactService(contactRepoMock, dto.Config{})
+		validator = utils.GetValidator()
+		contactService = newContactService(contactRepoMock, dto.Config{}, validator)
 		contactRequest = dto.ContactRequest{
 			FirstName:    "John",
 			LastName:     "Doe",
@@ -57,7 +61,7 @@ var _ = Describe("ContactService", func() {
 		Context("when contact request is valid", func() {
 			It("should insert contact and return no error", func() {
 				// given
-				contactRepoMock.EXPECT().Save(mockContact).Return(model.Contact{
+				contactRepoMock.EXPECT().Create(mockContact).Return(model.Contact{
 					UserID:       uint(1),
 					FirstName:    contactRequest.FirstName,
 					LastName:     contactRequest.LastName,
@@ -86,13 +90,26 @@ var _ = Describe("ContactService", func() {
 		Context("when save to database fails", func() {
 			It("should return error", func() {
 				// given
-				contactRepoMock.EXPECT().Save(mockContact).Return(model.Contact{}, errors.New("failed to save contact"))
+				contactRepoMock.EXPECT().Create(mockContact).Return(model.Contact{}, errors.New("failed to save contact"))
 
 				// when
 				insertedContact, err := contactService.InsertContact(uint(1), contactRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("failed to save contact"))
+				Expect(insertedContact).To(Equal(model.Contact{}))
+			})
+		})
+		Context("when contact request doesn't have first name", func() {
+			It("should return error", func() {
+				// given
+				contactRequest.FirstName = ""
+
+				// when
+				insertedContact, err := contactService.InsertContact(uint(1), contactRequest)
+
+				// then
+				Expect(err.Error()).To(Equal("invalid data in field: FirstName"))
 				Expect(insertedContact).To(Equal(model.Contact{}))
 			})
 		})
@@ -211,7 +228,7 @@ var _ = Describe("ContactService", func() {
 			It("should return error", func() {
 				// given
 				contactRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(model.Contact{UserID: uint(1)}, nil)
-				contactRepoMock.EXPECT().Update(mockContact).Return(model.Contact{}, errors.New("failed to update contact"))
+				contactRepoMock.EXPECT().Save(mockContact).Return(model.Contact{}, errors.New("failed to update contact"))
 
 				// when
 				updatedContact, err := contactService.UpdateContact(uint(1), uint(1), contactRequest)
@@ -225,7 +242,7 @@ var _ = Describe("ContactService", func() {
 			It("should return updated contact", func() {
 				// given
 				contactRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockContact, nil)
-				contactRepoMock.EXPECT().Update(mockContact).Return(mockContact, nil)
+				contactRepoMock.EXPECT().Save(mockContact).Return(mockContact, nil)
 
 				// when
 				updatedContact, err := contactService.UpdateContact(uint(1), uint(1), contactRequest)
@@ -233,6 +250,19 @@ var _ = Describe("ContactService", func() {
 				// then
 				Expect(err).To(BeNil())
 				Expect(updatedContact).To(Equal(mockContact))
+			})
+		})
+		Context("when contact request doesn't have first name", func() {
+			It("should return error", func() {
+				// given
+				contactRequest.FirstName = ""
+				contactRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockContact, nil)
+				// when
+				updatedContact, err := contactService.UpdateContact(uint(1), uint(1), contactRequest)
+
+				// then
+				Expect(err.Error()).To(Equal("invalid data in field: FirstName"))
+				Expect(updatedContact).To(Equal(model.Contact{}))
 			})
 		})
 	})

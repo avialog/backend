@@ -9,19 +9,19 @@ import (
 
 //go:generate mockgen -source=flight.go -destination=flight_mock.go -package repository
 type FlightRepository interface {
-	Save(flight model.Flight) (model.Flight, error)
+	Create(flight model.Flight) (model.Flight, error)
 	GetByID(id uint) (model.Flight, error)
 	GetByUserID(userID uint) ([]model.Flight, error)
 	GetByAircraftID(aircraftID uint) ([]model.Flight, error)
-	Update(flight model.Flight) (model.Flight, error)
+	Save(flight model.Flight) (model.Flight, error)
 	DeleteByID(id uint) error
-	CountByAircraftID(userID, aircraftID uint) (int64, error)
+	CountByUserIDAndAircraftID(userID, aircraftID uint) (int64, error)
 	GetByUserIDAndDate(userID uint, start, end time.Time) ([]model.Flight, error)
-	Begin() *gorm.DB
-	SaveTx(tx *gorm.DB, flight model.Flight) (model.Flight, error)
-	DeleteByIDTx(tx *gorm.DB, id uint) error
-	GetByIDTx(tx *gorm.DB, id uint) (model.Flight, error)
-	UpdateTx(tx *gorm.DB, flight model.Flight) (model.Flight, error)
+	Begin() Database
+	CreateTx(tx Database, flight model.Flight) (model.Flight, error)
+	DeleteByIDTx(tx Database, id uint) error
+	GetByIDTx(tx Database, id uint) (model.Flight, error)
+	SaveTx(tx Database, flight model.Flight) (model.Flight, error)
 }
 
 type flight struct {
@@ -34,11 +34,11 @@ func newFlightRepository(db *gorm.DB) FlightRepository {
 	}
 }
 
-func (f *flight) Begin() *gorm.DB {
+func (f *flight) Begin() Database {
 	return f.db.Begin()
 }
 
-func (f *flight) Save(flight model.Flight) (model.Flight, error) {
+func (f *flight) Create(flight model.Flight) (model.Flight, error) {
 	result := f.db.Create(&flight)
 	if result.Error != nil {
 		return model.Flight{}, result.Error
@@ -47,7 +47,7 @@ func (f *flight) Save(flight model.Flight) (model.Flight, error) {
 	return flight, nil
 }
 
-func (f *flight) SaveTx(tx *gorm.DB, flight model.Flight) (model.Flight, error) {
+func (f *flight) CreateTx(tx Database, flight model.Flight) (model.Flight, error) {
 	result := tx.Create(&flight)
 	if result.Error != nil {
 		return model.Flight{}, result.Error
@@ -66,7 +66,7 @@ func (f *flight) GetByID(id uint) (model.Flight, error) {
 	return flight, nil
 }
 
-func (f *flight) Update(flight model.Flight) (model.Flight, error) {
+func (f *flight) Save(flight model.Flight) (model.Flight, error) {
 	if _, err := f.GetByID(flight.ID); err != nil {
 		return model.Flight{}, err
 	}
@@ -79,11 +79,7 @@ func (f *flight) Update(flight model.Flight) (model.Flight, error) {
 	return flight, nil
 }
 
-func (f *flight) UpdateTx(tx *gorm.DB, flight model.Flight) (model.Flight, error) {
-	if _, err := f.GetByIDTx(tx, flight.ID); err != nil { //is this necessary?
-		return model.Flight{}, err
-	}
-
+func (f *flight) SaveTx(tx Database, flight model.Flight) (model.Flight, error) {
 	result := tx.Save(&flight)
 	if result.Error != nil {
 		return model.Flight{}, result.Error
@@ -125,7 +121,7 @@ func (f *flight) GetByAircraftID(aircraftID uint) ([]model.Flight, error) {
 	return flights, nil
 }
 
-func (f *flight) CountByAircraftID(userID, aircraftID uint) (int64, error) {
+func (f *flight) CountByUserIDAndAircraftID(userID, aircraftID uint) (int64, error) {
 	var count int64
 	result := f.db.Model(&model.Flight{}).Where("aircraft_id = ? AND user_id = ?", aircraftID, userID).Count(&count)
 	if result.Error != nil {
@@ -145,7 +141,7 @@ func (f *flight) GetByUserIDAndDate(userID uint, start, end time.Time) ([]model.
 	return flights, nil
 }
 
-func (f *flight) DeleteByIDTx(tx *gorm.DB, id uint) error {
+func (f *flight) DeleteByIDTx(tx Database, id uint) error {
 	result := tx.Delete(&model.Flight{}, id)
 	if result.Error != nil {
 		return result.Error
@@ -156,7 +152,7 @@ func (f *flight) DeleteByIDTx(tx *gorm.DB, id uint) error {
 	return nil
 }
 
-func (f *flight) GetByIDTx(tx *gorm.DB, id uint) (model.Flight, error) {
+func (f *flight) GetByIDTx(tx Database, id uint) (model.Flight, error) {
 	var flight model.Flight
 	result := tx.First(&flight, id)
 	if result.Error != nil {
