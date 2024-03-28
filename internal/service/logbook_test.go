@@ -292,7 +292,7 @@ var _ = Describe("LogbookService", func() {
 				landingRepoMock.EXPECT().CreateTx(databaseMock, mockLandingTwo).Return(mockInsertedLandingTwo, nil)
 
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Commit()
+				databaseMock.EXPECT().Commit().Return(&gorm.DB{Error: nil})
 
 				// when
 				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
@@ -327,6 +327,28 @@ var _ = Describe("LogbookService", func() {
 
 			})
 		})
+		Context("when commit fails", func() {
+			It("Should return an error", func() {
+				// given
+				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				flightRepoMock.EXPECT().CreateTx(databaseMock, mockFlight).Return(mockInsertedFlight, nil)
+				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerOne).Return(mockInsertedPassengerOne, nil)
+				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerTwo).Return(mockInsertedPassengerTwo, nil)
+				landingRepoMock.EXPECT().CreateTx(databaseMock, mockLandingOne).Return(mockInsertedLandingOne, nil)
+				landingRepoMock.EXPECT().CreateTx(databaseMock, mockLandingTwo).Return(mockInsertedLandingTwo, nil)
+
+				flightRepoMock.EXPECT().Begin().Return(databaseMock)
+				databaseMock.EXPECT().Commit().Return(&gorm.DB{Error: errors.New("failed to commit")})
+
+				// when
+				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+
+				// then
+				Expect(err).ToNot(BeNil())
+				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
+				Expect(err.Error()).To(Equal("failed to commit"))
+			})
+		})
 		// it also covers the case when the user does not provide the aircraft id in the request
 		Context("When the aircraft does not exist or the user does not own the aircraft", func() {
 			It("Should return an error", func() {
@@ -343,12 +365,11 @@ var _ = Describe("LogbookService", func() {
 			})
 		})
 		Context("When flight to insert missing takeoff time", func() {
-			It("Should return an error and rollback transaction", func() {
+			It("Should return an error", func() {
 				// given
 				logbookRequest.TakeoffTime = time.Time{}
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Rollback()
 
 				// when
 				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
@@ -360,12 +381,11 @@ var _ = Describe("LogbookService", func() {
 			})
 		})
 		Context("When flight to insert missing takeoff airport code", func() {
-			It("Should return an error and rollback transaction", func() {
+			It("Should return an error", func() {
 				// given
 				logbookRequest.TakeoffAirportCode = ""
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Rollback()
 
 				// when
 				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
@@ -377,12 +397,11 @@ var _ = Describe("LogbookService", func() {
 			})
 		})
 		Context("When flight to insert missing landing time", func() {
-			It("Should return an error and rollback transaction", func() {
+			It("Should return an error", func() {
 				// given
 				logbookRequest.LandingTime = time.Time{}
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Rollback()
 
 				// when
 				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
@@ -394,12 +413,11 @@ var _ = Describe("LogbookService", func() {
 			})
 		})
 		Context("When flight to insert missing landing airport code", func() {
-			It("Should return an error and rollback transaction", func() {
+			It("Should return an error", func() {
 				// given
 				logbookRequest.LandingAirportCode = ""
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Rollback()
 
 				// when
 				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
@@ -411,12 +429,11 @@ var _ = Describe("LogbookService", func() {
 			})
 		})
 		Context("When flight to insert missing style", func() {
-			It("Should return an error and rollback transaction", func() {
+			It("Should return an error and ", func() {
 				// given
 				logbookRequest.Style = ""
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Rollback()
 
 				// when
 				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
@@ -429,12 +446,11 @@ var _ = Describe("LogbookService", func() {
 			})
 		})
 		Context("when flight to insert have invalid style", func() {
-			It("Should return an error and rollback transaction", func() {
+			It("Should return an error", func() {
 				// given
 				logbookRequest.Style = "invalidStyle"
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Rollback()
 
 				// when
 				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
@@ -605,13 +621,32 @@ var _ = Describe("LogbookService", func() {
 				landingRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(1)).Return(nil)
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(1)).Return(nil)
 				flightRepoMock.EXPECT().DeleteByIDTx(databaseMock, uint(1)).Return(nil)
-				databaseMock.EXPECT().Commit()
+				databaseMock.EXPECT().Commit().Return(&gorm.DB{Error: nil})
 
 				// when
 				err := logbookService.DeleteLogbookEntry(uint(2), uint(1))
 
 				// then
 				Expect(err).To(BeNil())
+
+			})
+		})
+		Context("when commit fails", func() {
+			It("Should return an error", func() {
+				// given
+				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockInsertedFlight, nil)
+				flightRepoMock.EXPECT().Begin().Return(databaseMock)
+				landingRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(1)).Return(nil)
+				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(1)).Return(nil)
+				flightRepoMock.EXPECT().DeleteByIDTx(databaseMock, uint(1)).Return(nil)
+				databaseMock.EXPECT().Commit().Return(&gorm.DB{Error: errors.New("failed to commit")})
+
+				// when
+				err := logbookService.DeleteLogbookEntry(uint(2), uint(1))
+
+				// then
+				Expect(err).ToNot(BeNil())
+				Expect(err.Error()).To(Equal("failed to commit"))
 			})
 		})
 		Context("when fail to fetch flight", func() {
@@ -699,7 +734,7 @@ var _ = Describe("LogbookService", func() {
 				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Commit()
+				databaseMock.EXPECT().Commit().Return(&gorm.DB{Error: nil})
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerOne).Return(mockInsertedPassengerOne, nil)
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerTwo).Return(mockInsertedPassengerTwo, nil)
 				landingRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
@@ -735,6 +770,30 @@ var _ = Describe("LogbookService", func() {
 				Expect(logbookResponse.Passengers).To(Equal(logbookRequest.Passengers))
 				Expect(logbookResponse.Landings).To(HaveLen(2))
 				Expect(logbookResponse.Landings).To(Equal(logbookRequest.Landings))
+			})
+		})
+		Context("when commit fails", func() {
+			It("Should return an error", func() {
+				// given
+				flightRepoMock.EXPECT().GetByID(uint(3)).Return(mockFlightBeforeUpdate, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(mockInsertedFlight, nil)
+				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
+				flightRepoMock.EXPECT().Begin().Return(databaseMock)
+				databaseMock.EXPECT().Commit().Return(&gorm.DB{Error: nil})
+				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerOne).Return(mockInsertedPassengerOne, nil)
+				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerTwo).Return(mockInsertedPassengerTwo, nil)
+				landingRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
+				landingRepoMock.EXPECT().CreateTx(databaseMock, mockLandingOne).Return(mockInsertedLandingOne, nil)
+				landingRepoMock.EXPECT().CreateTx(databaseMock, mockLandingTwo).Return(mockInsertedLandingTwo, nil)
+
+				// when
+				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(3), logbookRequest)
+
+				// then
+				Expect(err).To(BeNil())
+				Expect(logbookResponse).ToNot(BeNil())
+
 			})
 		})
 		// this test also covers the case when user does not provide aircraft id in the request
@@ -782,13 +841,12 @@ var _ = Describe("LogbookService", func() {
 			})
 		})
 		Context("when flight to update missing TakeoffTime", func() {
-			It("Should return an error and rollback transaction", func() {
+			It("Should return an error", func() {
 				// given
 				logbookRequest.TakeoffTime = time.Time{}
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockFlightBeforeUpdate, nil)
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Rollback()
 
 				// when
 				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
@@ -800,13 +858,12 @@ var _ = Describe("LogbookService", func() {
 			})
 		})
 		Context("when flight to update missing TakeoffAirportCode", func() {
-			It("Should return an error and rollback transaction", func() {
+			It("Should return an error", func() {
 				// given
 				logbookRequest.TakeoffTime = time.Time{}
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockFlightBeforeUpdate, nil)
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Rollback()
 
 				// when
 				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
@@ -818,13 +875,12 @@ var _ = Describe("LogbookService", func() {
 			})
 		})
 		Context("when flight to update missing LandingTime", func() {
-			It("Should return an error and rollback transaction", func() {
+			It("Should return an error", func() {
 				// given
 				logbookRequest.LandingTime = time.Time{}
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockFlightBeforeUpdate, nil)
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Rollback()
 
 				// when
 				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
@@ -836,13 +892,12 @@ var _ = Describe("LogbookService", func() {
 			})
 		})
 		Context("when flight to update missing LandingAirportCode", func() {
-			It("Should return an error and rollback transaction", func() {
+			It("Should return an error", func() {
 				// given
 				logbookRequest.LandingAirportCode = ""
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockFlightBeforeUpdate, nil)
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Rollback()
 
 				// when
 				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
@@ -855,13 +910,12 @@ var _ = Describe("LogbookService", func() {
 			})
 		})
 		Context("when flight to update missing Style", func() {
-			It("Should return an error and rollback transaction", func() {
+			It("Should return an error", func() {
 				// given
 				logbookRequest.Style = ""
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockFlightBeforeUpdate, nil)
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Rollback()
 
 				// when
 				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
@@ -873,13 +927,12 @@ var _ = Describe("LogbookService", func() {
 			})
 		})
 		Context("when flight to update invalid Style", func() {
-			It("Should return an error and rollback transaction", func() {
+			It("Should return an error", func() {
 				// given
 				logbookRequest.Style = "invalidStyle"
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockFlightBeforeUpdate, nil)
 				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
-				databaseMock.EXPECT().Rollback()
 
 				// when
 				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
@@ -907,7 +960,6 @@ var _ = Describe("LogbookService", func() {
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
 				Expect(err.Error()).To(Equal("failed to update flight"))
-
 			})
 		})
 		Context("when deleting passengers failed", func() {
@@ -1077,7 +1129,6 @@ var _ = Describe("LogbookService", func() {
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
 				Expect(err.Error()).To(Equal("invalid data in field: ApproachType"))
-
 			})
 		})
 		Context("when creating landing failed", func() {
@@ -1101,10 +1152,8 @@ var _ = Describe("LogbookService", func() {
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
 				Expect(err.Error()).To(Equal("failed to create landing"))
-
 			})
 		})
-
 	})
 
 	Describe("GetLogbookEntries", func() {
