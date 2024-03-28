@@ -47,8 +47,8 @@ func (a *aircraftService) InsertAircraft(userID uint, aircraftRequest dto.Aircra
 
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
-			for _, vErr := range validationErrors {
-				return model.Aircraft{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
+			if len(validationErrors) > 0 {
+				return model.Aircraft{}, fmt.Errorf("invalid data in field: %s", validationErrors[0].Field())
 			}
 		}
 	}
@@ -84,8 +84,8 @@ func (a *aircraftService) UpdateAircraft(userID, id uint, aircraftRequest dto.Ai
 
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
-			for _, vErr := range validationErrors {
-				return model.Aircraft{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
+			if len(validationErrors) > 0 {
+				return model.Aircraft{}, fmt.Errorf("invalid data in field: %s", validationErrors[0].Field())
 			}
 		}
 	}
