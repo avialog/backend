@@ -15,7 +15,7 @@ type FlightRepository interface {
 	GetByAircraftID(aircraftID uint) ([]model.Flight, error)
 	Save(flight model.Flight) (model.Flight, error)
 	DeleteByID(id uint) error
-	CountByAircraftID(userID, aircraftID uint) (int64, error)
+	CountByUserIDAndAircraftID(userID, aircraftID uint) (int64, error)
 	GetByUserIDAndDate(userID uint, start, end time.Time) ([]model.Flight, error)
 	Begin() Database
 	CreateTx(tx Database, flight model.Flight) (model.Flight, error)
@@ -121,7 +121,7 @@ func (f *flight) GetByAircraftID(aircraftID uint) ([]model.Flight, error) {
 	return flights, nil
 }
 
-func (f *flight) CountByAircraftID(userID, aircraftID uint) (int64, error) {
+func (f *flight) CountByUserIDAndAircraftID(userID, aircraftID uint) (int64, error) {
 	var count int64
 	result := f.db.Model(&model.Flight{}).Where("aircraft_id = ? AND user_id = ?", aircraftID, userID).Count(&count)
 	if result.Error != nil {

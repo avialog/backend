@@ -94,7 +94,7 @@ func (a *aircraftService) UpdateAircraft(userID, id uint, aircraftRequest dto.Ai
 }
 
 func (a *aircraftService) DeleteAircraft(userID, id uint) error {
-	numberOfFlights, err := a.flightRepository.CountByAircraftID(userID, id)
+	numberOfFlights, err := a.flightRepository.CountByUserIDAndAircraftID(userID, id)
 	if err != nil {
 		return err
 	}
@@ -112,7 +112,7 @@ func (a *aircraftService) DeleteAircraft(userID, id uint) error {
 }
 
 func (a *aircraftService) CountAircraftFlights(userID, id uint) (int64, error) {
-	numberOfFlights, err := a.flightRepository.CountByAircraftID(userID, id)
+	numberOfFlights, err := a.flightRepository.CountByUserIDAndAircraftID(userID, id)
 	if err != nil {
 		return 0, err
 	}
