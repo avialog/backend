@@ -8,9 +8,9 @@ import (
 
 //go:generate mockgen -source=user.go -destination=user_mock.go -package repository
 type UserRepository interface {
-	Save(user model.User) (model.User, error)
+	Create(user model.User) (model.User, error)
 	GetByID(id uint) (model.User, error)
-	Update(user model.User) (model.User, error)
+	Save(user model.User) (model.User, error)
 	DeleteByID(id uint) error
 }
 
@@ -24,7 +24,7 @@ func newUserRepository(db *gorm.DB) UserRepository {
 	}
 }
 
-func (u *user) Save(user model.User) (model.User, error) {
+func (u *user) Create(user model.User) (model.User, error) {
 	result := u.db.Create(&user)
 	if result.Error != nil {
 		return model.User{}, result.Error
@@ -42,11 +42,7 @@ func (u *user) GetByID(id uint) (model.User, error) {
 	return user, nil
 }
 
-func (u *user) Update(user model.User) (model.User, error) {
-	if _, err := u.GetByID(user.ID); err != nil {
-		return model.User{}, err
-	}
-
+func (u *user) Save(user model.User) (model.User, error) {
 	result := u.db.Save(&user)
 	if result.Error != nil {
 		return model.User{}, result.Error

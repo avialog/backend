@@ -6,14 +6,15 @@ import (
 	"gorm.io/gorm"
 )
 
+//go:generate mockgen -source=landing.go -destination=landing_mock.go -package repository
 type LandingRepository interface {
-	Save(landing model.Landing) (model.Landing, error)
+	Create(landing model.Landing) (model.Landing, error)
 	GetByID(id uint) (model.Landing, error)
 	GetByFlightID(flightID uint) ([]model.Landing, error)
-	Update(landing model.Landing) (model.Landing, error)
+	Save(landing model.Landing) (model.Landing, error)
 	DeleteByID(id uint) error
-	SaveTx(tx *gorm.DB, landing model.Landing) (model.Landing, error)
-	DeleteByFlightIDTx(tx *gorm.DB, flightID uint) error
+	CreateTx(tx Database, landing model.Landing) (model.Landing, error)
+	DeleteByFlightIDTx(tx Database, flightID uint) error
 }
 
 type landing struct {
@@ -26,7 +27,7 @@ func newLandingRepository(db *gorm.DB) LandingRepository {
 	}
 }
 
-func (l *landing) Save(landing model.Landing) (model.Landing, error) {
+func (l *landing) Create(landing model.Landing) (model.Landing, error) {
 	result := l.db.Create(&landing)
 	if result.Error != nil {
 		return model.Landing{}, result.Error
@@ -35,7 +36,7 @@ func (l *landing) Save(landing model.Landing) (model.Landing, error) {
 	return landing, nil
 }
 
-func (l *landing) SaveTx(tx *gorm.DB, landing model.Landing) (model.Landing, error) {
+func (l *landing) CreateTx(tx Database, landing model.Landing) (model.Landing, error) {
 	result := tx.Create(&landing)
 	if result.Error != nil {
 		return model.Landing{}, result.Error
@@ -53,7 +54,7 @@ func (l *landing) GetByID(id uint) (model.Landing, error) {
 	return landing, nil
 }
 
-func (l *landing) Update(landing model.Landing) (model.Landing, error) {
+func (l *landing) Save(landing model.Landing) (model.Landing, error) {
 	if _, err := l.GetByID(landing.ID); err != nil {
 		return model.Landing{}, err
 	}
@@ -88,7 +89,7 @@ func (l *landing) GetByFlightID(flightID uint) ([]model.Landing, error) {
 	return landings, nil
 }
 
-func (l *landing) DeleteByFlightIDTx(tx *gorm.DB, flightID uint) error {
+func (l *landing) DeleteByFlightIDTx(tx Database, flightID uint) error {
 	result := tx.Delete(&model.Landing{}, "flight_id = ?", flightID)
 	if result.Error != nil {
 		return result.Error
