@@ -4,11 +4,11 @@ import "gorm.io/gorm"
 
 type Aircraft struct {
 	gorm.Model
-	UserID             uint
-	User               User
-	RegistrationNumber string
-	AircraftModel      string
+	UserID             uint   `gorm:"required; not null; default:null" validate:"required"`
+	User               User   `validate:"-"`
+	RegistrationNumber string `gorm:"required; not null; default:null" validate:"required"`
+	AircraftModel      string `gorm:"required; not null; default:null" validate:"required"`
 	Remarks            string
 	ImageURL           string
-	Flights            []Flight `gorm:"foreignKey:AircraftID"`
+	Flights            []Flight `gorm:"foreignKey:AircraftID" validate:"-"`
 }

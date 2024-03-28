@@ -2,9 +2,11 @@ package service
 
 import (
 	"errors"
+	"fmt"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
+	"github.com/go-playground/validator/v10"
 )
 
 type AircraftService interface {
@@ -18,12 +20,13 @@ type AircraftService interface {
 type aircraftService struct {
 	aircraftRepository repository.AircraftRepository
 	flightRepository   repository.FlightRepository
+	validator          *validator.Validate
 	config             dto.Config
 }
 
 func newAircraftService(aircraftRepository repository.AircraftRepository, flightRepository repository.FlightRepository,
-	config dto.Config) AircraftService {
-	return &aircraftService{aircraftRepository: aircraftRepository, flightRepository: flightRepository, config: config}
+	config dto.Config, validator *validator.Validate) AircraftService {
+	return &aircraftService{aircraftRepository: aircraftRepository, flightRepository: flightRepository, config: config, validator: validator}
 }
 
 func (a *aircraftService) InsertAircraft(userID uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
@@ -35,7 +38,22 @@ func (a *aircraftService) InsertAircraft(userID uint, aircraftRequest dto.Aircra
 		Remarks:            aircraftRequest.Remarks,
 	}
 
-	return a.aircraftRepository.Save(aircraft)
+	err := a.validator.Struct(aircraft)
+	if err != nil {
+		var invalidValidationError *validator.InvalidValidationError
+		if errors.As(err, &invalidValidationError) {
+			return model.Aircraft{}, err
+		}
+
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			if len(validationErrors) > 0 {
+				return model.Aircraft{}, fmt.Errorf("invalid data in field: %s", validationErrors[0].Field())
+			}
+		}
+	}
+
+	return a.aircraftRepository.Create(aircraft)
 }
 
 func (a *aircraftService) GetUserAircraft(userID uint) ([]model.Aircraft, error) {
@@ -57,11 +75,26 @@ func (a *aircraftService) UpdateAircraft(userID, id uint, aircraftRequest dto.Ai
 	aircraft.ImageURL = aircraftRequest.ImageURL
 	aircraft.Remarks = aircraftRequest.Remarks
 
-	return a.aircraftRepository.Update(aircraft)
+	err = a.validator.Struct(aircraft)
+	if err != nil {
+		var invalidValidationError *validator.InvalidValidationError
+		if errors.As(err, &invalidValidationError) {
+			return model.Aircraft{}, err
+		}
+
+		var validationErrors validator.ValidationErrors
+		if errors.As(err, &validationErrors) {
+			if len(validationErrors) > 0 {
+				return model.Aircraft{}, fmt.Errorf("invalid data in field: %s", validationErrors[0].Field())
+			}
+		}
+	}
+
+	return a.aircraftRepository.Save(aircraft)
 }
 
 func (a *aircraftService) DeleteAircraft(userID, id uint) error {
-	numberOfFlights, err := a.flightRepository.CountByAircraftID(userID, id)
+	numberOfFlights, err := a.flightRepository.CountByUserIDAndAircraftID(userID, id)
 	if err != nil {
 		return err
 	}
@@ -79,7 +112,7 @@ func (a *aircraftService) DeleteAircraft(userID, id uint) error {
 }
 
 func (a *aircraftService) CountAircraftFlights(userID, id uint) (int64, error) {
-	numberOfFlights, err := a.flightRepository.CountByAircraftID(userID, id)
+	numberOfFlights, err := a.flightRepository.CountByUserIDAndAircraftID(userID, id)
 	if err != nil {
 		return 0, err
 	}
