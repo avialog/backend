@@ -9,6 +9,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+//go:generate mockgen -source=aircraft.go -destination=aircraft_mock.go -package service
 type AircraftService interface {
 	InsertAircraft(userID uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error)
 	GetUserAircraft(userID uint) ([]model.Aircraft, error)

@@ -9,7 +9,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"time"
 )
-
+//go:generate mockgen -source=logbook.go -destination=logbook_mock.go -package service
 type LogbookService interface {
 	InsertLogbookEntry(userID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error)
 	DeleteLogbookEntry(userID, flightID uint) error
