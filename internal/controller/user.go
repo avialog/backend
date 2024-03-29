@@ -21,12 +21,12 @@ func newUserController(userService service.UserService) UserController {
 }
 
 func (u *userController) GetProfile(c *gin.Context) {
-	// there will be getting user id from JWT token
+	// TODO: add getting user id from JWT token
 	userID := uint(1)
-	// -----------------------
+
 	user, err := u.userService.GetProfile(userID)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()}) // or should I return status not found (404) ?
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	userResponse := dto.UserResponse{
@@ -46,9 +46,8 @@ func (u *userController) GetProfile(c *gin.Context) {
 }
 
 func (u *userController) UpdateProfile(c *gin.Context) {
-	// there will be getting user id from JWT token
+	// TODO: add getting user id from JWT token
 	userID := uint(1)
-	// -----------------------
 
 	var userRequest dto.UserRequest
 	if err := c.ShouldBindJSON(&userRequest); err != nil {
@@ -75,5 +74,6 @@ func (u *userController) UpdateProfile(c *gin.Context) {
 		Company:      user.Company,
 		Timezone:     user.Timezone,
 	}
+
 	c.JSON(200, userResponse)
 }
