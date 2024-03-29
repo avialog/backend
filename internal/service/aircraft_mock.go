@@ -40,21 +40,6 @@ func (m *MockAircraftService) EXPECT() *MockAircraftServiceMockRecorder {
 	return m.recorder
 }
 
-// CountAircraftFlights mocks base method.
-func (m *MockAircraftService) CountAircraftFlights(userID, id uint) (int64, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CountAircraftFlights", userID, id)
-	ret0, _ := ret[0].(int64)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CountAircraftFlights indicates an expected call of CountAircraftFlights.
-func (mr *MockAircraftServiceMockRecorder) CountAircraftFlights(userID, id any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CountAircraftFlights", reflect.TypeOf((*MockAircraftService)(nil).CountAircraftFlights), userID, id)
-}
-
 // DeleteAircraft mocks base method.
 func (m *MockAircraftService) DeleteAircraft(userID, id uint) error {
 	m.ctrl.T.Helper()
