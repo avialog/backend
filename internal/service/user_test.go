@@ -8,7 +8,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
-	"gorm.io/gorm"
 )
 
 var _ = Describe("UserService", func() {
@@ -25,7 +24,7 @@ var _ = Describe("UserService", func() {
 		userRepoMock = repository.NewMockUserRepository(userRepoCtrl)
 		userService = newUserService(userRepoMock, dto.Config{})
 		mockUser = model.User{
-			Model:        gorm.Model{ID: 1},
+			ID:           "1",
 			FirstName:    "test_user",
 			LastName:     "test_last_name",
 			Email:        "test@test.com",

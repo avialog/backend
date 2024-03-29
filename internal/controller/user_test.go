@@ -11,7 +11,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
-	"gorm.io/gorm"
 	"net/http"
 	"net/http/httptest"
 )
@@ -60,7 +59,7 @@ var _ = Describe("UserController", func() {
 			Timezone:     "UTC",
 		}
 		userMock = model.User{
-			Model:        gorm.Model{ID: 1},
+			ID:           "1",
 			FirstName:    "John",
 			LastName:     "Doe",
 			Email:        "test@test.com",
