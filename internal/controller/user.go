@@ -2,6 +2,7 @@ package controller
 
 import (
 	"github.com/avialog/backend/internal/dto"
+	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -61,7 +62,13 @@ func (u *userController) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	userResponse := dto.UserResponse{
+	userResponse := u.adaptUser(user)
+
+	c.JSON(http.StatusOK, userResponse)
+}
+
+func (u *userController) adaptUser(user model.User) dto.UserResponse {
+	return dto.UserResponse{
 		FirstName:    user.FirstName,
 		LastName:     user.LastName,
 		Email:        user.Email,
@@ -74,6 +81,4 @@ func (u *userController) UpdateProfile(c *gin.Context) {
 		Company:      user.Company,
 		Timezone:     user.Timezone,
 	}
-
-	c.JSON(200, userResponse)
 }
