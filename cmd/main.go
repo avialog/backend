@@ -1,8 +1,11 @@
 package main
 
 import (
+	"github.com/avialog/backend/internal/controller"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/repository"
+	"github.com/avialog/backend/internal/service"
+	"github.com/avialog/backend/internal/utils"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -32,8 +35,9 @@ func main() {
 	if err != nil {
 		logrus.Panic(err)
 	}
-
-	_ = repositories
+	services := service.NewServices(repositories, config, utils.GetValidator())
+	controllers := controller.NewControllers(services, config)
+	controllers.Route(server)
 
 	port := "3000"
 	if os.Getenv("PORT") != "" {
