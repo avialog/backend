@@ -9,6 +9,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+//go:generate mockgen -source=contact.go -destination=contact_mock.go -package service
 type ContactService interface {
 	InsertContact(userID uint, contactRequest dto.ContactRequest) (model.Contact, error)
 	GetUserContacts(userID uint) ([]model.Contact, error)
