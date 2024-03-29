@@ -15,7 +15,6 @@ type AircraftService interface {
 	GetUserAircraft(userID uint) ([]model.Aircraft, error)
 	UpdateAircraft(userID, id uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error)
 	DeleteAircraft(userID, id uint) error
-	CountAircraftFlights(userID, id uint) (int64, error)
 }
 
 type aircraftService struct {
@@ -110,13 +109,4 @@ func (a *aircraftService) DeleteAircraft(userID, id uint) error {
 	}
 
 	return nil
-}
-
-func (a *aircraftService) CountAircraftFlights(userID, id uint) (int64, error) {
-	numberOfFlights, err := a.flightRepository.CountByUserIDAndAircraftID(userID, id)
-	if err != nil {
-		return 0, err
-	}
-
-	return numberOfFlights, nil
 }

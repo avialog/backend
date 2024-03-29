@@ -317,33 +317,4 @@ var _ = Describe("AircraftService", func() {
 
 		})
 	})
-
-	Describe("CountAircraftFlights", func() {
-		Context("when fail to count flights", func() {
-			It("should return error", func() {
-				// given
-				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(0), errors.New("failed to count flights"))
-
-				// when
-				count, err := aircraftService.CountAircraftFlights(uint(1), uint(1))
-
-				// then
-				Expect(err.Error()).To(Equal("failed to count flights"))
-				Expect(count).To(Equal(int64(0)))
-			})
-		})
-		Context("when count flights successfully", func() {
-			It("should return number of flights and no error", func() {
-				// given
-				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(5), nil)
-
-				// when
-				count, err := aircraftService.CountAircraftFlights(uint(1), uint(1))
-
-				// then
-				Expect(err).To(BeNil())
-				Expect(count).To(Equal(int64(5)))
-			})
-		})
-	})
 })
