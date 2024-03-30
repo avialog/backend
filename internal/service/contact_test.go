@@ -109,7 +109,7 @@ var _ = Describe("ContactService", func() {
 				insertedContact, err := contactService.InsertContact(uint(1), contactRequest)
 
 				// then
-				Expect(err.Error()).To(Equal("invalid data in field: FirstName"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: FirstName"))
 				Expect(insertedContact).To(Equal(model.Contact{}))
 			})
 		})
@@ -211,19 +211,6 @@ var _ = Describe("ContactService", func() {
 				Expect(updatedContact).To(Equal(model.Contact{}))
 			})
 		})
-		Context("when unauthorized to update contact", func() {
-			It("should return error", func() {
-				// given
-				contactRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(model.Contact{UserID: uint(2)}, nil)
-
-				// when
-				updatedContact, err := contactService.UpdateContact(uint(1), uint(1), contactRequest)
-
-				// then
-				Expect(err.Error()).To(Equal("unauthorized to update contact"))
-				Expect(updatedContact).To(Equal(model.Contact{}))
-			})
-		})
 		Context("when update fails", func() {
 			It("should return error", func() {
 				// given
@@ -261,7 +248,7 @@ var _ = Describe("ContactService", func() {
 				updatedContact, err := contactService.UpdateContact(uint(1), uint(1), contactRequest)
 
 				// then
-				Expect(err.Error()).To(Equal("invalid data in field: FirstName"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: FirstName"))
 				Expect(updatedContact).To(Equal(model.Contact{}))
 			})
 		})

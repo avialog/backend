@@ -1,8 +1,8 @@
 package dto
 
-type ContactRequest struct {
+type ContactResponse struct {
 	AvatarURL    string `json:"avatar_url"`
-	FirstName    string `json:"first_name" binding:"required"`
+	FirstName    string `json:"first_name"`
 	LastName     string `json:"last_name"`
 	Company      string `json:"company"`
 	Phone        string `json:"phone"`
