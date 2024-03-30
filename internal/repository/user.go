@@ -9,9 +9,9 @@ import (
 //go:generate mockgen -source=user.go -destination=user_mock.go -package repository
 type UserRepository interface {
 	Create(user model.User) (model.User, error)
-	GetByID(id uint) (model.User, error)
+	GetByID(id string) (model.User, error)
 	Save(user model.User) (model.User, error)
-	DeleteByID(id uint) error
+	DeleteByID(id string) error
 }
 
 type user struct {
@@ -33,7 +33,7 @@ func (u *user) Create(user model.User) (model.User, error) {
 	return user, nil
 }
 
-func (u *user) GetByID(id uint) (model.User, error) {
+func (u *user) GetByID(id string) (model.User, error) {
 	var user model.User
 	result := u.db.First(&user, id)
 	if result.Error != nil {
@@ -51,7 +51,7 @@ func (u *user) Save(user model.User) (model.User, error) {
 	return user, nil
 }
 
-func (u *user) DeleteByID(id uint) error {
+func (u *user) DeleteByID(id string) error {
 	result := u.db.Delete(&model.User{}, id)
 	if result.Error != nil {
 		return result.Error

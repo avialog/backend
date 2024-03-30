@@ -9,7 +9,7 @@ import (
 )
 
 type UserController interface {
-	GetProfile(*gin.Context)
+	GetUser(*gin.Context)
 	UpdateProfile(*gin.Context)
 }
 
@@ -21,11 +21,11 @@ func newUserController(userService service.UserService) UserController {
 	return &userController{userService: userService}
 }
 
-func (u *userController) GetProfile(c *gin.Context) {
+func (u *userController) GetUser(c *gin.Context) {
 	// TODO: add getting user id from JWT token
-	userID := uint(1)
+	userID := "1"
 
-	user, err := u.userService.GetProfile(userID)
+	user, err := u.userService.GetUser(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -48,7 +48,7 @@ func (u *userController) GetProfile(c *gin.Context) {
 
 func (u *userController) UpdateProfile(c *gin.Context) {
 	// TODO: add getting user id from JWT token
-	userID := uint(1)
+	userID := "1"
 
 	var userRequest dto.UserRequest
 	if err := c.ShouldBindJSON(&userRequest); err != nil {
