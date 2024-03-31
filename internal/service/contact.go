@@ -43,17 +43,16 @@ func (c *contactService) InsertContact(userID uint, contactRequest dto.ContactRe
 	if err != nil {
 		var invalidValidationError *validator.InvalidValidationError
 		if errors.As(err, &invalidValidationError) {
-			return model.Contact{}, err
+			return model.Contact{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 		}
 
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
-			for _, vErr := range validationErrors {
-				return model.Contact{}, fmt.Errorf("invalid data in field: %s", vErr.Field())
+			if len(validationErrors) > 0 {
+				return model.Contact{}, fmt.Errorf("%w: invalid data in field: %v", dto.ErrBadRequest, validationErrors[0].Field())
 			}
 		}
 	}
-
 	return c.contactRepository.Create(contact)
 }
 
@@ -76,10 +75,6 @@ func (c *contactService) UpdateContact(userID, id uint, contactRequest dto.Conta
 		return model.Contact{}, err
 	}
 
-	if contact.UserID != userID {
-		return model.Contact{}, errors.New("unauthorized to update contact")
-	}
-
 	contact.FirstName = contactRequest.FirstName
 	contact.LastName = contactRequest.LastName
 	contact.Phone = contactRequest.Phone
@@ -92,13 +87,13 @@ func (c *contactService) UpdateContact(userID, id uint, contactRequest dto.Conta
 	if err != nil {
 		var invalidValidationError *validator.InvalidValidationError
 		if errors.As(err, &invalidValidationError) {
-			return model.Contact{}, err
+			return model.Contact{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 		}
 
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
 			if len(validationErrors) > 0 {
-				return model.Contact{}, fmt.Errorf("invalid data in field: %s", validationErrors[0].Field())
+				return model.Contact{}, fmt.Errorf("%w: invalid data in field: %v", dto.ErrBadRequest, validationErrors[0].Field())
 			}
 		}
 	}

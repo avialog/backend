@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"firebase.google.com/go/auth"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/middleware"
 	"github.com/avialog/backend/internal/service"
@@ -15,20 +14,21 @@ type Controllers interface {
 }
 
 type controllers struct {
-	userController UserController
-	infoController InfoController
-	config         dto.Config
-	authClient     *auth.Client
+	userController    UserController
+	infoController    InfoController
+	config            dto.Config
+	contactController ContactController
 }
 
-func NewControllers(services service.Services, config dto.Config, authClient *auth.Client) Controllers {
+func NewControllers(services service.Services, config dto.Config) Controllers {
 	userController := newUserController(services.User())
+	contactController := newContactController(services.Contact())
 	infoController := newInfoController()
 	return &controllers{
-		userController: userController,
-		infoController: infoController,
-		config:         config,
-		authClient:     authClient,
+		userController:    userController,
+		contactController: contactController,
+		infoController:    infoController,
+		config:            config,
 	}
 }
 
@@ -45,9 +45,13 @@ func (c *controllers) Route(server *gin.Engine) {
 	server.GET("/info", c.infoController.Info)
 
 	authenticated := server.Group("/")
-	authenticated.Use(middleware.AuthJWT(c.authClient))
+	authenticated.Use(middleware.AuthJWT(middleware.AuthJWT(c.AuthService)))
 
 	authenticated.GET("/profile", c.userController.GetUser)
 	authenticated.PUT("/profile", c.userController.UpdateProfile)
 
+	server.GET("/contacts", c.contactController.GetContacts)
+	server.POST("/contacts", c.contactController.InsertContact)
+	server.PUT("/contacts/:id", c.contactController.UpdateContact)
+	server.DELETE("/contacts/:id", c.contactController.DeleteContact)
 }

@@ -1,8 +1,7 @@
 package middleware
 
 import (
-	"firebase.google.com/go/auth"
-	"github.com/avialog/backend/internal/model"
+	"github.com/avialog/backend/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -13,20 +12,12 @@ const (
 
 // Gin middleware for JWT auth
 
-func AuthJWT(client *auth.Client) gin.HandlerFunc {
+func AuthJWT(authService service.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		idToken := c.Request.Header.Get("Authorization")
-		token, err := client.VerifyIDToken(c, idToken)
+		user, err := authService.ValidateToken(c, idToken)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
-			c.Abort()
-			return
-		}
-
-		// Wyszukaj użytkownika w bazie danych za pomocą token.UID
-		var user model.User
-		if err := db.Where("firebase_id = ?", token.UID).First(&user).Error; err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "internal server error"})
 			c.Abort()
 			return
 		}

@@ -9,7 +9,6 @@ import (
 //go:generate mockgen -source=user.go -destination=user_mock.go -package service
 type UserService interface {
 	GetUser(id uint) (model.User, error)
-	GetUserByFirebaseUID(firebaseUID string) (model.User, error)
 	UpdateProfile(id uint, userRequest dto.UserRequest) (model.User, error)
 }
 
@@ -43,8 +42,4 @@ func (u *userService) UpdateProfile(id uint, userRequest dto.UserRequest) (model
 	user.Timezone = userRequest.Timezone
 
 	return u.userRepository.Save(user)
-}
-
-func (u *userService) GetUserByFirebaseUID(firebaseUID string) (model.User, error) {
-
 }

@@ -3,6 +3,7 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
 )
@@ -13,6 +14,7 @@ type UserRepository interface {
 	GetByID(id uint) (model.User, error)
 	Save(user model.User) (model.User, error)
 	DeleteByID(id uint) error
+	GetByFirebaseUID(firebaseUID string) (model.User, error)
 }
 
 type user struct {
@@ -28,7 +30,7 @@ func newUserRepository(db *gorm.DB) UserRepository {
 func (u *user) Create(user model.User) (model.User, error) {
 	result := u.db.Create(&user)
 	if result.Error != nil {
-		return model.User{}, result.Error
+		return model.User{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 
 	return user, nil
@@ -67,7 +69,7 @@ func (u *user) GetByFirebaseUID(firebaseUID string) (model.User, error) {
 	var user model.User
 	result := u.db.Where("firebase_id = ?", firebaseUID).First(&user)
 	if result.Error != nil {
-		return model.User{}, fmt.Errorf("%w: %s", dto.)
+		return model.User{}, fmt.Errorf("%w: %v", dto.ErrNotFound, result.Error)
 	}
 	return user, nil
 }

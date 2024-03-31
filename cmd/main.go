@@ -49,8 +49,8 @@ func main() {
 	if err != nil {
 		logrus.Panic(err)
 	}
-	services := service.NewServices(repositories, config, utils.GetValidator())
-	controllers := controller.NewControllers(services, config, authClient)
+	services := service.NewServices(repositories, config, utils.GetValidator(), authClient)
+	controllers := controller.NewControllers(services, config)
 	controllers.Route(server)
 
 	port := "3000"

@@ -4,9 +4,10 @@ import "gorm.io/gorm"
 
 type User struct {
 	gorm.Model
+	FirebaseUID  string `gorm:"unique"`
 	FirstName    string
 	LastName     string
-	Email        string `gorm:"required; not null; default:null"`
+	Email        string //`gorm:"required; not null; default:null"`
 	AvatarURL    string
 	SignatureURL string
 	Country      Country
