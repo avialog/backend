@@ -41,7 +41,7 @@ func (m *MockUserService) EXPECT() *MockUserServiceMockRecorder {
 }
 
 // GetUser mocks base method.
-func (m *MockUserService) GetUser(id string) (model.User, error) {
+func (m *MockUserService) GetUser(id uint) (model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUser", id)
 	ret0, _ := ret[0].(model.User)
@@ -56,7 +56,7 @@ func (mr *MockUserServiceMockRecorder) GetUser(id any) *gomock.Call {
 }
 
 // UpdateProfile mocks base method.
-func (m *MockUserService) UpdateProfile(id string, userRequest dto.UserRequest) (model.User, error) {
+func (m *MockUserService) UpdateProfile(id uint, userRequest dto.UserRequest) (model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateProfile", id, userRequest)
 	ret0, _ := ret[0].(model.User)

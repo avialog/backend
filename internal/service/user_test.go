@@ -8,6 +8,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
+	"gorm.io/gorm"
 )
 
 var _ = Describe("UserService", func() {
@@ -24,7 +25,7 @@ var _ = Describe("UserService", func() {
 		userRepoMock = repository.NewMockUserRepository(userRepoCtrl)
 		userService = newUserService(userRepoMock, dto.Config{})
 		mockUser = model.User{
-			ID:           "1",
+			Model:        gorm.Model{ID: uint(1)},
 			FirstName:    "test_user",
 			LastName:     "test_last_name",
 			Email:        "test@test.com",
@@ -63,7 +64,7 @@ var _ = Describe("UserService", func() {
 				userRepoMock.EXPECT().GetByID(uint(1)).Return(mockUser, nil)
 
 				// when
-				user, err := userService.GetProfile(uint(1))
+				user, err := userService.GetUser(uint(1))
 
 				// then
 				Expect(err).To(BeNil())
@@ -76,7 +77,7 @@ var _ = Describe("UserService", func() {
 				userRepoMock.EXPECT().GetByID(uint(1)).Return(model.User{}, errors.New("user not found"))
 
 				// when
-				user, err := userService.GetProfile(uint(1))
+				user, err := userService.GetUser(uint(1))
 
 				// then
 				Expect(err.Error()).To(Equal("user not found"))

@@ -1,15 +1,9 @@
 package model
 
-import (
-	"gorm.io/gorm"
-	"time"
-)
+import "gorm.io/gorm"
 
 type User struct {
-	ID           string `gorm:"primarykey"`
-	CreatedAt    time.Time
-	UpdatedAt    time.Time
-	DeletedAt    gorm.DeletedAt `gorm:"index"`
+	gorm.Model
 	FirstName    string
 	LastName     string
 	Email        string `gorm:"required; not null; default:null"`

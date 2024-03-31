@@ -11,6 +11,7 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
+	"gorm.io/gorm"
 	"net/http"
 	"net/http/httptest"
 )
@@ -59,7 +60,7 @@ var _ = Describe("UserController", func() {
 			Timezone:     "UTC",
 		}
 		userMock = model.User{
-			ID:           "1",
+			Model:        gorm.Model{ID: 1},
 			FirstName:    "John",
 			LastName:     "Doe",
 			Email:        "test@test.com",
@@ -93,7 +94,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
 
-				userServiceMock.EXPECT().GetUser("1").Return(userMock, nil)
+				userServiceMock.EXPECT().GetUser(uint(1)).Return(userMock, nil)
 
 				// when
 				userController.GetUser(ctx)
@@ -113,7 +114,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
 
-				userServiceMock.EXPECT().GetUser("1").Return(model.User{}, errors.New("failed to get profile"))
+				userServiceMock.EXPECT().GetUser(uint(1)).Return(model.User{}, errors.New("failed to get profile"))
 
 				// when
 				userController.GetUser(ctx)
@@ -139,7 +140,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
 
-				userServiceMock.EXPECT().UpdateProfile("1", userRequest).Return(userMock, nil)
+				userServiceMock.EXPECT().UpdateProfile(uint(1), userRequest).Return(userMock, nil)
 				// when
 				userController.UpdateProfile(ctx)
 
@@ -179,7 +180,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
 
-				userServiceMock.EXPECT().UpdateProfile("1", userRequest).Return(model.User{}, errors.New("failed to update profile"))
+				userServiceMock.EXPECT().UpdateProfile(uint(1), userRequest).Return(model.User{}, errors.New("failed to update profile"))
 
 				// when
 				userController.UpdateProfile(ctx)

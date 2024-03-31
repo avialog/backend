@@ -8,8 +8,9 @@ import (
 
 //go:generate mockgen -source=user.go -destination=user_mock.go -package service
 type UserService interface {
-	GetUser(id string) (model.User, error)
-	UpdateProfile(id string, userRequest dto.UserRequest) (model.User, error)
+	GetUser(id uint) (model.User, error)
+	GetUserByFirebaseUID(firebaseUID string) (model.User, error)
+	UpdateProfile(id uint, userRequest dto.UserRequest) (model.User, error)
 }
 
 type userService struct {
@@ -21,11 +22,11 @@ func newUserService(userRepository repository.UserRepository, config dto.Config)
 	return &userService{userRepository: userRepository, config: config}
 }
 
-func (u *userService) GetUser(id string) (model.User, error) {
+func (u *userService) GetUser(id uint) (model.User, error) {
 	return u.userRepository.GetByID(id)
 }
 
-func (u *userService) UpdateProfile(id string, userRequest dto.UserRequest) (model.User, error) {
+func (u *userService) UpdateProfile(id uint, userRequest dto.UserRequest) (model.User, error) {
 	user, err := u.userRepository.GetByID(id)
 	if err != nil {
 		return model.User{}, err
@@ -42,4 +43,8 @@ func (u *userService) UpdateProfile(id string, userRequest dto.UserRequest) (mod
 	user.Timezone = userRequest.Timezone
 
 	return u.userRepository.Save(user)
+}
+
+func (u *userService) GetUserByFirebaseUID(firebaseUID string) (model.User, error) {
+
 }
