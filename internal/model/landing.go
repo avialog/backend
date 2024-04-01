@@ -1,9 +1,11 @@
 package model
 
+import "gorm.io/gorm"
+
 type Landing struct {
-	ID           int64
-	FlightID     int64
-	ApproachType ApproachType
+	gorm.Model
+	FlightID     uint         `gorm:"required; not null; default:null" validate:"required"`
+	ApproachType ApproachType `gorm:"required; not null; default:null" validate:"required,approach_type"`
 	Count        uint
 	NightCount   uint
 	DayCount     uint

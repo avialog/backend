@@ -1,13 +1,18 @@
 package model
 
-import "time"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 type User struct {
-	ID           int64
+	ID           string `gorm:"primarykey"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    gorm.DeletedAt `gorm:"index"`
 	FirstName    string
 	LastName     string
-	Email        string
-	PasswordHash string
+	Email        string `gorm:"required; not null; default:null"`
 	AvatarURL    string
 	SignatureURL string
 	Country      Country
@@ -15,5 +20,8 @@ type User struct {
 	Street       string
 	City         string
 	Company      string
-	Timezone     time.Location
+	Timezone     string
+	Contacts     []Contact  `gorm:"foreignKey:UserID" validate:"-"`
+	Aircraft     []Aircraft `gorm:"foreignKey:UserID" validate:"-"`
+	Flights      []Flight   `gorm:"foreignKey:UserID" validate:"-"`
 }

@@ -9,3 +9,11 @@ const (
 	StyleZ   Style = "Z"
 	StyleZ2  Style = "Z2"
 )
+
+var AvailableStyles = []Style{
+	StyleVFR,
+	StyleIFR,
+	StyleY,
+	StyleZ,
+	StyleZ2,
+}

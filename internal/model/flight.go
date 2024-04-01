@@ -1,16 +1,23 @@
 package model
 
-import "time"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 type Flight struct {
-	ID                  int64
-	UserID              int64
-	AircraftID          int64
-	TakeoffTime         time.Time
-	TakeoffAirportCode  string
-	LandingTime         time.Time
-	LandingAirportCode  string
-	Style               Style
+	gorm.Model
+	UserID              uint        `gorm:"required; not null; default:null" validate:"required"`
+	User                User        `validate:"-"`
+	AircraftID          uint        `gorm:"required; not null; default:null" validate:"required"`
+	Aircraft            Aircraft    `validate:"-"`
+	Passengers          []Passenger `gorm:"foreignKey:FlightID" validate:"-"`
+	Landings            []Landing   `gorm:"foreignKey:FlightID" validate:"-"`
+	TakeoffTime         time.Time   `gorm:"required; not null; default:null" validate:"required"`
+	TakeoffAirportCode  string      `gorm:"required; not null; default:null" validate:"required"`
+	LandingTime         time.Time   `gorm:"required; not null; default:null" validate:"required"`
+	LandingAirportCode  string      `gorm:"required; not null; default:null" validate:"required"`
+	Style               Style       `gorm:"required; not null; default:null" validate:"required,style"`
 	Remarks             string
 	PersonalRemarks     string
 	TotalBlockTime      time.Duration

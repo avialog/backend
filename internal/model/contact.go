@@ -1,10 +1,13 @@
 package model
 
+import "gorm.io/gorm"
+
 type Contact struct {
-	ID           int64
-	UserID       int64
+	gorm.Model
+	UserID       uint `gorm:"required; not null; default:null" validate:"required"`
+	User         User `validate:"-"`
 	AvatarURL    string
-	FirstName    string
+	FirstName    string `gorm:"required; not null; default:null" validate:"required"`
 	LastName     string
 	Company      string
 	Phone        string

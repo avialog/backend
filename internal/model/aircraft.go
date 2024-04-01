@@ -1,10 +1,14 @@
 package model
 
+import "gorm.io/gorm"
+
 type Aircraft struct {
-	ID                 int64
-	UserID             int64
-	RegistrationNumber string
-	Model              string
-	Remarks            string // Notes
+	gorm.Model
+	UserID             uint   `gorm:"required; not null; default:null" validate:"required"`
+	User               User   `validate:"-"`
+	RegistrationNumber string `gorm:"required; not null; default:null" validate:"required"`
+	AircraftModel      string `gorm:"required; not null; default:null" validate:"required"`
+	Remarks            string
 	ImageURL           string
+	Flights            []Flight `gorm:"foreignKey:AircraftID" validate:"-"`
 }

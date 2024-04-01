@@ -13,3 +13,15 @@ const (
 	RoleFlightAttendant                Role = "ATT"
 	RoleOther                          Role = "OTH"
 )
+
+var AvailableRoles = []Role{
+	RolePilotInCommand,
+	RoleSecondInCommand,
+	RoleDual,
+	RoleStudentPilotInCommand,
+	RolePilotInCommandUnderSupervision,
+	RoleInstructor,
+	RoleExaminer,
+	RoleFlightAttendant,
+	RoleOther,
+}

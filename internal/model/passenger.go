@@ -1,10 +1,13 @@
 package model
 
+import "gorm.io/gorm"
+
 type Passenger struct {
-	ID           int64
-	FlightID     int64
-	Role         Role
-	FirstName    string
+	gorm.Model
+	FlightID     uint   `gorm:"required; not null; default:null" validate:"required"`
+	Flight       Flight `validate:"-"`
+	Role         Role   `gorm:"required; not null; default:null" validate:"required,role"`
+	FirstName    string `gorm:"required; not null; default:null" validate:"required"`
 	LastName     string
 	Company      string
 	Phone        string
