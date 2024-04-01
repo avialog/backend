@@ -41,7 +41,7 @@ func (m *MockAircraftService) EXPECT() *MockAircraftServiceMockRecorder {
 }
 
 // DeleteAircraft mocks base method.
-func (m *MockAircraftService) DeleteAircraft(userID, id uint) error {
+func (m *MockAircraftService) DeleteAircraft(userID string, id uint) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteAircraft", userID, id)
 	ret0, _ := ret[0].(error)
@@ -55,7 +55,7 @@ func (mr *MockAircraftServiceMockRecorder) DeleteAircraft(userID, id any) *gomoc
 }
 
 // GetUserAircraft mocks base method.
-func (m *MockAircraftService) GetUserAircraft(userID uint) ([]model.Aircraft, error) {
+func (m *MockAircraftService) GetUserAircraft(userID string) ([]model.Aircraft, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserAircraft", userID)
 	ret0, _ := ret[0].([]model.Aircraft)
@@ -70,7 +70,7 @@ func (mr *MockAircraftServiceMockRecorder) GetUserAircraft(userID any) *gomock.C
 }
 
 // InsertAircraft mocks base method.
-func (m *MockAircraftService) InsertAircraft(userID uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
+func (m *MockAircraftService) InsertAircraft(userID string, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "InsertAircraft", userID, aircraftRequest)
 	ret0, _ := ret[0].(model.Aircraft)
@@ -85,7 +85,7 @@ func (mr *MockAircraftServiceMockRecorder) InsertAircraft(userID, aircraftReques
 }
 
 // UpdateAircraft mocks base method.
-func (m *MockAircraftService) UpdateAircraft(userID, id uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
+func (m *MockAircraftService) UpdateAircraft(userID string, id uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateAircraft", userID, id, aircraftRequest)
 	ret0, _ := ret[0].(model.Aircraft)

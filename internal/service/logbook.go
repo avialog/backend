@@ -3,18 +3,20 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
 	"github.com/go-playground/validator/v10"
 	"time"
 )
+
 //go:generate mockgen -source=logbook.go -destination=logbook_mock.go -package service
 type LogbookService interface {
-	InsertLogbookEntry(userID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error)
-	DeleteLogbookEntry(userID, flightID uint) error
-	UpdateLogbookEntry(userID, flightID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error)
-	GetLogbookEntries(userID uint, start, end time.Time) ([]dto.LogbookResponse, error)
+	InsertLogbookEntry(userID string, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error)
+	DeleteLogbookEntry(userID string, flightID uint) error
+	UpdateLogbookEntry(userID string, flightID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error)
+	GetLogbookEntries(userID string, start, end time.Time) ([]dto.LogbookResponse, error)
 }
 
 type logbookService struct {
@@ -23,17 +25,17 @@ type logbookService struct {
 	passengerRepository repository.PassengerRepository
 	aircraftRepository  repository.AircraftRepository
 	validator           *validator.Validate
-	config              dto.Config
+	config              config.Config
 }
 
 func newLogbookService(flightRepository repository.FlightRepository, landingRepository repository.LandingRepository,
 	passengerRepository repository.PassengerRepository, aircraftRepository repository.AircraftRepository,
-	config dto.Config, validator *validator.Validate) LogbookService {
+	config config.Config, validator *validator.Validate) LogbookService {
 	return &logbookService{flightRepository, landingRepository,
 		passengerRepository, aircraftRepository, validator, config}
 }
 
-func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
+func (l *logbookService) InsertLogbookEntry(userID string, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
 	var logbookResponse dto.LogbookResponse
 	landingEntries := make([]dto.LandingEntry, 0)
 	passengerEntries := make([]dto.PassengerEntry, 0)
@@ -205,7 +207,7 @@ func (l *logbookService) InsertLogbookEntry(userID uint, logbookRequest dto.Logb
 	return logbookResponse, nil
 }
 
-func (l *logbookService) DeleteLogbookEntry(userID, flightID uint) error {
+func (l *logbookService) DeleteLogbookEntry(userID string, flightID uint) error {
 	flight, err := l.flightRepository.GetByID(flightID)
 	if err != nil {
 		return err
@@ -237,7 +239,7 @@ func (l *logbookService) DeleteLogbookEntry(userID, flightID uint) error {
 	return nil
 }
 
-func (l *logbookService) GetLogbookEntries(userID uint, start, end time.Time) ([]dto.LogbookResponse, error) {
+func (l *logbookService) GetLogbookEntries(userID string, start, end time.Time) ([]dto.LogbookResponse, error) {
 	logbookResponses := make([]dto.LogbookResponse, 0)
 
 	flights, err := l.flightRepository.GetByUserIDAndDate(userID, start, end)
@@ -312,7 +314,7 @@ func (l *logbookService) GetLogbookEntries(userID uint, start, end time.Time) ([
 	return logbookResponses, nil
 }
 
-func (l *logbookService) UpdateLogbookEntry(userID, flightID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
+func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
 	var logbookResponse dto.LogbookResponse
 	landingEntries := make([]dto.LandingEntry, 0)
 	passengerEntries := make([]dto.PassengerEntry, 0)

@@ -78,7 +78,7 @@ var _ = Describe("UserController", func() {
 		userServiceCtrl.Finish()
 	})
 
-	Describe("GetProfile", func() {
+	Describe("GetUser", func() {
 		Context("on successful get profile", func() {
 			It("should return 200 OK and user profile", func() {
 				// given
@@ -93,10 +93,10 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
 
-				userServiceMock.EXPECT().GetProfile(uint(1)).Return(userMock, nil)
+				userServiceMock.EXPECT().GetUser("1").Return(userMock, nil)
 
 				// when
-				userController.GetProfile(ctx)
+				userController.GetUser(ctx)
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusOK))
@@ -113,10 +113,10 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
 
-				userServiceMock.EXPECT().GetProfile(uint(1)).Return(model.User{}, errors.New("failed to get profile"))
+				userServiceMock.EXPECT().GetUser("1").Return(model.User{}, errors.New("failed to get profile"))
 
 				// when
-				userController.GetProfile(ctx)
+				userController.GetUser(ctx)
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
@@ -139,7 +139,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
 
-				userServiceMock.EXPECT().UpdateProfile(uint(1), userRequest).Return(userMock, nil)
+				userServiceMock.EXPECT().UpdateProfile("1", userRequest).Return(userMock, nil)
 				// when
 				userController.UpdateProfile(ctx)
 
@@ -179,7 +179,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
 
-				userServiceMock.EXPECT().UpdateProfile(uint(1), userRequest).Return(model.User{}, errors.New("failed to update profile"))
+				userServiceMock.EXPECT().UpdateProfile("1", userRequest).Return(model.User{}, errors.New("failed to update profile"))
 
 				// when
 				userController.UpdateProfile(ctx)
