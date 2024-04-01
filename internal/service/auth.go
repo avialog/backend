@@ -31,6 +31,15 @@ func (a *authService) ValidateToken(ctx context.Context, token string) (model.Us
 	if err != nil {
 		return model.User{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 	}
+
+	if _, ok := response.Claims["email"]; !ok {
+		return model.User{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, "email claim not found")
+
+	}
+	if _, ok := response.Claims["email"].(string); !ok {
+		return model.User{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, "email claim is not a string")
+	}
+
 	userEmail := response.Claims["email"].(string)
 
 	user, err := a.userRepository.GetByID(response.UID)
@@ -43,7 +52,7 @@ func (a *authService) ValidateToken(ctx context.Context, token string) (model.Us
 			})
 			if err != nil {
 				return model.User{}, err // internal error
-			} // internal error
+			}
 			return newUser, nil
 		}
 		return model.User{}, err // internal error
