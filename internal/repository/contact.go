@@ -61,7 +61,7 @@ func (c *contact) DeleteByUserIDAndID(userID string, id uint) error {
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("contact %d for user %d not found: %w", id, userID, dto.ErrNotFound)
+		return fmt.Errorf("contact %d for user %s not found: %w", id, userID, dto.ErrNotFound)
 	}
 
 	return nil
