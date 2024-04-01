@@ -55,7 +55,7 @@ func (mr *MockAircraftRepositoryMockRecorder) Create(aircraft any) *gomock.Call 
 }
 
 // DeleteByUserIDAndID mocks base method.
-func (m *MockAircraftRepository) DeleteByUserIDAndID(userID, id uint) error {
+func (m *MockAircraftRepository) DeleteByUserIDAndID(userID string, id uint) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteByUserIDAndID", userID, id)
 	ret0, _ := ret[0].(error)
@@ -69,7 +69,7 @@ func (mr *MockAircraftRepositoryMockRecorder) DeleteByUserIDAndID(userID, id any
 }
 
 // GetByUserID mocks base method.
-func (m *MockAircraftRepository) GetByUserID(userID uint) ([]model.Aircraft, error) {
+func (m *MockAircraftRepository) GetByUserID(userID string) ([]model.Aircraft, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByUserID", userID)
 	ret0, _ := ret[0].([]model.Aircraft)
@@ -84,7 +84,7 @@ func (mr *MockAircraftRepositoryMockRecorder) GetByUserID(userID any) *gomock.Ca
 }
 
 // GetByUserIDAndID mocks base method.
-func (m *MockAircraftRepository) GetByUserIDAndID(userID, id uint) (model.Aircraft, error) {
+func (m *MockAircraftRepository) GetByUserIDAndID(userID string, id uint) (model.Aircraft, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByUserIDAndID", userID, id)
 	ret0, _ := ret[0].(model.Aircraft)

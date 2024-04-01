@@ -1,7 +1,8 @@
 package controller
 
 import (
-	"github.com/avialog/backend/internal/dto"
+	"github.com/avialog/backend/internal/config"
+	"github.com/avialog/backend/internal/middleware"
 	"github.com/avialog/backend/internal/service"
 	"github.com/gin-gonic/gin"
 )
@@ -14,20 +15,23 @@ type Controllers interface {
 
 type controllers struct {
 	userController    UserController
-	contactController ContactController
 	infoController    InfoController
-	config            dto.Config
+	config            config.Config
+	contactController ContactController
+	authMiddleware    gin.HandlerFunc
 }
 
-func NewControllers(services service.Services, config dto.Config) Controllers {
+func NewControllers(services service.Services, config config.Config) Controllers {
 	userController := newUserController(services.User())
 	contactController := newContactController(services.Contact())
 	infoController := newInfoController()
+	authMiddleware := middleware.AuthJWT(services.Auth())
 	return &controllers{
 		userController:    userController,
 		contactController: contactController,
 		infoController:    infoController,
 		config:            config,
+		authMiddleware:    authMiddleware,
 	}
 }
 
@@ -40,12 +44,17 @@ func (c *controllers) Info() InfoController {
 }
 
 func (c *controllers) Route(server *gin.Engine) {
-	server.GET("/info", c.infoController.Info)
-	server.GET("/profile", c.userController.GetProfile)
-	server.PUT("/profile", c.userController.UpdateProfile)
 
-	server.GET("/contacts", c.contactController.GetContacts)
-	server.POST("/contacts", c.contactController.InsertContact)
-	server.PUT("/contacts/:id", c.contactController.UpdateContact)
-	server.DELETE("/contacts/:id", c.contactController.DeleteContact)
+	server.GET("/info", c.infoController.Info)
+
+	authenticated := server.Group("/")
+	authenticated.Use(c.authMiddleware)
+
+	authenticated.GET("/profile", c.userController.GetUser)
+	authenticated.PUT("/profile", c.userController.UpdateProfile)
+
+	authenticated.GET("/contacts", c.contactController.GetContacts)
+	authenticated.POST("/contacts", c.contactController.InsertContact)
+	authenticated.PUT("/contacts/:id", c.contactController.UpdateContact)
+	authenticated.DELETE("/contacts/:id", c.contactController.DeleteContact)
 }

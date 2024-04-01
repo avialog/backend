@@ -41,7 +41,7 @@ func (m *MockContactService) EXPECT() *MockContactServiceMockRecorder {
 }
 
 // DeleteContact mocks base method.
-func (m *MockContactService) DeleteContact(userID, id uint) error {
+func (m *MockContactService) DeleteContact(userID string, id uint) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteContact", userID, id)
 	ret0, _ := ret[0].(error)
@@ -55,7 +55,7 @@ func (mr *MockContactServiceMockRecorder) DeleteContact(userID, id any) *gomock.
 }
 
 // GetUserContacts mocks base method.
-func (m *MockContactService) GetUserContacts(userID uint) ([]model.Contact, error) {
+func (m *MockContactService) GetUserContacts(userID string) ([]model.Contact, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetUserContacts", userID)
 	ret0, _ := ret[0].([]model.Contact)
@@ -70,7 +70,7 @@ func (mr *MockContactServiceMockRecorder) GetUserContacts(userID any) *gomock.Ca
 }
 
 // InsertContact mocks base method.
-func (m *MockContactService) InsertContact(userID uint, contactRequest dto.ContactRequest) (model.Contact, error) {
+func (m *MockContactService) InsertContact(userID string, contactRequest dto.ContactRequest) (model.Contact, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "InsertContact", userID, contactRequest)
 	ret0, _ := ret[0].(model.Contact)
@@ -85,7 +85,7 @@ func (mr *MockContactServiceMockRecorder) InsertContact(userID, contactRequest a
 }
 
 // UpdateContact mocks base method.
-func (m *MockContactService) UpdateContact(userID, id uint, contactRequest dto.ContactRequest) (model.Contact, error) {
+func (m *MockContactService) UpdateContact(userID string, id uint, contactRequest dto.ContactRequest) (model.Contact, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateContact", userID, id, contactRequest)
 	ret0, _ := ret[0].(model.Contact)
