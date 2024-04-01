@@ -18,20 +18,20 @@ type controllers struct {
 	infoController    InfoController
 	config            config.Config
 	contactController ContactController
-	authService       service.AuthService
+	authMiddleware    gin.HandlerFunc
 }
 
 func NewControllers(services service.Services, config config.Config) Controllers {
 	userController := newUserController(services.User())
 	contactController := newContactController(services.Contact())
 	infoController := newInfoController()
-	authService := services.Auth()
+	authMiddleware := middleware.AuthJWT(services.Auth())
 	return &controllers{
 		userController:    userController,
 		contactController: contactController,
 		infoController:    infoController,
 		config:            config,
-		authService:       authService,
+		authMiddleware:    authMiddleware,
 	}
 }
 
@@ -48,7 +48,7 @@ func (c *controllers) Route(server *gin.Engine) {
 	server.GET("/info", c.infoController.Info)
 
 	authenticated := server.Group("/")
-	authenticated.Use(middleware.AuthJWT(c.authService))
+	authenticated.Use(c.authMiddleware)
 
 	authenticated.GET("/profile", c.userController.GetUser)
 	authenticated.PUT("/profile", c.userController.UpdateProfile)
