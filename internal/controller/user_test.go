@@ -92,7 +92,7 @@ var _ = Describe("UserController", func() {
 
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
-
+				ctx.Set("userID", "1")
 				userServiceMock.EXPECT().GetUser("1").Return(userMock, nil)
 
 				// when
@@ -112,7 +112,7 @@ var _ = Describe("UserController", func() {
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
-
+				ctx.Set("userID", "1")
 				userServiceMock.EXPECT().GetUser("1").Return(model.User{}, errors.New("failed to get profile"))
 
 				// when
@@ -138,7 +138,7 @@ var _ = Describe("UserController", func() {
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
-
+				ctx.Set("userID", "1")
 				userServiceMock.EXPECT().UpdateProfile("1", userRequest).Return(userMock, nil)
 				// when
 				userController.UpdateProfile(ctx)
@@ -157,7 +157,7 @@ var _ = Describe("UserController", func() {
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
-
+				ctx.Set("userID", "1")
 				// when
 				userController.UpdateProfile(ctx)
 
@@ -178,7 +178,7 @@ var _ = Describe("UserController", func() {
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
-
+				ctx.Set("userID", "1")
 				userServiceMock.EXPECT().UpdateProfile("1", userRequest).Return(model.User{}, errors.New("failed to update profile"))
 
 				// when
