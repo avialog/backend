@@ -26,8 +26,7 @@ func newContactController(contactService service.ContactService) ContactControll
 }
 
 func (c *contactController) GetContacts(ctx *gin.Context) {
-	// TODO: add getting user id from JWT token
-	userID := uint(1)
+	userID := ctx.GetString("userID")
 
 	contacts, err := c.contactService.GetUserContacts(userID)
 	if err != nil {
@@ -41,8 +40,7 @@ func (c *contactController) GetContacts(ctx *gin.Context) {
 }
 
 func (c *contactController) InsertContact(ctx *gin.Context) {
-	// TODO: add getting user id from JWT token
-	userID := uint(1)
+	userID := ctx.GetString("userID")
 
 	var contactRequest dto.ContactRequest
 	if err := ctx.ShouldBindJSON(&contactRequest); err != nil {
@@ -72,8 +70,7 @@ func (c *contactController) UpdateContact(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: add getting user id from JWT token
-	userID := uint(1)
+	userID := ctx.GetString("userID")
 
 	var contactRequest dto.ContactRequest
 	if err := ctx.ShouldBindJSON(&contactRequest); err != nil {
@@ -106,8 +103,7 @@ func (c *contactController) DeleteContact(ctx *gin.Context) {
 		return
 	}
 
-	// TODO: add getting user id from JWT token
-	userID := uint(1)
+	userID := ctx.GetString("userID")
 
 	err = c.contactService.DeleteContact(userID, uint(contactID))
 	if err != nil {

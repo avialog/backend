@@ -38,7 +38,7 @@ var _ = Describe("UserController", func() {
 		mockContacts = []model.Contact{
 			{
 				Model:        gorm.Model{ID: 1},
-				UserID:       1,
+				UserID:       "1",
 				AvatarURL:    "https://test.com",
 				FirstName:    "John",
 				LastName:     "Doe",
@@ -49,7 +49,7 @@ var _ = Describe("UserController", func() {
 			},
 			{
 				Model:        gorm.Model{ID: 2},
-				UserID:       1,
+				UserID:       "1",
 				AvatarURL:    "https://test.com",
 				FirstName:    "Jane",
 				LastName:     "Doe",
@@ -91,7 +91,7 @@ var _ = Describe("UserController", func() {
 		}
 		contactBeforeUpdate = model.Contact{
 			Model:        gorm.Model{ID: 3},
-			UserID:       5,
+			UserID:       "5",
 			AvatarURL:    "https://test.com",
 			FirstName:    "John",
 			LastName:     "Doe",
@@ -118,7 +118,7 @@ var _ = Describe("UserController", func() {
 				ctx.Request = req
 				ctx.Set("Accept", "application/json")
 
-				contactServiceMock.EXPECT().GetUserContacts(uint(1)).Return(mockContacts, nil)
+				contactServiceMock.EXPECT().GetUserContacts("1").Return(mockContacts, nil)
 				// when
 				contactController.GetContacts(ctx)
 
@@ -132,7 +132,7 @@ var _ = Describe("UserController", func() {
 				// given
 				ctx.Set("Accept", "application/json")
 
-				contactServiceMock.EXPECT().GetUserContacts(uint(1)).Return(nil, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
+				contactServiceMock.EXPECT().GetUserContacts("1").Return(nil, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
 
 				// when
 				contactController.GetContacts(ctx)
@@ -158,7 +158,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
 
-				contactServiceMock.EXPECT().InsertContact(uint(1), contactRequest).Return(mockContacts[0], nil)
+				contactServiceMock.EXPECT().InsertContact("1", contactRequest).Return(mockContacts[0], nil)
 				// when
 				contactController.InsertContact(ctx)
 
@@ -202,7 +202,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
 
-				contactServiceMock.EXPECT().InsertContact(uint(1), contactRequest).Return(model.Contact{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
+				contactServiceMock.EXPECT().InsertContact("1", contactRequest).Return(model.Contact{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
 
 				// when
 				contactController.InsertContact(ctx)
@@ -247,7 +247,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
 
-				contactServiceMock.EXPECT().UpdateContact(uint(1), uint(3), contactRequest).Return(contactBeforeUpdate, nil)
+				contactServiceMock.EXPECT().UpdateContact("1", uint(3), contactRequest).Return(contactBeforeUpdate, nil)
 				// when
 				contactController.UpdateContact(ctx)
 
@@ -309,7 +309,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
 
-				contactServiceMock.EXPECT().UpdateContact(uint(1), uint(3), contactRequest).Return(model.Contact{}, fmt.Errorf("%w: %v", dto.ErrNotFound, gorm.ErrRecordNotFound))
+				contactServiceMock.EXPECT().UpdateContact("1", uint(3), contactRequest).Return(model.Contact{}, fmt.Errorf("%w: %v", dto.ErrNotFound, gorm.ErrRecordNotFound))
 
 				// when
 				contactController.UpdateContact(ctx)
@@ -334,7 +334,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
 
-				contactServiceMock.EXPECT().UpdateContact(uint(1), uint(3), contactRequest).Return(model.Contact{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
+				contactServiceMock.EXPECT().UpdateContact("1", uint(3), contactRequest).Return(model.Contact{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
 
 				// when
 				contactController.UpdateContact(ctx)
@@ -352,7 +352,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Accept", "application/json")
 
 				ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
-				contactServiceMock.EXPECT().DeleteContact(uint(1), uint(1)).Return(nil)
+				contactServiceMock.EXPECT().DeleteContact("1", uint(1)).Return(nil)
 
 				// when
 				contactController.DeleteContact(ctx)
@@ -383,7 +383,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Accept", "application/json")
 
 				ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
-				contactServiceMock.EXPECT().DeleteContact(uint(1), uint(1)).Return(fmt.Errorf("%w: %v", dto.ErrNotFound, gorm.ErrRecordNotFound))
+				contactServiceMock.EXPECT().DeleteContact("1", uint(1)).Return(fmt.Errorf("%w: %v", dto.ErrNotFound, gorm.ErrRecordNotFound))
 
 				// when
 				contactController.DeleteContact(ctx)
@@ -399,7 +399,7 @@ var _ = Describe("UserController", func() {
 				ctx.Set("Accept", "application/json")
 
 				ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
-				contactServiceMock.EXPECT().DeleteContact(uint(1), uint(1)).Return(fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
+				contactServiceMock.EXPECT().DeleteContact("1", uint(1)).Return(fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
 
 				// when
 				contactController.DeleteContact(ctx)
