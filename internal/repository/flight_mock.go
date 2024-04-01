@@ -13,6 +13,7 @@ import (
 	reflect "reflect"
 	time "time"
 
+	infrastructure "github.com/avialog/backend/internal/infrastructure"
 	model "github.com/avialog/backend/internal/model"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -41,10 +42,10 @@ func (m *MockFlightRepository) EXPECT() *MockFlightRepositoryMockRecorder {
 }
 
 // Begin mocks base method.
-func (m *MockFlightRepository) Begin() Database {
+func (m *MockFlightRepository) Begin() infrastructure.Database {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Begin")
-	ret0, _ := ret[0].(Database)
+	ret0, _ := ret[0].(infrastructure.Database)
 	return ret0
 }
 
@@ -85,7 +86,7 @@ func (mr *MockFlightRepositoryMockRecorder) Create(flight any) *gomock.Call {
 }
 
 // CreateTx mocks base method.
-func (m *MockFlightRepository) CreateTx(tx Database, flight model.Flight) (model.Flight, error) {
+func (m *MockFlightRepository) CreateTx(tx infrastructure.Database, flight model.Flight) (model.Flight, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateTx", tx, flight)
 	ret0, _ := ret[0].(model.Flight)
@@ -114,7 +115,7 @@ func (mr *MockFlightRepositoryMockRecorder) DeleteByID(id any) *gomock.Call {
 }
 
 // DeleteByIDTx mocks base method.
-func (m *MockFlightRepository) DeleteByIDTx(tx Database, id uint) error {
+func (m *MockFlightRepository) DeleteByIDTx(tx infrastructure.Database, id uint) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteByIDTx", tx, id)
 	ret0, _ := ret[0].(error)
@@ -158,7 +159,7 @@ func (mr *MockFlightRepositoryMockRecorder) GetByID(id any) *gomock.Call {
 }
 
 // GetByIDTx mocks base method.
-func (m *MockFlightRepository) GetByIDTx(tx Database, id uint) (model.Flight, error) {
+func (m *MockFlightRepository) GetByIDTx(tx infrastructure.Database, id uint) (model.Flight, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByIDTx", tx, id)
 	ret0, _ := ret[0].(model.Flight)
@@ -218,7 +219,7 @@ func (mr *MockFlightRepositoryMockRecorder) Save(flight any) *gomock.Call {
 }
 
 // SaveTx mocks base method.
-func (m *MockFlightRepository) SaveTx(tx Database, flight model.Flight) (model.Flight, error) {
+func (m *MockFlightRepository) SaveTx(tx infrastructure.Database, flight model.Flight) (model.Flight, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SaveTx", tx, flight)
 	ret0, _ := ret[0].(model.Flight)

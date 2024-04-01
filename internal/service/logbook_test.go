@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/dto"
+	"github.com/avialog/backend/internal/infrastructure"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
 	"github.com/avialog/backend/internal/utils"
@@ -27,7 +28,7 @@ var _ = Describe("LogbookService", func() {
 		aircraftRepoCtrl         *gomock.Controller
 		aircraftRepoMock         *repository.MockAircraftRepository
 		databaseCtrl             *gomock.Controller
-		databaseMock             *repository.MockDatabase
+		databaseMock             *infrastructure.MockDatabase
 		validator                *validator.Validate
 		logbookRequest           dto.LogbookRequest
 		fixedTime                time.Time
@@ -57,7 +58,7 @@ var _ = Describe("LogbookService", func() {
 		aircraftRepoCtrl = gomock.NewController(GinkgoT())
 		aircraftRepoMock = repository.NewMockAircraftRepository(aircraftRepoCtrl)
 		databaseCtrl = gomock.NewController(GinkgoT())
-		databaseMock = repository.NewMockDatabase(databaseCtrl)
+		databaseMock = infrastructure.NewMockDatabase(databaseCtrl)
 		validator = utils.GetValidator()
 		logbookService = newLogbookService(flightRepoMock, landingRepoMock, passengerRepoMock, aircraftRepoMock, config.Config{}, validator)
 		logbookRequest = dto.LogbookRequest{

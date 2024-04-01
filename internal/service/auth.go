@@ -3,23 +3,24 @@ package service
 import (
 	"context"
 	"errors"
-	"firebase.google.com/go/auth"
 	"fmt"
 	"github.com/avialog/backend/internal/dto"
+	"github.com/avialog/backend/internal/infrastructure"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
 )
 
+//go:generate mockgen -source=auth.go -destination=auth_mock.go -package service
 type AuthService interface {
 	ValidateToken(ctx context.Context, token string) (model.User, error)
 }
 
 type authService struct {
 	userRepository repository.UserRepository
-	authClient     *auth.Client
+	authClient     infrastructure.AuthClient
 }
 
-func newAuthService(userRepository repository.UserRepository, authClient *auth.Client) AuthService {
+func newAuthService(userRepository repository.UserRepository, authClient infrastructure.AuthClient) AuthService {
 	return &authService{userRepository: userRepository, authClient: authClient}
 }
 
@@ -42,7 +43,7 @@ func (a *authService) ValidateToken(ctx context.Context, token string) (model.Us
 			})
 			if err != nil {
 				return model.User{}, err // internal error
-			}
+			} // internal error
 			return newUser, nil
 		}
 		return model.User{}, err // internal error

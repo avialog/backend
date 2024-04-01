@@ -22,7 +22,6 @@ func newUserController(userService service.UserService) UserController {
 }
 
 func (u *userController) GetUser(ctx *gin.Context) {
-	// TODO: add getting user id from JWT token
 	userID := ctx.GetString("userID")
 
 	user, err := u.userService.GetUser(userID)
@@ -37,8 +36,7 @@ func (u *userController) GetUser(ctx *gin.Context) {
 }
 
 func (u *userController) UpdateProfile(ctx *gin.Context) {
-	// TODO: add getting user id from JWT token
-	userID := "1"
+	userID := ctx.GetString("userID")
 
 	var userRequest dto.UserRequest
 	if err := ctx.ShouldBindJSON(&userRequest); err != nil {

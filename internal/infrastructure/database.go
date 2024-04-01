@@ -1,8 +1,8 @@
-package repository
+package infrastructure
 
 import "gorm.io/gorm"
 
-//go:generate mockgen -source=database.go -destination=database_mock.go -package repository
+//go:generate mockgen -source=database.go -destination=database_mock.go -package infrastructure
 type Database interface {
 	Create(value interface{}) (tx *gorm.DB)
 	Rollback() *gorm.DB
