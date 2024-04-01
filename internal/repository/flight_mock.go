@@ -55,7 +55,7 @@ func (mr *MockFlightRepositoryMockRecorder) Begin() *gomock.Call {
 }
 
 // CountByUserIDAndAircraftID mocks base method.
-func (m *MockFlightRepository) CountByUserIDAndAircraftID(userID, aircraftID uint) (int64, error) {
+func (m *MockFlightRepository) CountByUserIDAndAircraftID(userID string, aircraftID uint) (int64, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CountByUserIDAndAircraftID", userID, aircraftID)
 	ret0, _ := ret[0].(int64)
@@ -173,7 +173,7 @@ func (mr *MockFlightRepositoryMockRecorder) GetByIDTx(tx, id any) *gomock.Call {
 }
 
 // GetByUserID mocks base method.
-func (m *MockFlightRepository) GetByUserID(userID uint) ([]model.Flight, error) {
+func (m *MockFlightRepository) GetByUserID(userID string) ([]model.Flight, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByUserID", userID)
 	ret0, _ := ret[0].([]model.Flight)
@@ -188,7 +188,7 @@ func (mr *MockFlightRepositoryMockRecorder) GetByUserID(userID any) *gomock.Call
 }
 
 // GetByUserIDAndDate mocks base method.
-func (m *MockFlightRepository) GetByUserIDAndDate(userID uint, start, end time.Time) ([]model.Flight, error) {
+func (m *MockFlightRepository) GetByUserIDAndDate(userID string, start, end time.Time) ([]model.Flight, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByUserIDAndDate", userID, start, end)
 	ret0, _ := ret[0].([]model.Flight)

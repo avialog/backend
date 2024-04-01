@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
@@ -11,25 +12,25 @@ import (
 
 //go:generate mockgen -source=aircraft.go -destination=aircraft_mock.go -package service
 type AircraftService interface {
-	InsertAircraft(userID uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error)
-	GetUserAircraft(userID uint) ([]model.Aircraft, error)
-	UpdateAircraft(userID, id uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error)
-	DeleteAircraft(userID, id uint) error
+	InsertAircraft(userID string, aircraftRequest dto.AircraftRequest) (model.Aircraft, error)
+	GetUserAircraft(userID string) ([]model.Aircraft, error)
+	UpdateAircraft(userID string, id uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error)
+	DeleteAircraft(userID string, id uint) error
 }
 
 type aircraftService struct {
 	aircraftRepository repository.AircraftRepository
 	flightRepository   repository.FlightRepository
 	validator          *validator.Validate
-	config             dto.Config
+	config             config.Config
 }
 
 func newAircraftService(aircraftRepository repository.AircraftRepository, flightRepository repository.FlightRepository,
-	config dto.Config, validator *validator.Validate) AircraftService {
+	config config.Config, validator *validator.Validate) AircraftService {
 	return &aircraftService{aircraftRepository: aircraftRepository, flightRepository: flightRepository, config: config, validator: validator}
 }
 
-func (a *aircraftService) InsertAircraft(userID uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
+func (a *aircraftService) InsertAircraft(userID string, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
 	aircraft := model.Aircraft{
 		UserID:             userID,
 		AircraftModel:      aircraftRequest.AircraftModel,
@@ -56,11 +57,11 @@ func (a *aircraftService) InsertAircraft(userID uint, aircraftRequest dto.Aircra
 	return a.aircraftRepository.Create(aircraft)
 }
 
-func (a *aircraftService) GetUserAircraft(userID uint) ([]model.Aircraft, error) {
+func (a *aircraftService) GetUserAircraft(userID string) ([]model.Aircraft, error) {
 	return a.aircraftRepository.GetByUserID(userID)
 }
 
-func (a *aircraftService) UpdateAircraft(userID, id uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
+func (a *aircraftService) UpdateAircraft(userID string, id uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
 	aircraft, err := a.aircraftRepository.GetByUserIDAndID(userID, id)
 	if err != nil {
 		return model.Aircraft{}, err
@@ -93,7 +94,7 @@ func (a *aircraftService) UpdateAircraft(userID, id uint, aircraftRequest dto.Ai
 	return a.aircraftRepository.Save(aircraft)
 }
 
-func (a *aircraftService) DeleteAircraft(userID, id uint) error {
+func (a *aircraftService) DeleteAircraft(userID string, id uint) error {
 	numberOfFlights, err := a.flightRepository.CountByUserIDAndAircraftID(userID, id)
 	if err != nil {
 		return err

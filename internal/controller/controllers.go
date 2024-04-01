@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"github.com/avialog/backend/internal/dto"
+	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/middleware"
 	"github.com/avialog/backend/internal/service"
 	"github.com/gin-gonic/gin"
@@ -16,19 +16,22 @@ type Controllers interface {
 type controllers struct {
 	userController    UserController
 	infoController    InfoController
-	config            dto.Config
+	config            config.Config
 	contactController ContactController
+	authService       service.AuthService
 }
 
-func NewControllers(services service.Services, config dto.Config) Controllers {
+func NewControllers(services service.Services, config config.Config) Controllers {
 	userController := newUserController(services.User())
 	contactController := newContactController(services.Contact())
 	infoController := newInfoController()
+	authService := services.Auth()
 	return &controllers{
 		userController:    userController,
 		contactController: contactController,
 		infoController:    infoController,
 		config:            config,
+		authService:       authService,
 	}
 }
 
@@ -45,13 +48,13 @@ func (c *controllers) Route(server *gin.Engine) {
 	server.GET("/info", c.infoController.Info)
 
 	authenticated := server.Group("/")
-	authenticated.Use(middleware.AuthJWT(middleware.AuthJWT(c.AuthService)))
+	authenticated.Use(middleware.AuthJWT(c.authService))
 
 	authenticated.GET("/profile", c.userController.GetUser)
 	authenticated.PUT("/profile", c.userController.UpdateProfile)
 
-	server.GET("/contacts", c.contactController.GetContacts)
-	server.POST("/contacts", c.contactController.InsertContact)
-	server.PUT("/contacts/:id", c.contactController.UpdateContact)
-	server.DELETE("/contacts/:id", c.contactController.DeleteContact)
+	authenticated.GET("/contacts", c.contactController.GetContacts)
+	authenticated.POST("/contacts", c.contactController.InsertContact)
+	authenticated.PUT("/contacts/:id", c.contactController.UpdateContact)
+	authenticated.DELETE("/contacts/:id", c.contactController.DeleteContact)
 }

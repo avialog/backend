@@ -1,13 +1,18 @@
 package model
 
-import "gorm.io/gorm"
+import (
+	"gorm.io/gorm"
+	"time"
+)
 
 type User struct {
-	gorm.Model
-	FirebaseUID  string `gorm:"unique"`
+	ID           string `gorm:"primaryKey"`
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    gorm.DeletedAt `gorm:"index"`
 	FirstName    string
 	LastName     string
-	Email        string //`gorm:"required; not null; default:null"`
+	Email        string `gorm:"required; not null; default:null"`
 	AvatarURL    string
 	SignatureURL string
 	Country      Country

@@ -1,6 +1,7 @@
 package service
 
 import (
+	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
@@ -8,24 +9,24 @@ import (
 
 //go:generate mockgen -source=user.go -destination=user_mock.go -package service
 type UserService interface {
-	GetUser(id uint) (model.User, error)
-	UpdateProfile(id uint, userRequest dto.UserRequest) (model.User, error)
+	GetUser(id string) (model.User, error)
+	UpdateProfile(id string, userRequest dto.UserRequest) (model.User, error)
 }
 
 type userService struct {
 	userRepository repository.UserRepository
-	config         dto.Config
+	config         config.Config
 }
 
-func newUserService(userRepository repository.UserRepository, config dto.Config) UserService {
+func newUserService(userRepository repository.UserRepository, config config.Config) UserService {
 	return &userService{userRepository: userRepository, config: config}
 }
 
-func (u *userService) GetUser(id uint) (model.User, error) {
+func (u *userService) GetUser(id string) (model.User, error) {
 	return u.userRepository.GetByID(id)
 }
 
-func (u *userService) UpdateProfile(id uint, userRequest dto.UserRequest) (model.User, error) {
+func (u *userService) UpdateProfile(id string, userRequest dto.UserRequest) (model.User, error) {
 	user, err := u.userRepository.GetByID(id)
 	if err != nil {
 		return model.User{}, err

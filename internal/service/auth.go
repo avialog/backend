@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"firebase.google.com/go/auth"
 	"fmt"
 	"github.com/avialog/backend/internal/dto"
@@ -15,7 +16,6 @@ type AuthService interface {
 
 type authService struct {
 	userRepository repository.UserRepository
-	userService    UserService
 	authClient     *auth.Client
 }
 
@@ -24,19 +24,38 @@ func newAuthService(userRepository repository.UserRepository, authClient *auth.C
 }
 
 func (a *authService) ValidateToken(ctx context.Context, token string) (model.User, error) {
+	var newUser model.User
+
 	response, err := a.authClient.VerifyIDToken(ctx, token)
 	if err != nil {
 		return model.User{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 	}
+	userEmail := response.Claims["email"].(string)
 
-	user, err := a.userService.GetUser(response.UID)
-	email := response.Claims["email"].(string)
+	user, err := a.userRepository.GetByID(response.UID)
+
 	if err != nil {
-		return model.User{}, err
+		if errors.Is(err, dto.ErrNotFound) {
+			newUser, err = a.userRepository.Create(model.User{
+				ID:    response.UID,
+				Email: userEmail,
+			})
+			if err != nil {
+				return model.User{}, err // internal error
+			}
+			return newUser, nil
+		}
+		return model.User{}, err // internal error
 	}
+
+	if user.Email != userEmail {
+		user.Email = userEmail
+
+		_, err = a.userRepository.Save(user)
+		if err != nil {
+			return model.User{}, err
+		}
+	}
+
 	return user, nil
 }
-
-// Jeżeli nie istnieje -> utwórz go podając email z claimsów i id z uid
-// jeżeli user istnieje  sprawdź czy email się zmienił  jeżeli tak to zaktualizuj
-// zwróceń

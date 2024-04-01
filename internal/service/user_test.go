@@ -2,13 +2,13 @@ package service
 
 import (
 	"errors"
+	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
-	"gorm.io/gorm"
 )
 
 var _ = Describe("UserService", func() {
@@ -23,9 +23,9 @@ var _ = Describe("UserService", func() {
 	BeforeEach(func() {
 		userRepoCtrl = gomock.NewController(GinkgoT())
 		userRepoMock = repository.NewMockUserRepository(userRepoCtrl)
-		userService = newUserService(userRepoMock, dto.Config{})
+		userService = newUserService(userRepoMock, config.Config{})
 		mockUser = model.User{
-			Model:        gorm.Model{ID: uint(1)},
+			ID:           "1",
 			FirstName:    "test_user",
 			LastName:     "test_last_name",
 			Email:        "test@test.com",
@@ -61,10 +61,10 @@ var _ = Describe("UserService", func() {
 		Context("when user exists", func() {
 			It("should return user and no error", func() {
 				// given
-				userRepoMock.EXPECT().GetByID(uint(1)).Return(mockUser, nil)
+				userRepoMock.EXPECT().GetByID("1").Return(mockUser, nil)
 
 				// when
-				user, err := userService.GetUser(uint(1))
+				user, err := userService.GetUser("1")
 
 				// then
 				Expect(err).To(BeNil())
@@ -74,10 +74,10 @@ var _ = Describe("UserService", func() {
 		Context("when user does not exist", func() {
 			It("should return error", func() {
 				// given
-				userRepoMock.EXPECT().GetByID(uint(1)).Return(model.User{}, errors.New("user not found"))
+				userRepoMock.EXPECT().GetByID("1").Return(model.User{}, errors.New("user not found"))
 
 				// when
-				user, err := userService.GetUser(uint(1))
+				user, err := userService.GetUser("1")
 
 				// then
 				Expect(err.Error()).To(Equal("user not found"))
@@ -90,9 +90,9 @@ var _ = Describe("UserService", func() {
 			It("should return user and no error", func() {
 				// given
 				userRepoMock.EXPECT().Save(mockUser).Return(mockUser, nil)
-				userRepoMock.EXPECT().GetByID(uint(1)).Return(mockUser, nil)
+				userRepoMock.EXPECT().GetByID("1").Return(mockUser, nil)
 				// when
-				user, err := userService.UpdateProfile(uint(1), userRequest)
+				user, err := userService.UpdateProfile("1", userRequest)
 
 				// then
 				Expect(err).To(BeNil())
@@ -102,9 +102,9 @@ var _ = Describe("UserService", func() {
 		Context("when user does not exist", func() {
 			It("should return error", func() {
 				// given
-				userRepoMock.EXPECT().GetByID(uint(1)).Return(model.User{}, errors.New("user not found"))
+				userRepoMock.EXPECT().GetByID("1").Return(model.User{}, errors.New("user not found"))
 				// when
-				user, err := userService.UpdateProfile(uint(1), userRequest)
+				user, err := userService.UpdateProfile("1", userRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("user not found"))

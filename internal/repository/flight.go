@@ -11,12 +11,12 @@ import (
 type FlightRepository interface {
 	Create(flight model.Flight) (model.Flight, error)
 	GetByID(id uint) (model.Flight, error)
-	GetByUserID(userID uint) ([]model.Flight, error)
+	GetByUserID(userID string) ([]model.Flight, error)
 	GetByAircraftID(aircraftID uint) ([]model.Flight, error)
 	Save(flight model.Flight) (model.Flight, error)
 	DeleteByID(id uint) error
-	CountByUserIDAndAircraftID(userID, aircraftID uint) (int64, error)
-	GetByUserIDAndDate(userID uint, start, end time.Time) ([]model.Flight, error)
+	CountByUserIDAndAircraftID(userID string, aircraftID uint) (int64, error)
+	GetByUserIDAndDate(userID string, start, end time.Time) ([]model.Flight, error)
 	Begin() Database
 	CreateTx(tx Database, flight model.Flight) (model.Flight, error)
 	DeleteByIDTx(tx Database, id uint) error
@@ -99,7 +99,7 @@ func (f *flight) DeleteByID(id uint) error {
 	return nil
 }
 
-func (f *flight) GetByUserID(userID uint) ([]model.Flight, error) {
+func (f *flight) GetByUserID(userID string) ([]model.Flight, error) {
 	var flights []model.Flight
 
 	result := f.db.Where("user_id = ?", userID).Find(&flights)
@@ -121,7 +121,7 @@ func (f *flight) GetByAircraftID(aircraftID uint) ([]model.Flight, error) {
 	return flights, nil
 }
 
-func (f *flight) CountByUserIDAndAircraftID(userID, aircraftID uint) (int64, error) {
+func (f *flight) CountByUserIDAndAircraftID(userID string, aircraftID uint) (int64, error) {
 	var count int64
 	result := f.db.Model(&model.Flight{}).Where("aircraft_id = ? AND user_id = ?", aircraftID, userID).Count(&count)
 	if result.Error != nil {
@@ -130,7 +130,7 @@ func (f *flight) CountByUserIDAndAircraftID(userID, aircraftID uint) (int64, err
 	return count, nil
 }
 
-func (f *flight) GetByUserIDAndDate(userID uint, start, end time.Time) ([]model.Flight, error) {
+func (f *flight) GetByUserIDAndDate(userID string, start, end time.Time) ([]model.Flight, error) {
 	var flights []model.Flight
 
 	result := f.db.Where("user_id = ? AND takeoff_time >= ? AND takeoff_time <= ?", userID, start, end).Find(&flights)
