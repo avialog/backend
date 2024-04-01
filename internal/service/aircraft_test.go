@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
@@ -31,7 +32,7 @@ var _ = Describe("AircraftService", func() {
 		flightRepoCtrl = gomock.NewController(GinkgoT())
 		flightRepoMock = repository.NewMockFlightRepository(flightRepoCtrl)
 		validator = utils.GetValidator()
-		aircraftService = newAircraftService(aircraftRepoMock, flightRepoMock, dto.Config{}, validator)
+		aircraftService = newAircraftService(aircraftRepoMock, flightRepoMock, config.Config{}, validator)
 		aircraftRequest = dto.AircraftRequest{
 			AircraftModel:      "Cessna 172",
 			RegistrationNumber: "B550",
@@ -39,16 +40,16 @@ var _ = Describe("AircraftService", func() {
 			Remarks:            "This is a test aircraft",
 		}
 		mockAircraft = model.Aircraft{
-			UserID:             uint(1),
+			UserID:             "1",
 			AircraftModel:      "Cessna 172",
 			RegistrationNumber: "B550",
 			ImageURL:           "https://example.com/image.jpg",
 			Remarks:            "This is a test aircraft",
 		}
 		mockAircraftArr = []model.Aircraft{
-			{UserID: uint(1), AircraftModel: "Cessna 1", RegistrationNumber: "N12345", ImageURL: "https://example.com/image.jpg", Remarks: "This is a test aircraft"},
-			{UserID: uint(1), AircraftModel: "Cessna 2", RegistrationNumber: "N12345", ImageURL: "https://example.com/image.jpg", Remarks: "This is a test aircraft"},
-			{UserID: uint(2), AircraftModel: "Cessna 3", RegistrationNumber: "N12345", ImageURL: "https://example.com/image.jpg", Remarks: "This is a test aircraft"},
+			{UserID: "1", AircraftModel: "Cessna 1", RegistrationNumber: "N12345", ImageURL: "https://example.com/image.jpg", Remarks: "This is a test aircraft"},
+			{UserID: "1", AircraftModel: "Cessna 2", RegistrationNumber: "N12345", ImageURL: "https://example.com/image.jpg", Remarks: "This is a test aircraft"},
+			{UserID: "2", AircraftModel: "Cessna 3", RegistrationNumber: "N12345", ImageURL: "https://example.com/image.jpg", Remarks: "This is a test aircraft"},
 		}
 	})
 
@@ -64,11 +65,11 @@ var _ = Describe("AircraftService", func() {
 				aircraftRepoMock.EXPECT().Create(mockAircraft).Return(mockAircraft, nil)
 
 				// when
-				insertedAircraft, err := aircraftService.InsertAircraft(uint(1), aircraftRequest)
+				insertedAircraft, err := aircraftService.InsertAircraft("1", aircraftRequest)
 
 				// then
 				Expect(err).To(BeNil())
-				Expect(insertedAircraft.UserID).To(Equal(uint(1)))
+				Expect(insertedAircraft.UserID).To(Equal("1"))
 				Expect(insertedAircraft.AircraftModel).To(Equal(aircraftRequest.AircraftModel))
 				Expect(insertedAircraft.RegistrationNumber).To(Equal(aircraftRequest.RegistrationNumber))
 				Expect(insertedAircraft.ImageURL).To(Equal(aircraftRequest.ImageURL))
@@ -82,7 +83,7 @@ var _ = Describe("AircraftService", func() {
 				aircraftRepoMock.EXPECT().Create(mockAircraft).Return(model.Aircraft{}, errors.New("failed to save aircraft"))
 
 				// when
-				insertedAircraft, err := aircraftService.InsertAircraft(uint(1), aircraftRequest)
+				insertedAircraft, err := aircraftService.InsertAircraft("1", aircraftRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("failed to save aircraft"))
@@ -95,7 +96,7 @@ var _ = Describe("AircraftService", func() {
 				aircraftRequest.RegistrationNumber = ""
 
 				// when
-				insertedAircraft, err := aircraftService.InsertAircraft(uint(1), aircraftRequest)
+				insertedAircraft, err := aircraftService.InsertAircraft("1", aircraftRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("invalid data in field: RegistrationNumber"))
@@ -109,7 +110,7 @@ var _ = Describe("AircraftService", func() {
 				aircraftRequest.AircraftModel = ""
 
 				// when
-				insertedAircraft, err := aircraftService.InsertAircraft(uint(1), aircraftRequest)
+				insertedAircraft, err := aircraftService.InsertAircraft("1", aircraftRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("invalid data in field: AircraftModel"))
@@ -124,10 +125,10 @@ var _ = Describe("AircraftService", func() {
 		Context("when user has more than one aircraft", func() {
 			It("should return aircraft", func() {
 				// given
-				aircraftRepoMock.EXPECT().GetByUserID(uint(1)).Return(mockAircraftArr[:2], nil)
+				aircraftRepoMock.EXPECT().GetByUserID("1").Return(mockAircraftArr[:2], nil)
 
 				// when
-				aircraft, err := aircraftService.GetUserAircraft(uint(1))
+				aircraft, err := aircraftService.GetUserAircraft("1")
 
 				// then
 				Expect(err).To(BeNil())
@@ -139,10 +140,10 @@ var _ = Describe("AircraftService", func() {
 		Context("when user has no aircraft", func() {
 			It("should return empty slice", func() {
 				// given
-				aircraftRepoMock.EXPECT().GetByUserID(uint(1)).Return([]model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserID("1").Return([]model.Aircraft{}, nil)
 
 				// when
-				aircraft, err := aircraftService.GetUserAircraft(uint(1))
+				aircraft, err := aircraftService.GetUserAircraft("1")
 
 				// then
 				Expect(err).To(BeNil())
@@ -153,10 +154,10 @@ var _ = Describe("AircraftService", func() {
 		Context("when user is not authorized", func() {
 			It("should return error and empty slice", func() {
 				// given
-				aircraftRepoMock.EXPECT().GetByUserID(uint(1)).Return([]model.Aircraft{}, errors.New("failed to get aircraft"))
+				aircraftRepoMock.EXPECT().GetByUserID("1").Return([]model.Aircraft{}, errors.New("failed to get aircraft"))
 
 				// when
-				aircraft, err := aircraftService.GetUserAircraft(uint(1))
+				aircraft, err := aircraftService.GetUserAircraft("1")
 
 				// then
 				Expect(err.Error()).To(Equal("failed to get aircraft"))
@@ -170,10 +171,10 @@ var _ = Describe("AircraftService", func() {
 		Context("when fail to count flights", func() {
 			It("should return error", func() {
 				// given
-				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(0), errors.New("failed to count flights"))
+				flightRepoMock.EXPECT().CountByUserIDAndAircraftID("1", uint(1)).Return(int64(0), errors.New("failed to count flights"))
 
 				// when
-				err := aircraftService.DeleteAircraft(uint(1), uint(1))
+				err := aircraftService.DeleteAircraft("1", uint(1))
 
 				// then
 				Expect(err.Error()).To(Equal("failed to count flights"))
@@ -182,11 +183,11 @@ var _ = Describe("AircraftService", func() {
 		Context("when fail to delete aircraft", func() {
 			It("should return error", func() {
 				// given
-				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(0), nil)
-				aircraftRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(errors.New("failed to delete aircraft"))
+				flightRepoMock.EXPECT().CountByUserIDAndAircraftID("1", uint(1)).Return(int64(0), nil)
+				aircraftRepoMock.EXPECT().DeleteByUserIDAndID("1", uint(1)).Return(errors.New("failed to delete aircraft"))
 
 				// when
-				err := aircraftService.DeleteAircraft(uint(1), uint(1))
+				err := aircraftService.DeleteAircraft("1", uint(1))
 
 				// then
 				Expect(err.Error()).To(Equal("failed to delete aircraft"))
@@ -195,11 +196,11 @@ var _ = Describe("AircraftService", func() {
 		Context("when aircraft has no flights assigned and user is authorized", func() {
 			It("should return no error", func() {
 				// given
-				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(0), nil)
-				aircraftRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(nil)
+				flightRepoMock.EXPECT().CountByUserIDAndAircraftID("1", uint(1)).Return(int64(0), nil)
+				aircraftRepoMock.EXPECT().DeleteByUserIDAndID("1", uint(1)).Return(nil)
 
 				// when
-				err := aircraftService.DeleteAircraft(uint(1), uint(1))
+				err := aircraftService.DeleteAircraft("1", uint(1))
 
 				// then
 				Expect(err).To(BeNil())
@@ -208,10 +209,10 @@ var _ = Describe("AircraftService", func() {
 		Context("when aircraft has assigned flights", func() {
 			It("should return error", func() {
 				//given
-				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(1), nil)
+				flightRepoMock.EXPECT().CountByUserIDAndAircraftID("1", uint(1)).Return(int64(1), nil)
 
 				// when
-				err := aircraftService.DeleteAircraft(uint(1), uint(1))
+				err := aircraftService.DeleteAircraft("1", uint(1))
 
 				// then
 				Expect(err.Error()).To(Equal("the plane has assigned flights"))
@@ -220,11 +221,11 @@ var _ = Describe("AircraftService", func() {
 		Context("when unauthorized to delete aircraft", func() {
 			It("should return error", func() {
 				// given
-				flightRepoMock.EXPECT().CountByUserIDAndAircraftID(uint(1), uint(1)).Return(int64(0), nil)
-				aircraftRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(errors.New("no aircraft to delete or unauthorized to delete aircraft"))
+				flightRepoMock.EXPECT().CountByUserIDAndAircraftID("1", uint(1)).Return(int64(0), nil)
+				aircraftRepoMock.EXPECT().DeleteByUserIDAndID("1", uint(1)).Return(errors.New("no aircraft to delete or unauthorized to delete aircraft"))
 
 				// when
-				err := aircraftService.DeleteAircraft(uint(1), uint(1))
+				err := aircraftService.DeleteAircraft("1", uint(1))
 
 				// then
 				Expect(err.Error()).To(Equal("no aircraft to delete or unauthorized to delete aircraft"))
@@ -236,10 +237,10 @@ var _ = Describe("AircraftService", func() {
 		Context("when fail to fetch aircraft", func() {
 			It("should return error", func() {
 				// given
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(model.Aircraft{}, errors.New("failed to get aircraft"))
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("1", uint(1)).Return(model.Aircraft{}, errors.New("failed to get aircraft"))
 
 				// when
-				updatedAircraft, err := aircraftService.UpdateAircraft(uint(1), uint(1), aircraftRequest)
+				updatedAircraft, err := aircraftService.UpdateAircraft("1", uint(1), aircraftRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("failed to get aircraft"))
@@ -249,10 +250,10 @@ var _ = Describe("AircraftService", func() {
 		Context("when unauthorized to update contact", func() {
 			It("should return error", func() {
 				// given
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(model.Aircraft{UserID: uint(2)}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("1", uint(1)).Return(model.Aircraft{UserID: "2"}, nil)
 
 				// when
-				updatedAircraft, err := aircraftService.UpdateAircraft(uint(1), uint(1), aircraftRequest)
+				updatedAircraft, err := aircraftService.UpdateAircraft("1", uint(1), aircraftRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("unauthorized to update aircraft"))
@@ -262,11 +263,11 @@ var _ = Describe("AircraftService", func() {
 		Context("when update fails", func() {
 			It("should return error", func() {
 				// given
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockAircraft, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("1", uint(1)).Return(mockAircraft, nil)
 				aircraftRepoMock.EXPECT().Save(mockAircraft).Return(model.Aircraft{}, errors.New("failed to update aircraft"))
 
 				// when
-				updatedAircraft, err := aircraftService.UpdateAircraft(uint(1), uint(1), aircraftRequest)
+				updatedAircraft, err := aircraftService.UpdateAircraft("1", uint(1), aircraftRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("failed to update aircraft"))
@@ -276,11 +277,11 @@ var _ = Describe("AircraftService", func() {
 		Context("when contact is updated successfully", func() {
 			It("should return updated contact", func() {
 				// given
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockAircraft, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("1", uint(1)).Return(mockAircraft, nil)
 				aircraftRepoMock.EXPECT().Save(mockAircraft).Return(mockAircraft, nil)
 
 				// when
-				updatedAircraft, err := aircraftService.UpdateAircraft(uint(1), uint(1), aircraftRequest)
+				updatedAircraft, err := aircraftService.UpdateAircraft("1", uint(1), aircraftRequest)
 
 				// then
 				Expect(err).To(BeNil())
@@ -291,9 +292,9 @@ var _ = Describe("AircraftService", func() {
 			It("should return error", func() {
 				// given
 				aircraftRequest.RegistrationNumber = ""
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockAircraft, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("1", uint(1)).Return(mockAircraft, nil)
 				// when
-				updatedAircraft, err := aircraftService.UpdateAircraft(uint(1), uint(1), aircraftRequest)
+				updatedAircraft, err := aircraftService.UpdateAircraft("1", uint(1), aircraftRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("invalid data in field: RegistrationNumber"))
@@ -306,9 +307,9 @@ var _ = Describe("AircraftService", func() {
 			It("should return error", func() {
 				// given
 				aircraftRequest.AircraftModel = ""
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockAircraft, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("1", uint(1)).Return(mockAircraft, nil)
 				// when
-				updatedAircraft, err := aircraftService.UpdateAircraft(uint(1), uint(1), aircraftRequest)
+				updatedAircraft, err := aircraftService.UpdateAircraft("1", uint(1), aircraftRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("invalid data in field: AircraftModel"))

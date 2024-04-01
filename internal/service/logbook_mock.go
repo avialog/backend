@@ -41,7 +41,7 @@ func (m *MockLogbookService) EXPECT() *MockLogbookServiceMockRecorder {
 }
 
 // DeleteLogbookEntry mocks base method.
-func (m *MockLogbookService) DeleteLogbookEntry(userID, flightID uint) error {
+func (m *MockLogbookService) DeleteLogbookEntry(userID string, flightID uint) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteLogbookEntry", userID, flightID)
 	ret0, _ := ret[0].(error)
@@ -55,7 +55,7 @@ func (mr *MockLogbookServiceMockRecorder) DeleteLogbookEntry(userID, flightID an
 }
 
 // GetLogbookEntries mocks base method.
-func (m *MockLogbookService) GetLogbookEntries(userID uint, start, end time.Time) ([]dto.LogbookResponse, error) {
+func (m *MockLogbookService) GetLogbookEntries(userID string, start, end time.Time) ([]dto.LogbookResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetLogbookEntries", userID, start, end)
 	ret0, _ := ret[0].([]dto.LogbookResponse)
@@ -70,7 +70,7 @@ func (mr *MockLogbookServiceMockRecorder) GetLogbookEntries(userID, start, end a
 }
 
 // InsertLogbookEntry mocks base method.
-func (m *MockLogbookService) InsertLogbookEntry(userID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
+func (m *MockLogbookService) InsertLogbookEntry(userID string, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "InsertLogbookEntry", userID, logbookRequest)
 	ret0, _ := ret[0].(dto.LogbookResponse)
@@ -85,7 +85,7 @@ func (mr *MockLogbookServiceMockRecorder) InsertLogbookEntry(userID, logbookRequ
 }
 
 // UpdateLogbookEntry mocks base method.
-func (m *MockLogbookService) UpdateLogbookEntry(userID, flightID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
+func (m *MockLogbookService) UpdateLogbookEntry(userID string, flightID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateLogbookEntry", userID, flightID, logbookRequest)
 	ret0, _ := ret[0].(dto.LogbookResponse)

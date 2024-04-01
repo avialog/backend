@@ -55,7 +55,7 @@ func (mr *MockUserRepositoryMockRecorder) Create(user any) *gomock.Call {
 }
 
 // DeleteByID mocks base method.
-func (m *MockUserRepository) DeleteByID(id uint) error {
+func (m *MockUserRepository) DeleteByID(id string) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteByID", id)
 	ret0, _ := ret[0].(error)
@@ -69,7 +69,7 @@ func (mr *MockUserRepositoryMockRecorder) DeleteByID(id any) *gomock.Call {
 }
 
 // GetByID mocks base method.
-func (m *MockUserRepository) GetByID(id uint) (model.User, error) {
+func (m *MockUserRepository) GetByID(id string) (model.User, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByID", id)
 	ret0, _ := ret[0].(model.User)
