@@ -37,7 +37,6 @@ func (u *user) Create(user model.User) (model.User, error) {
 
 func (u *user) GetByID(id string) (model.User, error) {
 	var user model.User
-
 	result := u.db.First(&user, "id = ?", id)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
