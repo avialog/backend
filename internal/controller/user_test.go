@@ -85,7 +85,7 @@ var _ = Describe("UserController", func() {
 				expectedJSON, err := json.Marshal(expectedResponse)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodGet, "/profile", nil)
+				req, err := http.NewRequest(http.MethodGet, "/api/profile", nil)
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -106,7 +106,7 @@ var _ = Describe("UserController", func() {
 		Context("on failed get profile", func() {
 			It("should return 500 Internal Server Error", func() {
 				// given
-				req, err := http.NewRequest(http.MethodGet, "/profile", nil)
+				req, err := http.NewRequest(http.MethodGet, "/api/profile", nil)
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -133,7 +133,7 @@ var _ = Describe("UserController", func() {
 				userRequestJSON, err := json.Marshal(userRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPost, "/profile", bytes.NewBuffer(userRequestJSON))
+				req, err := http.NewRequest(http.MethodPost, "/api/profile", bytes.NewBuffer(userRequestJSON))
 
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
@@ -151,7 +151,7 @@ var _ = Describe("UserController", func() {
 		Context("when binding request failed", func() {
 			It("should return 400 Bad Request", func() {
 				// given
-				req, err := http.NewRequest(http.MethodPost, "/profile", bytes.NewBuffer([]byte("invalid json")))
+				req, err := http.NewRequest(http.MethodPost, "/api/profile", bytes.NewBuffer([]byte("invalid json")))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -172,7 +172,7 @@ var _ = Describe("UserController", func() {
 				userRequestJSON, err := json.Marshal(userRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPost, "/profile", bytes.NewBuffer(userRequestJSON))
+				req, err := http.NewRequest(http.MethodPost, "/api/profile", bytes.NewBuffer(userRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
