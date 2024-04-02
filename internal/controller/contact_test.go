@@ -113,7 +113,7 @@ var _ = Describe("UserController", func() {
 				expectedContactsJSON, err := json.Marshal(expectedContacts)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodGet, "/contacts", nil)
+				req, err := http.NewRequest(http.MethodGet, "/api/contacts", nil)
 
 				ctx.Request = req
 				ctx.Set("Accept", "application/json")
@@ -151,7 +151,7 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPost, "/contacts", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPost, "/api/contacts", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -174,7 +174,7 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPost, "/contacts", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPost, "/api/contacts", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -195,7 +195,7 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPost, "/contacts", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPost, "/api/contacts", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -215,7 +215,7 @@ var _ = Describe("UserController", func() {
 		Context("when couldn't parse incoming request", func() {
 			It("should return status 400", func() {
 				// given
-				req, err := http.NewRequest(http.MethodPost, "/contacts", bytes.NewBuffer([]byte("")))
+				req, err := http.NewRequest(http.MethodPost, "/api/contacts", bytes.NewBuffer([]byte("")))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -240,7 +240,7 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPut, "/contacts/3", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPut, "/api/contacts/3", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -266,7 +266,7 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPut, "/contacts/3", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPut, "/api/contacts/3", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -302,7 +302,7 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPut, "/contacts/3", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPut, "/api/contacts/3", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -327,7 +327,7 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPut, "/contacts/3", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPut, "/api/contacts/3", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
