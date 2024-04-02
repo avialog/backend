@@ -45,16 +45,38 @@ func (c *controllers) Info() InfoController {
 
 func (c *controllers) Route(server *gin.Engine) {
 
-	server.GET("/info", c.infoController.Info)
+	api := server.Group("/api")
+	{
+		info := api.Group("/info")
+		{
+			info.GET("", c.infoController.Info)
+		}
+		authenticated := api.Group("/")
+		{
+			authenticated.Use(c.authMiddleware)
+			profile := authenticated.Group("/profile")
+			{
+				profile.GET("", c.userController.GetUser)
+				profile.PUT("", c.userController.UpdateProfile)
+			}
+			contacts := authenticated.Group("/contacts")
+			{
+				contacts.GET("", c.contactController.GetContacts)
+				contacts.POST("", c.contactController.InsertContact)
+				contacts.PUT(":id", c.contactController.UpdateContact)
+				contacts.DELETE(":id", c.contactController.DeleteContact)
+			}
+		}
+	}
 
-	authenticated := server.Group("/")
-	authenticated.Use(c.authMiddleware)
-
-	authenticated.GET("/profile", c.userController.GetUser)
-	authenticated.PUT("/profile", c.userController.UpdateProfile)
-
-	authenticated.GET("/contacts", c.contactController.GetContacts)
-	authenticated.POST("/contacts", c.contactController.InsertContact)
-	authenticated.PUT("/contacts/:id", c.contactController.UpdateContact)
-	authenticated.DELETE("/contacts/:id", c.contactController.DeleteContact)
+	//authenticated := server.Group("/")
+	//authenticated.Use(c.authMiddleware)
+	//
+	//authenticated.GET("/profile", c.userController.GetUser)
+	//authenticated.PUT("/profile", c.userController.UpdateProfile)
+	//
+	//authenticated.GET("/contacts", c.contactController.GetContacts)
+	//authenticated.POST("/contacts", c.contactController.InsertContact)
+	//authenticated.PUT("/contacts/:id", c.contactController.UpdateContact)
+	//authenticated.DELETE("/contacts/:id", c.contactController.DeleteContact)
 }
