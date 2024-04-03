@@ -4,6 +4,7 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/service"
+	"github.com/avialog/backend/internal/utils"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -21,12 +22,22 @@ func newUserController(userService service.UserService) UserController {
 	return &userController{userService: userService}
 }
 
+// GetUser godoc
+//
+// @Summary Get a user
+// @Description Get a user by userID from the token
+// @Tags profile
+// @Produce  json
+// @Security ApiKeyAuth
+// @Success 200 {object}      dto.UserResponse
+// @Failure 500 {object}      utils.HTTPError
+// @Router  /profile [get]
 func (u *userController) GetUser(ctx *gin.Context) {
 	userID := ctx.GetString("userID")
 
 	user, err := u.userService.GetUser(userID)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -35,18 +46,31 @@ func (u *userController) GetUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, userResponse)
 }
 
+// UpdateProfile godoc
+//
+// @Summary Update user profile
+// @Description Update user profile information
+// @Tags profile
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param   userRequest       body     dto.UserRequest true       "User profile information to update"
+// @Success 200 {object}      dto.UserResponse
+// @Failure 400 {object}      utils.HTTPError
+// @Failure 500 {object}      utils.HTTPError
+// @Router  /profile [put]
 func (u *userController) UpdateProfile(ctx *gin.Context) {
 	userID := ctx.GetString("userID")
 
 	var userRequest dto.UserRequest
 	if err := ctx.ShouldBindJSON(&userRequest); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		utils.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
 	user, err := u.userService.UpdateProfile(userID, userRequest)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		utils.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
