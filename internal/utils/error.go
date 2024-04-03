@@ -11,6 +11,6 @@ func NewError(ctx *gin.Context, status int, err error) {
 }
 
 type HTTPError struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
+	Code    int    `json:"code" binding:"required"`
+	Message string `json:"message" binding:"required"`
 }

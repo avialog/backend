@@ -90,6 +90,8 @@ definitions:
         type: string
       timezone:
         type: string
+    required:
+    - email
     type: object
   utils.HTTPError:
     properties:
@@ -97,6 +99,9 @@ definitions:
         type: integer
       message:
         type: string
+    required:
+    - code
+    - message
     type: object
 host: localhost:3000
 info:
@@ -146,8 +151,6 @@ paths:
       - contacts
   /contacts:
     get:
-      consumes:
-      - application/json
       description: Get a list of contacts for a user
       produces:
       - application/json
@@ -158,14 +161,6 @@ paths:
             items:
               $ref: '#/definitions/dto.ContactResponse'
             type: array
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
         "500":
           description: Internal Server Error
           schema:
@@ -195,10 +190,6 @@ paths:
             $ref: '#/definitions/dto.ContactResponse'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/utils.HTTPError'
         "500":
@@ -305,10 +296,6 @@ paths:
             $ref: '#/definitions/dto.UserResponse'
         "400":
           description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-        "404":
-          description: Not Found
           schema:
             $ref: '#/definitions/utils.HTTPError'
         "500":
