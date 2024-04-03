@@ -7,6 +7,7 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/service"
+	"github.com/avialog/backend/internal/utils"
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -25,6 +26,7 @@ var _ = Describe("UserController", func() {
 		userRequest      dto.UserRequest
 		expectedResponse dto.UserResponse
 		userMock         model.User
+		country          model.Country
 	)
 
 	BeforeEach(func() {
@@ -33,44 +35,46 @@ var _ = Describe("UserController", func() {
 		w = httptest.NewRecorder()
 		ctx, _ = gin.CreateTestContext(w)
 		userController = newUserController(userServiceMock)
+		country = "US"
+
 		userRequest = dto.UserRequest{
-			FirstName:    "John",
-			LastName:     "Doe",
-			AvatarURL:    "https://avatar.com",
-			SignatureURL: "https://signature.com",
-			Country:      "US",
-			Phone:        "123456789",
-			Street:       "Main St",
-			City:         "New York",
-			Company:      "Company",
-			Timezone:     "UTC",
+			FirstName:    utils.PtrToStr("John"),
+			LastName:     utils.PtrToStr("Doe"),
+			AvatarURL:    utils.PtrToStr("https://avatar.com"),
+			SignatureURL: utils.PtrToStr("https://signature.com"),
+			Country:      &country,
+			Phone:        utils.PtrToStr("123456789"),
+			Street:       utils.PtrToStr("Main St"),
+			City:         utils.PtrToStr("New York"),
+			Company:      utils.PtrToStr("Company"),
+			Timezone:     utils.PtrToStr("UTC"),
 		}
 		expectedResponse = dto.UserResponse{
-			FirstName:    "John",
-			LastName:     "Doe",
+			FirstName:    utils.PtrToStr("John"),
+			LastName:     utils.PtrToStr("Doe"),
 			Email:        "test@test.com",
-			AvatarURL:    "https://avatar.com",
-			SignatureURL: "https://signature.com",
-			Country:      "US",
-			Phone:        "123456789",
-			Street:       "Main St",
-			City:         "New York",
-			Company:      "Company",
-			Timezone:     "UTC",
+			AvatarURL:    utils.PtrToStr("https://avatar.com"),
+			SignatureURL: utils.PtrToStr("https://signature.com"),
+			Country:      &country,
+			Phone:        utils.PtrToStr("123456789"),
+			Street:       utils.PtrToStr("Main St"),
+			City:         utils.PtrToStr("New York"),
+			Company:      utils.PtrToStr("Company"),
+			Timezone:     utils.PtrToStr("UTC"),
 		}
 		userMock = model.User{
 			ID:           "1",
-			FirstName:    "John",
-			LastName:     "Doe",
+			FirstName:    utils.PtrToStr("John"),
+			LastName:     utils.PtrToStr("Doe"),
 			Email:        "test@test.com",
-			AvatarURL:    "https://avatar.com",
-			SignatureURL: "https://signature.com",
-			Country:      "US",
-			Phone:        "123456789",
-			Street:       "Main St",
-			City:         "New York",
-			Company:      "Company",
-			Timezone:     "UTC",
+			AvatarURL:    utils.PtrToStr("https://avatar.com"),
+			SignatureURL: utils.PtrToStr("https://signature.com"),
+			Country:      &country,
+			Phone:        utils.PtrToStr("123456789"),
+			Street:       utils.PtrToStr("Main St"),
+			City:         utils.PtrToStr("New York"),
+			Company:      utils.PtrToStr("Company"),
+			Timezone:     utils.PtrToStr("UTC"),
 		}
 	})
 
