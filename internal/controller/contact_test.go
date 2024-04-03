@@ -114,7 +114,7 @@ var _ = Describe("UserController", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				req, err := http.NewRequest(http.MethodGet, "/api/contacts", nil)
-
+				Expect(err).ToNot(HaveOccurred())
 				ctx.Request = req
 				ctx.Set("Accept", "application/json")
 				ctx.Set("userID", "1")

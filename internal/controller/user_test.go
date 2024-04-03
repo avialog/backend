@@ -134,7 +134,7 @@ var _ = Describe("UserController", func() {
 				Expect(err).ToNot(HaveOccurred())
 
 				req, err := http.NewRequest(http.MethodPost, "/api/profile", bytes.NewBuffer(userRequestJSON))
-
+				Expect(err).ToNot(HaveOccurred())
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")

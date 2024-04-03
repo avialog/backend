@@ -69,6 +69,7 @@ func (c *controllers) Route(server *gin.Engine) {
 				contacts.PUT(":id", c.contactController.UpdateContact)
 				contacts.DELETE(":id", c.contactController.DeleteContact)
 			}
+
 		}
 
 	}

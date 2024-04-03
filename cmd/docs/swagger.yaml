@@ -1,0 +1,339 @@
+basePath: /api
+definitions:
+  dto.ContactRequest:
+    properties:
+      avatar_url:
+        type: string
+      company:
+        type: string
+      email_address:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      note:
+        type: string
+      phone:
+        type: string
+    required:
+    - first_name
+    type: object
+  dto.ContactResponse:
+    properties:
+      avatar_url:
+        type: string
+      company:
+        type: string
+      email_address:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      note:
+        type: string
+      phone:
+        type: string
+    required:
+    - first_name
+    type: object
+  dto.ServerInfo:
+    properties:
+      healthy:
+        type: boolean
+    type: object
+  dto.UserRequest:
+    properties:
+      avatar_url:
+        type: string
+      city:
+        type: string
+      company:
+        type: string
+      country:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      phone:
+        type: string
+      signature_url:
+        type: string
+      street:
+        type: string
+      timezone:
+        type: string
+    type: object
+  dto.UserResponse:
+    properties:
+      avatar_url:
+        type: string
+      city:
+        type: string
+      company:
+        type: string
+      country:
+        type: string
+      email:
+        type: string
+      first_name:
+        type: string
+      last_name:
+        type: string
+      phone:
+        type: string
+      signature_url:
+        type: string
+      street:
+        type: string
+      timezone:
+        type: string
+    type: object
+  utils.HTTPError:
+    properties:
+      code:
+        type: integer
+      message:
+        type: string
+    type: object
+host: localhost:3000
+info:
+  contact: {}
+  description: This is a sample server.
+  termsOfService: http://swagger.io/terms/
+  title: Avialog API
+  version: "1.0"
+paths:
+  /api/contacts/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an existing contact for a user
+      parameters:
+      - description: Contact ID to delete
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Contact deleted successfully
+          schema:
+            properties:
+              message:
+                type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete an existing contact
+      tags:
+      - contacts
+  /contacts:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of contacts for a user
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ContactResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user contacts
+      tags:
+      - contacts
+    post:
+      consumes:
+      - application/json
+      description: Insert a new contact for a user
+      parameters:
+      - description: Contact information to insert
+        in: body
+        name: contactRequest
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ContactRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ContactResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Insert a new contact
+      tags:
+      - contacts
+  /contacts/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update an existing contact for a user
+      parameters:
+      - description: Contact ID to update
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Contact information to update
+        in: body
+        name: contactRequest
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ContactRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ContactResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update an existing contact
+      tags:
+      - contacts
+  /info:
+    get:
+      consumes:
+      - application/json
+      description: Get information about the server's health status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ServerInfo'
+      summary: Get server health information
+      tags:
+      - info
+  /profile:
+    get:
+      consumes:
+      - application/json
+      description: Get a user by ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get a user
+      tags:
+      - profile
+    put:
+      consumes:
+      - application/json
+      description: Update user profile information
+      parameters:
+      - description: User profile information to update
+        in: body
+        name: userRequest
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/utils.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update user profile
+      tags:
+      - profile
+securityDefinitions:
+  ApiKeyAuth:
+    description: Authorization by JWT token
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
