@@ -25,14 +25,11 @@ func newUserController(userService service.UserService) UserController {
 // GetUser godoc
 //
 // @Summary Get a user
-// @Description Get a user by ID
+// @Description Get a user by userID from the token
 // @Tags profile
-// @Accept  json
 // @Produce  json
 // @Security ApiKeyAuth
 // @Success 200 {object}      dto.UserResponse
-// @Failure 400 {object}      utils.HTTPError
-// @Failure 404 {object}      utils.HTTPError
 // @Failure 500 {object}      utils.HTTPError
 // @Router  /profile [get]
 func (u *userController) GetUser(ctx *gin.Context) {

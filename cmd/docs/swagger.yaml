@@ -268,9 +268,7 @@ paths:
       - info
   /profile:
     get:
-      consumes:
-      - application/json
-      description: Get a user by ID
+      description: Get a user by userID from the token
       produces:
       - application/json
       responses:
@@ -278,14 +276,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/dto.UserResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/utils.HTTPError'
         "500":
           description: Internal Server Error
           schema:

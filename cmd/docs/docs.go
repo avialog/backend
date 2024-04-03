@@ -274,10 +274,7 @@ const docTemplate = `{
                         "ApiKeyAuth": []
                     }
                 ],
-                "description": "Get a user by ID",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Get a user by userID from the token",
                 "produces": [
                     "application/json"
                 ],
@@ -290,18 +287,6 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/dto.UserResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
                         }
                     },
                     "500": {
