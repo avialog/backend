@@ -139,7 +139,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				Expect(w.Body.String()).To(Equal(`{"error":"internal failure: invalid db"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":500,"message":"internal failure: invalid db"}`))
 			})
 		})
 	})
@@ -186,7 +186,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
-				Expect(w.Body.String()).To(Equal(`{"error":"Key: 'ContactRequest.FirstName' Error:Field validation for 'FirstName' failed on the 'required' tag"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":400,"message":"Key: 'ContactRequest.FirstName' Error:Field validation for 'FirstName' failed on the 'required' tag"}`))
 			})
 		})
 		Context("when internal error occurs", func() {
@@ -209,7 +209,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				Expect(w.Body.String()).To(Equal(`{"error":"internal failure: invalid db"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":500,"message":"internal failure: invalid db"}`))
 			})
 		})
 		Context("when couldn't parse incoming request", func() {
@@ -227,7 +227,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
-				Expect(w.Body.String()).To(Equal(`{"error":"EOF"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":400,"message":"EOF"}`))
 			})
 		})
 	})
@@ -278,7 +278,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
-				Expect(w.Body.String()).To(Equal(`{"error":"Key: 'ContactRequest.FirstName' Error:Field validation for 'FirstName' failed on the 'required' tag"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":400,"message":"Key: 'ContactRequest.FirstName' Error:Field validation for 'FirstName' failed on the 'required' tag"}`))
 			})
 		})
 		Context("when could not parse id", func() {
@@ -291,7 +291,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
-				Expect(w.Body.String()).To(Equal(`{"error":"strconv.ParseUint: parsing \"a\": invalid syntax"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":400,"message":"strconv.ParseUint: parsing \"a\": invalid syntax"}`))
 			})
 		})
 		Context("when contact is not found", func() {
@@ -316,7 +316,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusNotFound))
-				Expect(w.Body.String()).To(Equal(`{"error":"not found: record not found"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":404,"message":"not found: record not found"}`))
 			})
 		})
 		Context("when internal error occurs", func() {
@@ -341,7 +341,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				Expect(w.Body.String()).To(Equal(`{"error":"internal failure: invalid db"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":500,"message":"internal failure: invalid db"}`))
 			})
 		})
 	})
@@ -374,7 +374,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
-				Expect(w.Body.String()).To(Equal(`{"error":"strconv.ParseUint: parsing \"a\": invalid syntax"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":400,"message":"strconv.ParseUint: parsing \"a\": invalid syntax"}`))
 			})
 		})
 		Context("when contact is not found", func() {
@@ -390,7 +390,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusNotFound))
-				Expect(w.Body.String()).To(Equal(`{"error":"not found: record not found"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":404,"message":"not found: record not found"}`))
 			})
 		})
 		Context("when internal error occurs", func() {
@@ -406,7 +406,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				Expect(w.Body.String()).To(Equal(`{"error":"internal failure: invalid db"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":500,"message":"internal failure: invalid db"}`))
 			})
 		})
 	})

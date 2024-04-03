@@ -120,7 +120,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				Expect(w.Body.String()).To(MatchJSON(`{"error":"failed to get profile"}`))
+				Expect(w.Body.String()).To(MatchJSON(`{"code":500,"message":"failed to get profile"}`))
 			})
 		})
 	})
@@ -163,7 +163,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
-				Expect(w.Body.String()).To(MatchJSON(`{"error":"invalid character 'i' looking for beginning of value"}`))
+				Expect(w.Body.String()).To(MatchJSON(`{"code":400,"message":"invalid character 'i' looking for beginning of value"}`))
 			})
 		})
 		Context("on failed update profile", func() {
@@ -186,7 +186,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				Expect(w.Body.String()).To(MatchJSON(`{"error":"failed to update profile"}`))
+				Expect(w.Body.String()).To(MatchJSON(`{"code":500,"message":"failed to update profile"}`))
 			})
 		})
 	})
