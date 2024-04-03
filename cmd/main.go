@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	firebase "firebase.google.com/go"
+	_ "github.com/avialog/backend/docs"
 	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/controller"
 	"github.com/avialog/backend/internal/repository"
@@ -11,11 +12,26 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"google.golang.org/api/option"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"os"
 )
+
+// @title Avialog API
+// @version 1.0
+// @description This is a sample server.
+// @termsOfService http://swagger.io/terms/
+
+// @host localhost:3000
+// @BasePath /api
+
+// @securityDefinitions.apikey ApiKeyAuth
+// @in header
+// @name Authorization
+// @description Authorization by JWT token
 
 func main() {
 	err := godotenv.Load()
@@ -58,6 +74,9 @@ func main() {
 	if os.Getenv("PORT") != "" {
 		port = os.Getenv("PORT")
 	}
+
+	//configure swagger endpoint
+	server.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	err = server.Run(":" + port)
 	if err != nil {

@@ -85,7 +85,7 @@ var _ = Describe("UserController", func() {
 				expectedJSON, err := json.Marshal(expectedResponse)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodGet, "/profile", nil)
+				req, err := http.NewRequest(http.MethodGet, "/api/profile", nil)
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -106,7 +106,7 @@ var _ = Describe("UserController", func() {
 		Context("on failed get profile", func() {
 			It("should return 500 Internal Server Error", func() {
 				// given
-				req, err := http.NewRequest(http.MethodGet, "/profile", nil)
+				req, err := http.NewRequest(http.MethodGet, "/api/profile", nil)
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -120,7 +120,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				Expect(w.Body.String()).To(MatchJSON(`{"error":"failed to get profile"}`))
+				Expect(w.Body.String()).To(MatchJSON(`{"code":500,"message":"failed to get profile"}`))
 			})
 		})
 	})
@@ -133,8 +133,8 @@ var _ = Describe("UserController", func() {
 				userRequestJSON, err := json.Marshal(userRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPost, "/profile", bytes.NewBuffer(userRequestJSON))
-
+				req, err := http.NewRequest(http.MethodPost, "/api/profile", bytes.NewBuffer(userRequestJSON))
+				Expect(err).ToNot(HaveOccurred())
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
@@ -151,7 +151,7 @@ var _ = Describe("UserController", func() {
 		Context("when binding request failed", func() {
 			It("should return 400 Bad Request", func() {
 				// given
-				req, err := http.NewRequest(http.MethodPost, "/profile", bytes.NewBuffer([]byte("invalid json")))
+				req, err := http.NewRequest(http.MethodPost, "/api/profile", bytes.NewBuffer([]byte("invalid json")))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -163,7 +163,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
-				Expect(w.Body.String()).To(MatchJSON(`{"error":"invalid character 'i' looking for beginning of value"}`))
+				Expect(w.Body.String()).To(MatchJSON(`{"code":400,"message":"invalid character 'i' looking for beginning of value"}`))
 			})
 		})
 		Context("on failed update profile", func() {
@@ -172,7 +172,7 @@ var _ = Describe("UserController", func() {
 				userRequestJSON, err := json.Marshal(userRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPost, "/profile", bytes.NewBuffer(userRequestJSON))
+				req, err := http.NewRequest(http.MethodPost, "/api/profile", bytes.NewBuffer(userRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
@@ -186,7 +186,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				Expect(w.Body.String()).To(MatchJSON(`{"error":"failed to update profile"}`))
+				Expect(w.Body.String()).To(MatchJSON(`{"code":500,"message":"failed to update profile"}`))
 			})
 		})
 	})
