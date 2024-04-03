@@ -57,7 +57,6 @@ func (u *userController) GetUser(ctx *gin.Context) {
 // @Param   userRequest       body     dto.UserRequest true       "User profile information to update"
 // @Success 200 {object}      dto.UserResponse
 // @Failure 400 {object}      utils.HTTPError
-// @Failure 404 {object}      utils.HTTPError
 // @Failure 500 {object}      utils.HTTPError
 // @Router  /profile [put]
 func (u *userController) UpdateProfile(ctx *gin.Context) {

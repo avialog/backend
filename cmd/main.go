@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	firebase "firebase.google.com/go"
+	_ "github.com/avialog/backend/docs"
 	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/controller"
 	"github.com/avialog/backend/internal/repository"

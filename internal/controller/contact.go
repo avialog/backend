@@ -31,12 +31,9 @@ func newContactController(contactService service.ContactService) ContactControll
 // @Summary Get user contacts
 // @Description Get a list of contacts for a user
 // @Tags contacts
-// @Accept  json
 // @Produce  json
 // @Security ApiKeyAuth
 // @Success 200 {array}       dto.ContactResponse
-// @Failure 400 {object}      utils.HTTPError
-// @Failure 404 {object}      utils.HTTPError
 // @Failure 500 {object}      utils.HTTPError
 // @Router  /contacts [get]
 func (c *contactController) GetContacts(ctx *gin.Context) {
@@ -64,7 +61,6 @@ func (c *contactController) GetContacts(ctx *gin.Context) {
 // @Param   contactRequest    body     dto.ContactRequest true    "Contact information to insert"
 // @Success 201 {object}      dto.ContactResponse
 // @Failure 400 {object}      utils.HTTPError
-// @Failure 404 {object}      utils.HTTPError
 // @Failure 500 {object}      utils.HTTPError
 // @Router  /contacts [post]
 func (c *contactController) InsertContact(ctx *gin.Context) {
