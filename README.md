@@ -2,6 +2,95 @@
 
 ## Golang-powered backend application for mobile app that allows airplane pilots to record their flights and track career.
 
+## API Reference 🚧🚧🚧 **IN PROGRESS** 🚧🚧🚧
+
+#### Get server health info
+
+```http
+  GET /api/info
+```
+##
+
+#### Get user profile
+
+```http
+  GET /api/profile
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `api_key`      | `string` | **Required**. Your api key.|
+
+##
+
+#### Update user profile
+
+```http
+  PUT /api/profile
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `api_key`      | `string` | **Required**. Your api key.|
+| `userRequest`| `json` | **Required**. JSON body of user profile information to update.`
+
+
+##
+
+#### Get user contacts
+
+```http
+  GET /api/contacts
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `api_key`      | `string` | **Required**. Your api key.|
+
+This endpoint retrieves a list of contacts for a user. The user ID is obtained from the context.
+##
+
+#### Insert a new contact
+
+```http
+  POST /api/contacts
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `api_key`      | `string` | **Required**. Your api key.|
+| `contactRequest`| `json` | **Required**. JSON body of contact information to insert.
+
+##
+
+#### Update an existing contact
+
+```http
+  PUT /api/contacts/:id
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `api_key`      | `string` | **Required**. Your api key.|
+| `id` | `int` | **Required**. Id of contact to update.
+| `contactRequest`| `json` | **Required**. JSON body of contact information to update.
+
+##
+
+#### Delete an existing contact
+
+```http
+   DELETE /api/contacts/:id
+```
+
+| Parameter | Type     | Description                       |
+| :-------- | :------- | :-------------------------------- |
+| `api_key`      | `string` | **Required**. Your api key.|
+| `id`| `int` | **Required**.  Id of contact to delete`
+
+
+
+
 ## Technologies and libraries used:
 
 - 🐹 **Go (Golang)**: Efficient and performant language for backend development.
@@ -24,3 +113,5 @@
 ## Database schema:
 
 ![db](https://github.com/avialog/backend/assets/7630626/9919821f-b24c-4215-b7f4-719b0ca96ace)
+
+
