@@ -11,19 +11,14 @@
 ```
 ##
 
-#### Get user profile
+#### Get user profile [**JWT REQUIRED**]
 
 ```http
   GET /api/profile
 ```
-
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `api_key`      | `string` | **Required**. Your api key.|
-
 ##
 
-#### Update user profile
+#### Update user profile [**JWT REQUIRED**]
 
 ```http
   PUT /api/profile
@@ -31,26 +26,21 @@
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `api_key`      | `string` | **Required**. Your api key.|
 | `userRequest`| `json` | **Required**. JSON body of user profile information to update.`
 
 
 ##
 
-#### Get user contacts
+#### Get user contacts [**JWT REQUIRED**]
 
 ```http
   GET /api/contacts
 ```
 
-| Parameter | Type     | Description                       |
-| :-------- | :------- | :-------------------------------- |
-| `api_key`      | `string` | **Required**. Your api key.|
-
 This endpoint retrieves a list of contacts for a user. The user ID is obtained from the context.
 ##
 
-#### Insert a new contact
+#### Insert a new contact [**JWT REQUIRED**]
 
 ```http
   POST /api/contacts
@@ -58,12 +48,11 @@ This endpoint retrieves a list of contacts for a user. The user ID is obtained f
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `api_key`      | `string` | **Required**. Your api key.|
 | `contactRequest`| `json` | **Required**. JSON body of contact information to insert.
 
 ##
 
-#### Update an existing contact
+#### Update an existing contact [**JWT REQUIRED**]
 
 ```http
   PUT /api/contacts/:id
@@ -71,13 +60,12 @@ This endpoint retrieves a list of contacts for a user. The user ID is obtained f
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `api_key`      | `string` | **Required**. Your api key.|
 | `id` | `int` | **Required**. Id of contact to update.
 | `contactRequest`| `json` | **Required**. JSON body of contact information to update.
 
 ##
 
-#### Delete an existing contact
+#### Delete an existing contact [**JWT REQUIRED**]
 
 ```http
    DELETE /api/contacts/:id
@@ -85,7 +73,6 @@ This endpoint retrieves a list of contacts for a user. The user ID is obtained f
 
 | Parameter | Type     | Description                       |
 | :-------- | :------- | :-------------------------------- |
-| `api_key`      | `string` | **Required**. Your api key.|
 | `id`| `int` | **Required**.  Id of contact to delete`
 
 
