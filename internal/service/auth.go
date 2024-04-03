@@ -31,7 +31,8 @@ func (a *authService) ValidateToken(ctx context.Context, token string) (model.Us
 	if err != nil {
 		return model.User{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 	}
-
+	// when the token is not valid
+	// unauthorized code
 	if _, ok := response.Claims["email"]; !ok {
 		return model.User{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, "email claim not found")
 
