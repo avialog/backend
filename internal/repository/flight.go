@@ -2,6 +2,8 @@ package repository
 
 import (
 	"errors"
+	"fmt"
+	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/infrastructure"
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
@@ -51,7 +53,7 @@ func (f *flight) Create(flight model.Flight) (model.Flight, error) {
 func (f *flight) CreateTx(tx infrastructure.Database, flight model.Flight) (model.Flight, error) {
 	result := tx.Create(&flight)
 	if result.Error != nil {
-		return model.Flight{}, result.Error
+		return model.Flight{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 
 	return flight, nil
@@ -134,9 +136,9 @@ func (f *flight) CountByUserIDAndAircraftID(userID string, aircraftID uint) (int
 func (f *flight) GetByUserIDAndDate(userID string, start, end time.Time) ([]model.Flight, error) {
 	var flights []model.Flight
 
-	result := f.db.Where("user_id = ? AND takeoff_time >= ? AND takeoff_time <= ?", userID, start, end).Find(&flights)
+	result := f.db.Where("user_id = ? AND takeoff_time >= ? AND takeoff_time <= ?", userID, start, end).Order("takeoff_time desc").Find(&flights)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 
 	return flights, nil
