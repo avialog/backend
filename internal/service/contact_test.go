@@ -6,7 +6,7 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
-	"github.com/avialog/backend/internal/utils"
+	"github.com/avialog/backend/internal/util"
 	"github.com/go-playground/validator/v10"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -27,30 +27,30 @@ var _ = Describe("ContactService", func() {
 	BeforeEach(func() {
 		contactRepoCtrl = gomock.NewController(GinkgoT())
 		contactRepoMock = repository.NewMockContactRepository(contactRepoCtrl)
-		validator = utils.GetValidator()
+		validator = util.GetValidator()
 		contactService = newContactService(contactRepoMock, config.Config{}, validator)
 		contactRequest = dto.ContactRequest{
 			FirstName:    "John",
-			LastName:     "Doe",
-			Phone:        "1234567890",
-			AvatarURL:    "https://example.com/avatar.jpg",
-			Company:      "Example Inc",
-			EmailAddress: "test@test.com",
-			Note:         "This is a test contact",
+			LastName:     util.String("Doe"),
+			Phone:        util.String("1234567890"),
+			AvatarURL:    util.String("https://example.com/avatar.jpg"),
+			Company:      util.String("Example Inc"),
+			EmailAddress: util.String("test@test.com"),
+			Note:         util.String("This is a test contact"),
 		}
 		mockContact = model.Contact{
 			UserID:       "1",
 			FirstName:    "John",
-			LastName:     "Doe",
-			Phone:        "1234567890",
-			AvatarURL:    "https://example.com/avatar.jpg",
-			Company:      "Example Inc",
-			EmailAddress: "test@test.com",
-			Note:         "This is a test contact",
+			LastName:     util.String("Doe"),
+			Phone:        util.String("1234567890"),
+			AvatarURL:    util.String("https://example.com/avatar.jpg"),
+			Company:      util.String("Example Inc"),
+			EmailAddress: util.String("test@test.com"),
+			Note:         util.String("This is a test contact"),
 		}
 		mockContacts = []model.Contact{
-			{UserID: "1", FirstName: "John", LastName: "Doe", Phone: "1234567890", AvatarURL: "https://example.com/avatar.jpg", Company: "Example Inc", EmailAddress: "test@test.com", Note: "This is a test contact"},
-			{UserID: "1", FirstName: "Jane", LastName: "Doe", Phone: "1234567890", AvatarURL: "https://example.com/avatar.jpg", Company: "Example Inc", EmailAddress: "test@test.com", Note: "This is a test contact"},
+			{UserID: "1", FirstName: "John", LastName: util.String("Doe"), Phone: util.String("1234567890"), AvatarURL: util.String("https://example.com/avatar.jpg"), Company: util.String("Example Inc"), EmailAddress: util.String("test@test.com"), Note: util.String("This is a test contact")},
+			{UserID: "1", FirstName: "Jane", LastName: util.String("Doe"), Phone: util.String("1234567890"), AvatarURL: util.String("https://example.com/avatar.jpg"), Company: util.String("Example Inc"), EmailAddress: util.String("test@test.com"), Note: util.String("This is a test contact")},
 		}
 	})
 

@@ -6,7 +6,7 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
-	"github.com/avialog/backend/internal/utils"
+	"github.com/avialog/backend/internal/util"
 	"github.com/go-playground/validator/v10"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -31,25 +31,25 @@ var _ = Describe("AircraftService", func() {
 		aircraftRepoMock = repository.NewMockAircraftRepository(aircraftRepoCtrl)
 		flightRepoCtrl = gomock.NewController(GinkgoT())
 		flightRepoMock = repository.NewMockFlightRepository(flightRepoCtrl)
-		validator = utils.GetValidator()
+		validator = util.GetValidator()
 		aircraftService = newAircraftService(aircraftRepoMock, flightRepoMock, config.Config{}, validator)
 		aircraftRequest = dto.AircraftRequest{
 			AircraftModel:      "Cessna 172",
 			RegistrationNumber: "B550",
-			ImageURL:           "https://example.com/image.jpg",
-			Remarks:            "This is a test aircraft",
+			ImageURL:           util.String("https://example.com/image.jpg"),
+			Remarks:            util.String("This is a test aircraft"),
 		}
 		mockAircraft = model.Aircraft{
 			UserID:             "1",
 			AircraftModel:      "Cessna 172",
 			RegistrationNumber: "B550",
-			ImageURL:           "https://example.com/image.jpg",
-			Remarks:            "This is a test aircraft",
+			ImageURL:           util.String("https://example.com/image.jpg"),
+			Remarks:            util.String("This is a test aircraft"),
 		}
 		mockAircraftArr = []model.Aircraft{
-			{UserID: "1", AircraftModel: "Cessna 1", RegistrationNumber: "N12345", ImageURL: "https://example.com/image.jpg", Remarks: "This is a test aircraft"},
-			{UserID: "1", AircraftModel: "Cessna 2", RegistrationNumber: "N12345", ImageURL: "https://example.com/image.jpg", Remarks: "This is a test aircraft"},
-			{UserID: "2", AircraftModel: "Cessna 3", RegistrationNumber: "N12345", ImageURL: "https://example.com/image.jpg", Remarks: "This is a test aircraft"},
+			{UserID: "1", AircraftModel: "Cessna 1", RegistrationNumber: "N12345", ImageURL: util.String("https://example.com/image.jpg"), Remarks: util.String("This is a test aircraft")},
+			{UserID: "1", AircraftModel: "Cessna 2", RegistrationNumber: "N12345", ImageURL: util.String("https://example.com/image.jpg"), Remarks: util.String("This is a test aircraft")},
+			{UserID: "2", AircraftModel: "Cessna 3", RegistrationNumber: "N12345", ImageURL: util.String("https://example.com/image.jpg"), Remarks: util.String("This is a test aircraft")},
 		}
 	})
 

@@ -1,4 +1,4 @@
-package utils
+package util
 
 import (
 	"github.com/avialog/backend/internal/model"

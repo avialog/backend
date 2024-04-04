@@ -5,7 +5,7 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/service"
-	"github.com/avialog/backend/internal/utils"
+	"github.com/avialog/backend/internal/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"strconv"
@@ -34,14 +34,14 @@ func newContactController(contactService service.ContactService) ContactControll
 // @Produce  json
 // @Security ApiKeyAuth
 // @Success 200 {array}       dto.ContactResponse
-// @Failure 500 {object}      utils.HTTPError
+// @Failure 500 {object}      util.HTTPError
 // @Router  /contacts [get]
 func (c *contactController) GetContacts(ctx *gin.Context) {
 	userID := ctx.GetString("userID")
 
 	contacts, err := c.contactService.GetUserContacts(userID)
 	if err != nil {
-		utils.NewError(ctx, http.StatusInternalServerError, err)
+		util.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -60,25 +60,25 @@ func (c *contactController) GetContacts(ctx *gin.Context) {
 // @Security ApiKeyAuth
 // @Param   contactRequest    body     dto.ContactRequest true    "Contact information to insert"
 // @Success 201 {object}      dto.ContactResponse
-// @Failure 400 {object}      utils.HTTPError
-// @Failure 500 {object}      utils.HTTPError
+// @Failure 400 {object}      util.HTTPError
+// @Failure 500 {object}      util.HTTPError
 // @Router  /contacts [post]
 func (c *contactController) InsertContact(ctx *gin.Context) {
 	userID := ctx.GetString("userID")
 
 	var contactRequest dto.ContactRequest
 	if err := ctx.ShouldBindJSON(&contactRequest); err != nil {
-		utils.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
 	contact, err := c.contactService.InsertContact(userID, contactRequest)
 	if err != nil {
 		if errors.Is(err, dto.ErrBadRequest) {
-			utils.NewError(ctx, http.StatusBadRequest, err)
+			util.NewError(ctx, http.StatusBadRequest, err)
 			return
 		}
-		utils.NewError(ctx, http.StatusInternalServerError, err)
+		util.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -98,14 +98,14 @@ func (c *contactController) InsertContact(ctx *gin.Context) {
 // @Param   id                path     int        true        "Contact ID to update"
 // @Param   contactRequest    body     dto.ContactRequest true    "Contact information to update"
 // @Success 200 {object}      dto.ContactResponse
-// @Failure 400 {object}      utils.HTTPError
-// @Failure 404 {object}      utils.HTTPError
-// @Failure 500 {object}      utils.HTTPError
+// @Failure 400 {object}      util.HTTPError
+// @Failure 404 {object}      util.HTTPError
+// @Failure 500 {object}      util.HTTPError
 // @Router  /contacts/{id} [put]
 func (c *contactController) UpdateContact(ctx *gin.Context) {
 	contactID, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		utils.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
@@ -113,20 +113,20 @@ func (c *contactController) UpdateContact(ctx *gin.Context) {
 
 	var contactRequest dto.ContactRequest
 	if err := ctx.ShouldBindJSON(&contactRequest); err != nil {
-		utils.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
 	contact, err := c.contactService.UpdateContact(userID, uint(contactID), contactRequest)
 	if err != nil {
 		if errors.Is(err, dto.ErrNotFound) {
-			utils.NewError(ctx, http.StatusNotFound, err)
+			util.NewError(ctx, http.StatusNotFound, err)
 			return
 		} else if errors.Is(err, dto.ErrBadRequest) {
-			utils.NewError(ctx, http.StatusBadRequest, err)
+			util.NewError(ctx, http.StatusBadRequest, err)
 			return
 		}
-		utils.NewError(ctx, http.StatusInternalServerError, err)
+		util.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -145,14 +145,14 @@ func (c *contactController) UpdateContact(ctx *gin.Context) {
 // @Security ApiKeyAuth
 // @Param   id                path     int        true        "Contact ID to delete"
 // @Success 200 {object}      object{message=string} "Contact deleted successfully"
-// @Failure 400 {object}      utils.HTTPError
-// @Failure 404 {object}      utils.HTTPError
-// @Failure 500 {object}      utils.HTTPError
+// @Failure 400 {object}      util.HTTPError
+// @Failure 404 {object}      util.HTTPError
+// @Failure 500 {object}      util.HTTPError
 // @Router  /api/contacts/{id} [delete]
 func (c *contactController) DeleteContact(ctx *gin.Context) {
 	contactID, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
-		utils.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, http.StatusBadRequest, err)
 		return
 	}
 
@@ -161,10 +161,10 @@ func (c *contactController) DeleteContact(ctx *gin.Context) {
 	err = c.contactService.DeleteContact(userID, uint(contactID))
 	if err != nil {
 		if errors.Is(err, dto.ErrNotFound) {
-			utils.NewError(ctx, http.StatusNotFound, err)
+			util.NewError(ctx, http.StatusNotFound, err)
 			return
 		}
-		utils.NewError(ctx, http.StatusInternalServerError, err)
+		util.NewError(ctx, http.StatusInternalServerError, err)
 		return
 	}
 
