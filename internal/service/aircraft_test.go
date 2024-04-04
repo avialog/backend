@@ -36,20 +36,20 @@ var _ = Describe("AircraftService", func() {
 		aircraftRequest = dto.AircraftRequest{
 			AircraftModel:      "Cessna 172",
 			RegistrationNumber: "B550",
-			ImageURL:           "https://example.com/image.jpg",
-			Remarks:            "This is a test aircraft",
+			ImageURL:           utils.String("https://example.com/image.jpg"),
+			Remarks:            utils.String("This is a test aircraft"),
 		}
 		mockAircraft = model.Aircraft{
 			UserID:             "1",
 			AircraftModel:      "Cessna 172",
 			RegistrationNumber: "B550",
-			ImageURL:           "https://example.com/image.jpg",
-			Remarks:            "This is a test aircraft",
+			ImageURL:           utils.String("https://example.com/image.jpg"),
+			Remarks:            utils.String("This is a test aircraft"),
 		}
 		mockAircraftArr = []model.Aircraft{
-			{UserID: "1", AircraftModel: "Cessna 1", RegistrationNumber: "N12345", ImageURL: "https://example.com/image.jpg", Remarks: "This is a test aircraft"},
-			{UserID: "1", AircraftModel: "Cessna 2", RegistrationNumber: "N12345", ImageURL: "https://example.com/image.jpg", Remarks: "This is a test aircraft"},
-			{UserID: "2", AircraftModel: "Cessna 3", RegistrationNumber: "N12345", ImageURL: "https://example.com/image.jpg", Remarks: "This is a test aircraft"},
+			{UserID: "1", AircraftModel: "Cessna 1", RegistrationNumber: "N12345", ImageURL: utils.String("https://example.com/image.jpg"), Remarks: utils.String("This is a test aircraft")},
+			{UserID: "1", AircraftModel: "Cessna 2", RegistrationNumber: "N12345", ImageURL: utils.String("https://example.com/image.jpg"), Remarks: utils.String("This is a test aircraft")},
+			{UserID: "2", AircraftModel: "Cessna 3", RegistrationNumber: "N12345", ImageURL: utils.String("https://example.com/image.jpg"), Remarks: utils.String("This is a test aircraft")},
 		}
 	})
 

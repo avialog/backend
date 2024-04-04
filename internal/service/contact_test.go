@@ -31,26 +31,26 @@ var _ = Describe("ContactService", func() {
 		contactService = newContactService(contactRepoMock, config.Config{}, validator)
 		contactRequest = dto.ContactRequest{
 			FirstName:    "John",
-			LastName:     "Doe",
-			Phone:        "1234567890",
-			AvatarURL:    "https://example.com/avatar.jpg",
-			Company:      "Example Inc",
-			EmailAddress: "test@test.com",
-			Note:         "This is a test contact",
+			LastName:     utils.String("Doe"),
+			Phone:        utils.String("1234567890"),
+			AvatarURL:    utils.String("https://example.com/avatar.jpg"),
+			Company:      utils.String("Example Inc"),
+			EmailAddress: utils.String("test@test.com"),
+			Note:         utils.String("This is a test contact"),
 		}
 		mockContact = model.Contact{
 			UserID:       "1",
 			FirstName:    "John",
-			LastName:     "Doe",
-			Phone:        "1234567890",
-			AvatarURL:    "https://example.com/avatar.jpg",
-			Company:      "Example Inc",
-			EmailAddress: "test@test.com",
-			Note:         "This is a test contact",
+			LastName:     utils.String("Doe"),
+			Phone:        utils.String("1234567890"),
+			AvatarURL:    utils.String("https://example.com/avatar.jpg"),
+			Company:      utils.String("Example Inc"),
+			EmailAddress: utils.String("test@test.com"),
+			Note:         utils.String("This is a test contact"),
 		}
 		mockContacts = []model.Contact{
-			{UserID: "1", FirstName: "John", LastName: "Doe", Phone: "1234567890", AvatarURL: "https://example.com/avatar.jpg", Company: "Example Inc", EmailAddress: "test@test.com", Note: "This is a test contact"},
-			{UserID: "1", FirstName: "Jane", LastName: "Doe", Phone: "1234567890", AvatarURL: "https://example.com/avatar.jpg", Company: "Example Inc", EmailAddress: "test@test.com", Note: "This is a test contact"},
+			{UserID: "1", FirstName: "John", LastName: utils.String("Doe"), Phone: utils.String("1234567890"), AvatarURL: utils.String("https://example.com/avatar.jpg"), Company: utils.String("Example Inc"), EmailAddress: utils.String("test@test.com"), Note: utils.String("This is a test contact")},
+			{UserID: "1", FirstName: "Jane", LastName: utils.String("Doe"), Phone: utils.String("1234567890"), AvatarURL: utils.String("https://example.com/avatar.jpg"), Company: utils.String("Example Inc"), EmailAddress: utils.String("test@test.com"), Note: utils.String("This is a test contact")},
 		}
 	})
 

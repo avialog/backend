@@ -40,7 +40,7 @@ var _ = Describe("AuthService", func() {
 		userMock = model.User{
 			ID:        "1",
 			Email:     "test@test.com",
-			FirstName: utils.PtrToStr("Kate"),
+			FirstName: utils.String("Kate"),
 		}
 	})
 
