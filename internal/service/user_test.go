@@ -6,7 +6,7 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
-	"github.com/avialog/backend/internal/utils"
+	"github.com/avialog/backend/internal/util"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
@@ -29,29 +29,29 @@ var _ = Describe("UserService", func() {
 		country = "US"
 		mockUser = model.User{
 			ID:           "1",
-			FirstName:    utils.String("test_user"),
-			LastName:     utils.String("test_last_name"),
+			FirstName:    util.String("test_user"),
+			LastName:     util.String("test_last_name"),
 			Email:        "test@test.com",
-			AvatarURL:    utils.String("https://example.com/avatar.jpg"),
-			SignatureURL: utils.String("https://example.com/signature.jpg"),
+			AvatarURL:    util.String("https://example.com/avatar.jpg"),
+			SignatureURL: util.String("https://example.com/signature.jpg"),
 			Country:      &country,
-			Phone:        utils.String("1234567890"),
-			Street:       utils.String("1234 Main St"),
-			City:         utils.String("Any town"),
-			Company:      utils.String("Test Company"),
-			Timezone:     utils.String("America/New_York"),
+			Phone:        util.String("1234567890"),
+			Street:       util.String("1234 Main St"),
+			City:         util.String("Any town"),
+			Company:      util.String("Test Company"),
+			Timezone:     util.String("America/New_York"),
 		}
 		userRequest = dto.UserRequest{
-			FirstName:    utils.String("test_user"),
-			LastName:     utils.String("test_last_name"),
-			AvatarURL:    utils.String("https://example.com/avatar.jpg"),
-			SignatureURL: utils.String("https://example.com/signature.jpg"),
+			FirstName:    util.String("test_user"),
+			LastName:     util.String("test_last_name"),
+			AvatarURL:    util.String("https://example.com/avatar.jpg"),
+			SignatureURL: util.String("https://example.com/signature.jpg"),
 			Country:      &country,
-			Phone:        utils.String("1234567890"),
-			Street:       utils.String("1234 Main St"),
-			City:         utils.String("Any town"),
-			Company:      utils.String("Test Company"),
-			Timezone:     utils.String("America/New_York"),
+			Phone:        util.String("1234567890"),
+			Street:       util.String("1234 Main St"),
+			City:         util.String("Any town"),
+			Company:      util.String("Test Company"),
+			Timezone:     util.String("America/New_York"),
 		}
 
 	})

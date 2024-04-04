@@ -9,7 +9,7 @@ import (
 	"github.com/avialog/backend/internal/infrastructure"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
-	"github.com/avialog/backend/internal/utils"
+	"github.com/avialog/backend/internal/util"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
@@ -40,7 +40,7 @@ var _ = Describe("AuthService", func() {
 		userMock = model.User{
 			ID:        "1",
 			Email:     "test@test.com",
-			FirstName: utils.String("Kate"),
+			FirstName: util.String("Kate"),
 		}
 	})
 

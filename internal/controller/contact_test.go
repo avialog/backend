@@ -7,7 +7,7 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/service"
-	"github.com/avialog/backend/internal/utils"
+	"github.com/avialog/backend/internal/util"
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -40,66 +40,66 @@ var _ = Describe("UserController", func() {
 			{
 				Model:        gorm.Model{ID: 1},
 				UserID:       "1",
-				AvatarURL:    utils.String("https://test.com"),
+				AvatarURL:    util.String("https://test.com"),
 				FirstName:    "John",
-				LastName:     utils.String("Doe"),
-				Company:      utils.String("Test Company"),
-				Phone:        utils.String("1234567890"),
-				EmailAddress: utils.String("test@test.com"),
-				Note:         utils.String("Test note"),
+				LastName:     util.String("Doe"),
+				Company:      util.String("Test Company"),
+				Phone:        util.String("1234567890"),
+				EmailAddress: util.String("test@test.com"),
+				Note:         util.String("Test note"),
 			},
 			{
 				Model:        gorm.Model{ID: 2},
 				UserID:       "1",
-				AvatarURL:    utils.String("https://test.com"),
+				AvatarURL:    util.String("https://test.com"),
 				FirstName:    "Jane",
-				LastName:     utils.String("Doe"),
-				Company:      utils.String("Test Company"),
-				Phone:        utils.String("1234567890"),
-				EmailAddress: utils.String("test2@test.com"),
-				Note:         utils.String("Test notes"),
+				LastName:     util.String("Doe"),
+				Company:      util.String("Test Company"),
+				Phone:        util.String("1234567890"),
+				EmailAddress: util.String("test2@test.com"),
+				Note:         util.String("Test notes"),
 			},
 		}
 
 		expectedContacts = []dto.ContactResponse{
 			{
-				AvatarURL:    utils.String("https://test.com"),
+				AvatarURL:    util.String("https://test.com"),
 				FirstName:    "John",
-				LastName:     utils.String("Doe"),
-				Company:      utils.String("Test Company"),
-				Phone:        utils.String("1234567890"),
-				EmailAddress: utils.String("test@test.com"),
-				Note:         utils.String("Test note"),
+				LastName:     util.String("Doe"),
+				Company:      util.String("Test Company"),
+				Phone:        util.String("1234567890"),
+				EmailAddress: util.String("test@test.com"),
+				Note:         util.String("Test note"),
 			},
 			{
-				AvatarURL:    utils.String("https://test.com"),
+				AvatarURL:    util.String("https://test.com"),
 				FirstName:    "Jane",
-				LastName:     utils.String("Doe"),
-				Company:      utils.String("Test Company"),
-				Phone:        utils.String("1234567890"),
-				EmailAddress: utils.String("test2@test.com"),
-				Note:         utils.String("Test notes"),
+				LastName:     util.String("Doe"),
+				Company:      util.String("Test Company"),
+				Phone:        util.String("1234567890"),
+				EmailAddress: util.String("test2@test.com"),
+				Note:         util.String("Test notes"),
 			},
 		}
 		contactRequest = dto.ContactRequest{
-			AvatarURL:    utils.String("https://test.com"),
+			AvatarURL:    util.String("https://test.com"),
 			FirstName:    "John",
-			LastName:     utils.String("Doe"),
-			Company:      utils.String("Test Company"),
-			Phone:        utils.String("1234567890"),
-			EmailAddress: utils.String("test@test.com"),
-			Note:         utils.String("Test note"),
+			LastName:     util.String("Doe"),
+			Company:      util.String("Test Company"),
+			Phone:        util.String("1234567890"),
+			EmailAddress: util.String("test@test.com"),
+			Note:         util.String("Test note"),
 		}
 		contactBeforeUpdate = model.Contact{
 			Model:        gorm.Model{ID: 3},
 			UserID:       "5",
-			AvatarURL:    utils.String("https://test.com"),
+			AvatarURL:    util.String("https://test.com"),
 			FirstName:    "John",
-			LastName:     utils.String("Doe"),
-			Company:      utils.String("Test Company"),
-			Phone:        utils.String("1234567890"),
-			EmailAddress: utils.String("test@test.com"),
-			Note:         utils.String("Test note"),
+			LastName:     util.String("Doe"),
+			Company:      util.String("Test Company"),
+			Phone:        util.String("1234567890"),
+			EmailAddress: util.String("test@test.com"),
+			Note:         util.String("Test note"),
 		}
 	})
 
