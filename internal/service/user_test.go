@@ -6,6 +6,7 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
+	"github.com/avialog/backend/internal/util"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
@@ -18,37 +19,39 @@ var _ = Describe("UserService", func() {
 		userRepoMock *repository.MockUserRepository
 		mockUser     model.User
 		userRequest  dto.UserRequest
+		country      model.Country
 	)
 
 	BeforeEach(func() {
 		userRepoCtrl = gomock.NewController(GinkgoT())
 		userRepoMock = repository.NewMockUserRepository(userRepoCtrl)
 		userService = newUserService(userRepoMock, config.Config{})
+		country = "US"
 		mockUser = model.User{
 			ID:           "1",
-			FirstName:    "test_user",
-			LastName:     "test_last_name",
+			FirstName:    util.String("test_user"),
+			LastName:     util.String("test_last_name"),
 			Email:        "test@test.com",
-			AvatarURL:    "https://example.com/avatar.jpg",
-			SignatureURL: "https://example.com/signature.jpg",
-			Country:      "US",
-			Phone:        "1234567890",
-			Street:       "1234 Main St",
-			City:         "Any town",
-			Company:      "Test Company",
-			Timezone:     "America/New_York",
+			AvatarURL:    util.String("https://example.com/avatar.jpg"),
+			SignatureURL: util.String("https://example.com/signature.jpg"),
+			Country:      &country,
+			Phone:        util.String("1234567890"),
+			Street:       util.String("1234 Main St"),
+			City:         util.String("Any town"),
+			Company:      util.String("Test Company"),
+			Timezone:     util.String("America/New_York"),
 		}
 		userRequest = dto.UserRequest{
-			FirstName:    "test_user",
-			LastName:     "test_last_name",
-			AvatarURL:    "https://example.com/avatar.jpg",
-			SignatureURL: "https://example.com/signature.jpg",
-			Country:      "US",
-			Phone:        "1234567890",
-			Street:       "1234 Main St",
-			City:         "Any town",
-			Company:      "Test Company",
-			Timezone:     "America/New_York",
+			FirstName:    util.String("test_user"),
+			LastName:     util.String("test_last_name"),
+			AvatarURL:    util.String("https://example.com/avatar.jpg"),
+			SignatureURL: util.String("https://example.com/signature.jpg"),
+			Country:      &country,
+			Phone:        util.String("1234567890"),
+			Street:       util.String("1234 Main St"),
+			City:         util.String("Any town"),
+			Company:      util.String("Test Company"),
+			Timezone:     util.String("America/New_York"),
 		}
 
 	})

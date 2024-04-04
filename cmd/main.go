@@ -8,7 +8,7 @@ import (
 	"github.com/avialog/backend/internal/controller"
 	"github.com/avialog/backend/internal/repository"
 	"github.com/avialog/backend/internal/service"
-	"github.com/avialog/backend/internal/utils"
+	"github.com/avialog/backend/internal/util"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
@@ -66,7 +66,7 @@ func main() {
 	if err != nil {
 		logrus.Panic(err)
 	}
-	services := service.NewServices(repositories, cfg, utils.GetValidator(), authClient)
+	services := service.NewServices(repositories, cfg, util.GetValidator(), authClient)
 	controllers := controller.NewControllers(services, cfg)
 	controllers.Route(server)
 
