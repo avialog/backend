@@ -7,6 +7,7 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/service"
+	"github.com/avialog/backend/internal/utils"
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -39,66 +40,66 @@ var _ = Describe("UserController", func() {
 			{
 				Model:        gorm.Model{ID: 1},
 				UserID:       "1",
-				AvatarURL:    "https://test.com",
+				AvatarURL:    utils.String("https://test.com"),
 				FirstName:    "John",
-				LastName:     "Doe",
-				Company:      "Test Company",
-				Phone:        "1234567890",
-				EmailAddress: "test@test.com",
-				Note:         "Test note",
+				LastName:     utils.String("Doe"),
+				Company:      utils.String("Test Company"),
+				Phone:        utils.String("1234567890"),
+				EmailAddress: utils.String("test@test.com"),
+				Note:         utils.String("Test note"),
 			},
 			{
 				Model:        gorm.Model{ID: 2},
 				UserID:       "1",
-				AvatarURL:    "https://test.com",
+				AvatarURL:    utils.String("https://test.com"),
 				FirstName:    "Jane",
-				LastName:     "Doe",
-				Company:      "Test Company",
-				Phone:        "1234567890",
-				EmailAddress: "test2@test.com",
-				Note:         "Test notes",
+				LastName:     utils.String("Doe"),
+				Company:      utils.String("Test Company"),
+				Phone:        utils.String("1234567890"),
+				EmailAddress: utils.String("test2@test.com"),
+				Note:         utils.String("Test notes"),
 			},
 		}
 
 		expectedContacts = []dto.ContactResponse{
 			{
-				AvatarURL:    "https://test.com",
+				AvatarURL:    utils.String("https://test.com"),
 				FirstName:    "John",
-				LastName:     "Doe",
-				Company:      "Test Company",
-				Phone:        "1234567890",
-				EmailAddress: "test@test.com",
-				Note:         "Test note",
+				LastName:     utils.String("Doe"),
+				Company:      utils.String("Test Company"),
+				Phone:        utils.String("1234567890"),
+				EmailAddress: utils.String("test@test.com"),
+				Note:         utils.String("Test note"),
 			},
 			{
-				AvatarURL:    "https://test.com",
+				AvatarURL:    utils.String("https://test.com"),
 				FirstName:    "Jane",
-				LastName:     "Doe",
-				Company:      "Test Company",
-				Phone:        "1234567890",
-				EmailAddress: "test2@test.com",
-				Note:         "Test notes",
+				LastName:     utils.String("Doe"),
+				Company:      utils.String("Test Company"),
+				Phone:        utils.String("1234567890"),
+				EmailAddress: utils.String("test2@test.com"),
+				Note:         utils.String("Test notes"),
 			},
 		}
 		contactRequest = dto.ContactRequest{
-			AvatarURL:    "https://test.com",
+			AvatarURL:    utils.String("https://test.com"),
 			FirstName:    "John",
-			LastName:     "Doe",
-			Company:      "Test Company",
-			Phone:        "1234567890",
-			EmailAddress: "test@test.com",
-			Note:         "Test note",
+			LastName:     utils.String("Doe"),
+			Company:      utils.String("Test Company"),
+			Phone:        utils.String("1234567890"),
+			EmailAddress: utils.String("test@test.com"),
+			Note:         utils.String("Test note"),
 		}
 		contactBeforeUpdate = model.Contact{
 			Model:        gorm.Model{ID: 3},
 			UserID:       "5",
-			AvatarURL:    "https://test.com",
+			AvatarURL:    utils.String("https://test.com"),
 			FirstName:    "John",
-			LastName:     "Doe",
-			Company:      "Test Company",
-			Phone:        "1234567890",
-			EmailAddress: "test@test.com",
-			Note:         "Test note",
+			LastName:     utils.String("Doe"),
+			Company:      utils.String("Test Company"),
+			Phone:        utils.String("1234567890"),
+			EmailAddress: utils.String("test@test.com"),
+			Note:         utils.String("Test note"),
 		}
 	})
 
