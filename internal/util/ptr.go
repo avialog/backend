@@ -1,4 +1,4 @@
-package utils
+package util
 
 import "time"
 
@@ -6,7 +6,7 @@ func String(s string) *string {
 	return &s
 }
 
-func TimeDuration(t time.Duration) *time.Duration {
+func Duration(t time.Duration) *time.Duration {
 	return &t
 }
 
