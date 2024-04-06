@@ -9,6 +9,8 @@ import (
 
 type Controllers interface {
 	User() UserController
+	Contact() ContactController
+	Logbook() LogbookController
 	Info() InfoController
 	Route(server *gin.Engine)
 }
@@ -19,6 +21,7 @@ type controllers struct {
 	config            config.Config
 	contactController ContactController
 	authMiddleware    gin.HandlerFunc
+	logbookController LogbookController
 }
 
 func NewControllers(services service.Services, config config.Config) Controllers {
@@ -26,12 +29,14 @@ func NewControllers(services service.Services, config config.Config) Controllers
 	contactController := newContactController(services.Contact())
 	infoController := newInfoController()
 	authMiddleware := middleware.AuthJWT(services.Auth())
+	flightController := newLogbookController(services.Logbook())
 	return &controllers{
 		userController:    userController,
 		contactController: contactController,
 		infoController:    infoController,
 		config:            config,
 		authMiddleware:    authMiddleware,
+		logbookController: flightController,
 	}
 }
 
@@ -42,6 +47,10 @@ func (c *controllers) User() UserController {
 func (c *controllers) Info() InfoController {
 	return c.infoController
 }
+
+func (c *controllers) Contact() ContactController { return c.contactController }
+
+func (c *controllers) Logbook() LogbookController { return c.logbookController }
 
 func (c *controllers) Route(server *gin.Engine) {
 
@@ -68,6 +77,14 @@ func (c *controllers) Route(server *gin.Engine) {
 				contacts.POST("", c.contactController.InsertContact)
 				contacts.PUT(":id", c.contactController.UpdateContact)
 				contacts.DELETE(":id", c.contactController.DeleteContact)
+			}
+
+			flights := authenticated.Group("/logbook")
+			{
+				flights.GET("", c.logbookController.GetLogbookEntries)
+				flights.POST("", c.logbookController.InsertLogbookEntry)
+				flights.PUT(":id", c.logbookController.UpdateLogbookEntry)
+				flights.DELETE(":id", c.logbookController.DeleteLogbookEntry)
 			}
 
 		}
