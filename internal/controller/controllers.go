@@ -54,12 +54,10 @@ func (c *controllers) Logbook() LogbookController { return c.logbookController }
 
 func (c *controllers) Route(server *gin.Engine) {
 
+	server.GET("/healthz", c.infoController.Info)
+
 	api := server.Group("/api")
 	{
-		info := api.Group("/info")
-		{
-			info.GET("", c.infoController.Info)
-		}
 
 		authenticated := api.Group("/")
 		{
