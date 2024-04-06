@@ -36,7 +36,7 @@ var _ = Describe("AuthJWT Middleware", func() {
 			// given
 			authService.EXPECT().ValidateToken(ctx, "valid-token").Return(model.User{ID: "1"}, nil)
 			ctx.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
-			ctx.Request.Header.Set("Authorization", "valid-token")
+			ctx.Request.Header.Set("Authorization", "Bearer valid-token")
 
 			// when
 			AuthJWT(authService)(ctx)
@@ -55,7 +55,7 @@ var _ = Describe("AuthJWT Middleware", func() {
 			// given
 			authService.EXPECT().ValidateToken(ctx, "invalid-token").Return(model.User{}, errors.New("invalid token"))
 			ctx.Request, _ = http.NewRequest(http.MethodGet, "/", nil)
-			ctx.Request.Header.Set("Authorization", "invalid-token")
+			ctx.Request.Header.Set("Authorization", "Bearer invalid-token")
 
 			// when
 			AuthJWT(authService)(ctx)
