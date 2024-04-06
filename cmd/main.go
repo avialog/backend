@@ -25,7 +25,6 @@ import (
 // @description This is a sample server.
 // @termsOfService http://swagger.io/terms/
 
-// @host localhost:3000
 // @BasePath /api
 
 // @securityDefinitions.apikey ApiKeyAuth
@@ -36,7 +35,7 @@ import (
 func main() {
 	err := godotenv.Load()
 	if err != nil {
-		logrus.Panic("Error loading .env file")
+		logrus.Warn("error loading .env file")
 	}
 
 	cfg := config.NewConfig()

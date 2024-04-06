@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"github.com/avialog/backend/internal/common"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/service"
@@ -37,7 +38,7 @@ func newContactController(contactService service.ContactService) ContactControll
 // @Failure 500 {object}      util.HTTPError
 // @Router  /contacts [get]
 func (c *contactController) GetContacts(ctx *gin.Context) {
-	userID := ctx.GetString("userID")
+	userID := ctx.GetString(common.UserID)
 
 	contacts, err := c.contactService.GetUserContacts(userID)
 	if err != nil {
@@ -64,7 +65,7 @@ func (c *contactController) GetContacts(ctx *gin.Context) {
 // @Failure 500 {object}      util.HTTPError
 // @Router  /contacts [post]
 func (c *contactController) InsertContact(ctx *gin.Context) {
-	userID := ctx.GetString("userID")
+	userID := ctx.GetString(common.UserID)
 
 	var contactRequest dto.ContactRequest
 	if err := ctx.ShouldBindJSON(&contactRequest); err != nil {
@@ -109,7 +110,7 @@ func (c *contactController) UpdateContact(ctx *gin.Context) {
 		return
 	}
 
-	userID := ctx.GetString("userID")
+	userID := ctx.GetString(common.UserID)
 
 	var contactRequest dto.ContactRequest
 	if err := ctx.ShouldBindJSON(&contactRequest); err != nil {
@@ -148,7 +149,7 @@ func (c *contactController) UpdateContact(ctx *gin.Context) {
 // @Failure 400 {object}      util.HTTPError
 // @Failure 404 {object}      util.HTTPError
 // @Failure 500 {object}      util.HTTPError
-// @Router  /api/contacts/{id} [delete]
+// @Router  /contacts/{id} [delete]
 func (c *contactController) DeleteContact(ctx *gin.Context) {
 	contactID, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
@@ -156,7 +157,7 @@ func (c *contactController) DeleteContact(ctx *gin.Context) {
 		return
 	}
 
-	userID := ctx.GetString("userID")
+	userID := ctx.GetString(common.UserID)
 
 	err = c.contactService.DeleteContact(userID, uint(contactID))
 	if err != nil {
