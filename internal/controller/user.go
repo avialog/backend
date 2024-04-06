@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"github.com/avialog/backend/internal/common"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/service"
@@ -33,7 +34,7 @@ func newUserController(userService service.UserService) UserController {
 // @Failure 500 {object}      util.HTTPError
 // @Router  /profile [get]
 func (u *userController) GetUser(ctx *gin.Context) {
-	userID := ctx.GetString("userID")
+	userID := ctx.GetString(common.UserID)
 
 	user, err := u.userService.GetUser(userID)
 	if err != nil {
@@ -60,7 +61,7 @@ func (u *userController) GetUser(ctx *gin.Context) {
 // @Failure 500 {object}      util.HTTPError
 // @Router  /profile [put]
 func (u *userController) UpdateProfile(ctx *gin.Context) {
-	userID := ctx.GetString("userID")
+	userID := ctx.GetString(common.UserID)
 
 	var userRequest dto.UserRequest
 	if err := ctx.ShouldBindJSON(&userRequest); err != nil {

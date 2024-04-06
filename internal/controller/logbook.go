@@ -2,6 +2,7 @@ package controller
 
 import (
 	"errors"
+	"github.com/avialog/backend/internal/common"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/service"
 	"github.com/avialog/backend/internal/util"
@@ -38,7 +39,7 @@ func newLogbookController(logbookService service.LogbookService) LogbookControll
 // @Failure 400 {object}      util.HTTPError
 // @Router  /logbook [get]
 func (c *logbookController) GetLogbookEntries(ctx *gin.Context) {
-	userID := ctx.GetString("userID")
+	userID := ctx.GetString(common.UserID)
 	var start time.Time
 	var end time.Time
 
@@ -52,8 +53,8 @@ func (c *logbookController) GetLogbookEntries(ctx *gin.Context) {
 		util.NewError(ctx, http.StatusBadRequest, errors.New("both start and end time must be provided or neither"))
 		return
 	} else if getLogbookRequest.Start == nil && getLogbookRequest.End == nil {
-		start = time.Now()
-		end = start.AddDate(0, -3, 0)
+		start = time.Now().AddDate(0, 0, -90)
+		end = time.Now()
 	} else {
 		start = time.Unix(*getLogbookRequest.Start, 0)
 		end = time.Unix(*getLogbookRequest.End, 0)
@@ -81,7 +82,7 @@ func (c *logbookController) GetLogbookEntries(ctx *gin.Context) {
 // @Failure 500 {object}      util.HTTPError
 // @Router  /logbook [post]
 func (c *logbookController) InsertLogbookEntry(ctx *gin.Context) {
-	userID := ctx.GetString("userID")
+	userID := ctx.GetString(common.UserID)
 
 	var logbookRequest dto.LogbookRequest
 	if err := ctx.ShouldBindJSON(&logbookRequest); err != nil {
@@ -122,7 +123,7 @@ func (c *logbookController) UpdateLogbookEntry(ctx *gin.Context) {
 		return
 	}
 
-	userID := ctx.GetString("userID")
+	userID := ctx.GetString(common.UserID)
 
 	var logbookRequest dto.LogbookRequest
 	if err := ctx.ShouldBindJSON(&logbookRequest); err != nil {
@@ -163,7 +164,7 @@ func (c *logbookController) DeleteLogbookEntry(ctx *gin.Context) {
 		return
 	}
 
-	userID := ctx.GetString("userID")
+	userID := ctx.GetString(common.UserID)
 
 	err = c.logbookService.DeleteLogbookEntry(userID, uint(flightID))
 	if err != nil {
