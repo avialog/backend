@@ -25,7 +25,6 @@ import (
 // @description This is a sample server.
 // @termsOfService http://swagger.io/terms/
 
-// @host localhost:3000
 // @BasePath /api
 
 // @securityDefinitions.apikey ApiKeyAuth
