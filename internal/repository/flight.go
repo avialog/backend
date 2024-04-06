@@ -64,7 +64,10 @@ func (f *flight) GetByID(id uint) (model.Flight, error) {
 	result := f.db.First(&flight, id)
 
 	if result.Error != nil {
-		return model.Flight{}, result.Error
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return model.Flight{}, fmt.Errorf("%w: %v", dto.ErrNotFound, result.Error)
+		}
+		return model.Flight{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 	return flight, nil
 }
@@ -85,7 +88,7 @@ func (f *flight) Save(flight model.Flight) (model.Flight, error) {
 func (f *flight) SaveTx(tx infrastructure.Database, flight model.Flight) (model.Flight, error) {
 	result := tx.Save(&flight)
 	if result.Error != nil {
-		return model.Flight{}, result.Error
+		return model.Flight{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 
 	return flight, nil
@@ -147,10 +150,10 @@ func (f *flight) GetByUserIDAndDate(userID string, start, end time.Time) ([]mode
 func (f *flight) DeleteByIDTx(tx infrastructure.Database, id uint) error {
 	result := tx.Delete(&model.Flight{}, id)
 	if result.Error != nil {
-		return result.Error
+		return fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return errors.New("flight cannot be deleted")
+		return fmt.Errorf("%w: flight cannot be deleted", dto.ErrNotFound)
 	}
 	return nil
 }

@@ -40,7 +40,10 @@ func (a *aircraft) GetByUserIDAndID(userID string, id uint) (model.Aircraft, err
 	var aircraft model.Aircraft
 	result := a.db.Where("user_id = ? AND id = ?", userID, id).First(&aircraft)
 	if result.Error != nil {
-		return model.Aircraft{}, result.Error
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return model.Aircraft{}, fmt.Errorf("%w: %v", dto.ErrNotFound, result.Error)
+		}
+		return model.Aircraft{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 	return aircraft, nil
 }

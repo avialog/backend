@@ -97,7 +97,7 @@ func (a *passenger) GetByFlightID(flightID uint) ([]model.Passenger, error) {
 func (a *passenger) DeleteByFlightIDTx(tx infrastructure.Database, flightID uint) error {
 	result := tx.Where("flight_id = ?", flightID).Delete(&model.Passenger{})
 	if result.Error != nil {
-		return result.Error
+		return fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 	return nil
 }

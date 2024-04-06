@@ -213,31 +213,38 @@ func (l *logbookService) InsertLogbookEntry(userID string, logbookRequest dto.Lo
 func (l *logbookService) DeleteLogbookEntry(userID string, flightID uint) error {
 	flight, err := l.flightRepository.GetByID(flightID)
 	if err != nil {
+		if errors.Is(err, dto.ErrNotFound) {
+			return fmt.Errorf("%w: %v", dto.ErrBadRequest, "flight not found")
+		}
 		return err
 	}
 
 	if flight.UserID != userID {
-		return errors.New("flight does not belong to user")
+		return fmt.Errorf("%w: %v", dto.ErrBadRequest, "flight does not belong to user")
 	}
 
 	tx := l.flightRepository.Begin()
 
 	if err := l.landingRepository.DeleteByFlightIDTx(tx, flightID); err != nil {
 		tx.Rollback()
-		return err
+		return err // internal
 	}
 
 	if err := l.passengerRepository.DeleteByFlightIDTx(tx, flightID); err != nil {
 		tx.Rollback()
-		return err
+		return err // internal
 	}
 
 	if err := l.flightRepository.DeleteByIDTx(tx, flightID); err != nil {
 		tx.Rollback()
-		return err
+		if errors.Is(err, dto.ErrNotFound) {
+			return fmt.Errorf("%w: %v", dto.ErrNotFound, "flight not found")
+		}
+
+		return fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 	}
 	if err := tx.Commit().Error; err != nil {
-		return err
+		return fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 	}
 	return nil
 }
@@ -324,7 +331,10 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 
 	flight, err := l.flightRepository.GetByID(flightID)
 	if err != nil {
-		return dto.LogbookResponse{}, err
+		if errors.Is(err, dto.ErrNotFound) {
+			return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrNotFound, "flight not found")
+		}
+		return dto.LogbookResponse{}, err //internal
 	}
 
 	if flight.UserID != userID {
@@ -332,7 +342,10 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 	}
 
 	if _, err := l.aircraftRepository.GetByUserIDAndID(userID, logbookRequest.AircraftID); err != nil {
-		return dto.LogbookResponse{}, errors.New("aircraft does not belong to user")
+		if errors.Is(err, dto.ErrNotFound) {
+			return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrBadRequest, "aircraft does not belong to user")
+		}
+		return dto.LogbookResponse{}, err
 	}
 
 	tx := l.flightRepository.Begin()
@@ -376,12 +389,12 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 
 	if _, err := l.flightRepository.SaveTx(tx, flight); err != nil {
 		tx.Rollback()
-		return dto.LogbookResponse{}, err
+		return dto.LogbookResponse{}, err // internal
 	}
 
 	if err := l.passengerRepository.DeleteByFlightIDTx(tx, flightID); err != nil {
 		tx.Rollback()
-		return dto.LogbookResponse{}, err
+		return dto.LogbookResponse{}, err // internal
 	}
 
 	for _, passengerEntry := range logbookRequest.Passengers {
@@ -414,7 +427,7 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 
 		if _, err := l.passengerRepository.CreateTx(tx, passenger); err != nil {
 			tx.Rollback()
-			return dto.LogbookResponse{}, err
+			return dto.LogbookResponse{}, err // internal
 		}
 		passengerEntries = append(passengerEntries, dto.PassengerEntry{
 			Role:         passenger.Role,
@@ -429,7 +442,7 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 
 	if err := l.landingRepository.DeleteByFlightIDTx(tx, flightID); err != nil {
 		tx.Rollback()
-		return dto.LogbookResponse{}, err
+		return dto.LogbookResponse{}, err // internal
 	}
 
 	for _, landingEntry := range logbookRequest.Landings {
@@ -460,7 +473,7 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 
 		if _, err := l.landingRepository.CreateTx(tx, landing); err != nil {
 			tx.Rollback()
-			return dto.LogbookResponse{}, err
+			return dto.LogbookResponse{}, err // internal
 		}
 		landingEntries = append(landingEntries, dto.LandingEntry{
 			ApproachType: landing.ApproachType,
