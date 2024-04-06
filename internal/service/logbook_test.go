@@ -348,7 +348,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("failed to commit"))
+				Expect(err.Error()).To(Equal("internal failure: failed to commit"))
 			})
 		})
 		// it also covers the case when the user does not provide the aircraft id in the request
@@ -363,7 +363,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("aircraft does not belong to user"))
+				Expect(err.Error()).To(Equal("aircraft not found"))
 			})
 		})
 		Context("When flight to insert missing takeoff time", func() {
@@ -379,7 +379,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: TakeoffTime"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: TakeoffTime"))
 			})
 		})
 		Context("When flight to insert missing takeoff airport code", func() {
@@ -395,7 +395,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: TakeoffAirportCode"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: TakeoffAirportCode"))
 			})
 		})
 		Context("When flight to insert missing landing time", func() {
@@ -411,7 +411,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: LandingTime"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: LandingTime"))
 			})
 		})
 		Context("When flight to insert missing landing airport code", func() {
@@ -427,7 +427,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: LandingAirportCode"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: LandingAirportCode"))
 			})
 		})
 		Context("When flight to insert missing style", func() {
@@ -443,7 +443,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Style"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Style"))
 
 			})
 		})
@@ -460,7 +460,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Style"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Style"))
 			})
 		})
 		Context("when creating flight failed", func() {
@@ -496,7 +496,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Role"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Role"))
 			})
 		})
 		Context("when passenger to insert have invalid role", func() {
@@ -514,7 +514,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Role"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Role"))
 			})
 		})
 		Context("when passenger to insert missing first name", func() {
@@ -532,7 +532,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: FirstName"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: FirstName"))
 			})
 		})
 		Context("when creating passenger failed", func() {
@@ -570,7 +570,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: ApproachType"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: ApproachType"))
 			})
 		})
 		Context("when landing to insert have invalid approach type", func() {
@@ -589,7 +589,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: ApproachType"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: ApproachType"))
 			})
 		})
 		Context("when creating landing failed", func() {
@@ -648,7 +648,7 @@ var _ = Describe("LogbookService", func() {
 
 				// then
 				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(Equal("failed to commit"))
+				Expect(err.Error()).To(Equal("internal failure: failed to commit"))
 			})
 		})
 		Context("when fail to fetch flight", func() {
@@ -673,7 +673,7 @@ var _ = Describe("LogbookService", func() {
 
 				// then
 				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(Equal("flight does not belong to user"))
+				Expect(err.Error()).To(Equal("bad request: flight does not belong to user"))
 			})
 		})
 		Context("when fail to delete landings", func() {
@@ -722,7 +722,7 @@ var _ = Describe("LogbookService", func() {
 
 				// then
 				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(Equal("failed to delete flight"))
+				Expect(err.Error()).To(Equal("internal failure: failed to delete flight"))
 			})
 		})
 	})
@@ -824,14 +824,14 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("flight does not belong to user"))
+				Expect(err.Error()).To(Equal("bad request: flight does not belong to user"))
 			})
 		})
 		Context("when aircraft does not exist or user does not own the aircraft", func() {
 			It("Should return an error", func() {
 				// given
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockInsertedFlight, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, errors.New(""))
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, errors.New("aircraft does not belong to user"))
 
 				// when
 				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(1), logbookRequest)
@@ -856,7 +856,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: TakeoffTime"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: TakeoffTime"))
 			})
 		})
 		Context("when flight to update missing TakeoffAirportCode", func() {
@@ -873,7 +873,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: TakeoffTime"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: TakeoffTime"))
 			})
 		})
 		Context("when flight to update missing LandingTime", func() {
@@ -890,7 +890,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: LandingTime"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: LandingTime"))
 			})
 		})
 		Context("when flight to update missing LandingAirportCode", func() {
@@ -907,7 +907,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: LandingAirportCode"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: LandingAirportCode"))
 
 			})
 		})
@@ -925,7 +925,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Style"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Style"))
 			})
 		})
 		Context("when flight to update invalid Style", func() {
@@ -942,7 +942,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Style"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Style"))
 
 			})
 		})
@@ -1001,7 +1001,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Role"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Role"))
 
 			})
 		})
@@ -1022,7 +1022,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Role"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Role"))
 			})
 		})
 		Context("when passenger to insert missing first name", func() {
@@ -1042,7 +1042,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: FirstName"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: FirstName"))
 			})
 		})
 		Context("when creating passenger failed", func() {
@@ -1107,7 +1107,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: ApproachType"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: ApproachType"))
 			})
 		})
 		Context("when landing to insert have invalid approach type", func() {
@@ -1130,7 +1130,7 @@ var _ = Describe("LogbookService", func() {
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: ApproachType"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: ApproachType"))
 			})
 		})
 		Context("when creating landing failed", func() {
