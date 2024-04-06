@@ -227,8 +227,8 @@ var _ = Describe("LogbookController", func() {
 				ctx.Set("userID", "1")
 				logbookServiceMock.EXPECT().GetLogbookEntries("1", gomock.Any(), gomock.Any()).DoAndReturn(
 					func(userID string, start time.Time, end time.Time) ([]dto.LogbookResponse, error) {
-						Expect(start).To(BeTemporally("~", time.Now(), time.Second))
-						Expect(end).To(BeTemporally("~", time.Now().AddDate(0, -3, 0), time.Second))
+						Expect(start).To(BeTemporally("~", time.Now().AddDate(0, 0, -90), time.Second))
+						Expect(end).To(BeTemporally("~", time.Now(), time.Second))
 						return logbookEntriesMock, nil
 					})
 
