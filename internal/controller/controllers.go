@@ -45,8 +45,7 @@ func (c *controllers) Info() InfoController {
 
 func (c *controllers) Route(server *gin.Engine) {
 
-	server.GET("/livez", c.infoController.Info)
-	server.GET("/readyz", c.infoController.Info)
+	server.GET("/healthz", c.infoController.Info)
 
 	api := server.Group("/api")
 	{
