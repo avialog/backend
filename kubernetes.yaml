@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: avialog
-          image: ghcr.io/avialog/backend:a6ec57c
+          image: ghcr.io/avialog/backend:9d7b9c1
           ports:
             - containerPort: 3000
           env:
@@ -25,6 +25,11 @@ spec:
                 secretKeyRef:
                   name: avialog
                   key: dsn
+            - name: FIREBASE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: avialog
+                  key: firebaseKey
             - name: GIN_MODE
               value: release
 ---
