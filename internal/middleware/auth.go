@@ -4,6 +4,7 @@ import (
 	"github.com/avialog/backend/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strings"
 )
 
 const (
@@ -13,7 +14,7 @@ const (
 func AuthJWT(authService service.AuthService) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.Request.Header.Get(authorizationHeader)
-
+		token = strings.Replace("Bearer ", "", token, 1)
 		user, err := authService.ValidateToken(c, token)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
