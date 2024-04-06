@@ -16,7 +16,152 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
-        "/api/contacts/{id}": {
+        "/contacts": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a list of contacts for a user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contacts"
+                ],
+                "summary": "Get user contacts",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_avialog_backend_internal_dto.ContactResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Insert a new contact for a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contacts"
+                ],
+                "summary": "Insert a new contact",
+                "parameters": [
+                    {
+                        "description": "Contact information to insert",
+                        "name": "contactRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.ContactRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.ContactResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/contacts/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update an existing contact for a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "contacts"
+                ],
+                "summary": "Update an existing contact",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Contact ID to update",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Contact information to update",
+                        "name": "contactRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.ContactRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.ContactResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "security": [
                     {
@@ -58,166 +203,19 @@ const docTemplate = `{
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
                         }
                     },
                     "404": {
                         "description": "Not Found",
                         "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/contacts": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Get a list of contacts for a user",
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "contacts"
-                ],
-                "summary": "Get user contacts",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.ContactResponse"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
-                        }
-                    }
-                }
-            },
-            "post": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Insert a new contact for a user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "contacts"
-                ],
-                "summary": "Insert a new contact",
-                "parameters": [
-                    {
-                        "description": "Contact information to insert",
-                        "name": "contactRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.ContactRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "Created",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ContactResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
-        "/contacts/{id}": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "Update an existing contact for a user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "contacts"
-                ],
-                "summary": "Update an existing contact",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Contact ID to update",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "description": "Contact information to update",
-                        "name": "contactRequest",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/dto.ContactRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.ContactResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
                         }
                     }
                 }
@@ -240,7 +238,209 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.ServerInfo"
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.ServerInfo"
+                        }
+                    }
+                }
+            }
+        },
+        "/logbook": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get a list of logbook entries for a user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "logbook"
+                ],
+                "summary": "Get user logbook entries",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/github_com_avialog_backend_internal_dto.LogbookResponse"
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Insert a new logbook entry for a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "logbook"
+                ],
+                "summary": "Insert a new logbook entry",
+                "parameters": [
+                    {
+                        "description": "Logbook entry information to insert",
+                        "name": "logbookRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.LogbookRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.LogbookResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/logbook/{id}": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update an existing logbook entry for a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "logbook"
+                ],
+                "summary": "Update an existing logbook entry",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Flight ID to update",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Logbook entry information to update",
+                        "name": "logbookRequest",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.LogbookRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.LogbookResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete an existing logbook entry for a user",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "logbook"
+                ],
+                "summary": "Delete an existing logbook entry",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Flight ID to delete",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Logbook entry deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
                         }
                     }
                 }
@@ -265,13 +465,13 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.UserResponse"
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.UserResponse"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
                         }
                     }
                 }
@@ -300,7 +500,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/dto.UserRequest"
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.UserRequest"
                         }
                     }
                 ],
@@ -308,19 +508,19 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/dto.UserResponse"
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.UserResponse"
                         }
                     },
                     "400": {
                         "description": "Bad Request",
                         "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
                         }
                     },
                     "500": {
                         "description": "Internal Server Error",
                         "schema": {
-                            "$ref": "#/definitions/utils.HTTPError"
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
                         }
                     }
                 }
@@ -328,7 +528,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "dto.ContactRequest": {
+        "github_com_avialog_backend_internal_dto.ContactRequest": {
             "type": "object",
             "required": [
                 "first_name"
@@ -357,7 +557,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.ContactResponse": {
+        "github_com_avialog_backend_internal_dto.ContactResponse": {
             "type": "object",
             "required": [
                 "first_name"
@@ -386,7 +586,210 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.ServerInfo": {
+        "github_com_avialog_backend_internal_dto.LandingEntry": {
+            "type": "object",
+            "properties": {
+                "airport_code": {
+                    "type": "string"
+                },
+                "approach_type": {
+                    "$ref": "#/definitions/github_com_avialog_backend_internal_model.ApproachType"
+                },
+                "count": {
+                    "type": "integer"
+                },
+                "day_count": {
+                    "type": "integer"
+                },
+                "night_count": {
+                    "type": "integer"
+                }
+            }
+        },
+        "github_com_avialog_backend_internal_dto.LogbookRequest": {
+            "type": "object",
+            "properties": {
+                "aircraft_id": {
+                    "type": "integer"
+                },
+                "cross_country_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "dual_given_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "dual_received_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "ifr_actual_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "ifr_simulated_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "ifr_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "landing_airport_code": {
+                    "type": "string"
+                },
+                "landing_time": {
+                    "type": "string"
+                },
+                "landings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_avialog_backend_internal_dto.LandingEntry"
+                    }
+                },
+                "multi_pilot_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "night_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "passengers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_avialog_backend_internal_dto.PassengerEntry"
+                    }
+                },
+                "personal_remarks": {
+                    "type": "string"
+                },
+                "pilot_in_command_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "remarks": {
+                    "type": "string"
+                },
+                "second_in_command_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "signature_url": {
+                    "type": "string"
+                },
+                "simulator_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "style": {
+                    "$ref": "#/definitions/github_com_avialog_backend_internal_model.Style"
+                },
+                "takeoff_airport_code": {
+                    "type": "string"
+                },
+                "takeoff_time": {
+                    "type": "string"
+                },
+                "total_block_time": {
+                    "$ref": "#/definitions/time.Duration"
+                }
+            }
+        },
+        "github_com_avialog_backend_internal_dto.LogbookResponse": {
+            "type": "object",
+            "properties": {
+                "cross_country_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "dual_given_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "dual_received_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "ifr_actual_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "ifr_simulated_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "ifr_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "landing_airport_code": {
+                    "type": "string"
+                },
+                "landing_time": {
+                    "type": "string"
+                },
+                "landings": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_avialog_backend_internal_dto.LandingEntry"
+                    }
+                },
+                "multi_pilot_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "night_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "passengers": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/github_com_avialog_backend_internal_dto.PassengerEntry"
+                    }
+                },
+                "personal_remarks": {
+                    "type": "string"
+                },
+                "pilot_in_command_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "remarks": {
+                    "type": "string"
+                },
+                "second_in_command_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "signature_url": {
+                    "type": "string"
+                },
+                "simulator_time": {
+                    "$ref": "#/definitions/time.Duration"
+                },
+                "style": {
+                    "$ref": "#/definitions/github_com_avialog_backend_internal_model.Style"
+                },
+                "takeoff_airport_code": {
+                    "type": "string"
+                },
+                "takeoff_time": {
+                    "type": "string"
+                },
+                "total_block_time": {
+                    "$ref": "#/definitions/time.Duration"
+                }
+            }
+        },
+        "github_com_avialog_backend_internal_dto.PassengerEntry": {
+            "type": "object",
+            "properties": {
+                "company": {
+                    "type": "string"
+                },
+                "email_address": {
+                    "type": "string"
+                },
+                "first_name": {
+                    "type": "string"
+                },
+                "last_name": {
+                    "type": "string"
+                },
+                "note": {
+                    "type": "string"
+                },
+                "phone": {
+                    "type": "string"
+                },
+                "role": {
+                    "$ref": "#/definitions/github_com_avialog_backend_internal_model.Role"
+                }
+            }
+        },
+        "github_com_avialog_backend_internal_dto.ServerInfo": {
             "type": "object",
             "properties": {
                 "healthy": {
@@ -394,7 +797,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.UserRequest": {
+        "github_com_avialog_backend_internal_dto.UserRequest": {
             "type": "object",
             "properties": {
                 "avatar_url": {
@@ -429,7 +832,7 @@ const docTemplate = `{
                 }
             }
         },
-        "dto.UserResponse": {
+        "github_com_avialog_backend_internal_dto.UserResponse": {
             "type": "object",
             "required": [
                 "email"
@@ -470,7 +873,58 @@ const docTemplate = `{
                 }
             }
         },
-        "utils.HTTPError": {
+        "github_com_avialog_backend_internal_model.ApproachType": {
+            "type": "string",
+            "enum": [
+                "VISUAL"
+            ],
+            "x-enum-varnames": [
+                "ApproachTypeVisual"
+            ]
+        },
+        "github_com_avialog_backend_internal_model.Role": {
+            "type": "string",
+            "enum": [
+                "PIC",
+                "SIC",
+                "DUAL",
+                "SPIC",
+                "P1S",
+                "INS",
+                "EXM",
+                "ATT",
+                "OTH"
+            ],
+            "x-enum-varnames": [
+                "RolePilotInCommand",
+                "RoleSecondInCommand",
+                "RoleDual",
+                "RoleStudentPilotInCommand",
+                "RolePilotInCommandUnderSupervision",
+                "RoleInstructor",
+                "RoleExaminer",
+                "RoleFlightAttendant",
+                "RoleOther"
+            ]
+        },
+        "github_com_avialog_backend_internal_model.Style": {
+            "type": "string",
+            "enum": [
+                "VFR",
+                "IFR",
+                "Y",
+                "Z",
+                "Z2"
+            ],
+            "x-enum-varnames": [
+                "StyleVFR",
+                "StyleIFR",
+                "StyleY",
+                "StyleZ",
+                "StyleZ2"
+            ]
+        },
+        "github_com_avialog_backend_internal_util.HTTPError": {
             "type": "object",
             "required": [
                 "code",
@@ -484,6 +938,29 @@ const docTemplate = `{
                     "type": "string"
                 }
             }
+        },
+        "time.Duration": {
+            "type": "integer",
+            "enum": [
+                -9223372036854775808,
+                9223372036854775807,
+                1,
+                1000,
+                1000000,
+                1000000000,
+                60000000000,
+                3600000000000
+            ],
+            "x-enum-varnames": [
+                "minDuration",
+                "maxDuration",
+                "Nanosecond",
+                "Microsecond",
+                "Millisecond",
+                "Second",
+                "Minute",
+                "Hour"
+            ]
         }
     },
     "securityDefinitions": {
