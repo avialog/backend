@@ -41,7 +41,10 @@ func (l *logbookService) InsertLogbookEntry(userID string, logbookRequest dto.Lo
 	passengerEntries := make([]dto.PassengerEntry, 0)
 
 	if _, err := l.aircraftRepository.GetByUserIDAndID(userID, logbookRequest.AircraftID); err != nil {
-		return dto.LogbookResponse{}, errors.New("aircraft does not belong to user")
+		if errors.Is(err, dto.ErrNotFound) {
+			return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrBadRequest, "aircraft does not belong to user")
+		}
+		return dto.LogbookResponse{}, err
 	}
 
 	tx := l.flightRepository.Begin()
@@ -75,13 +78,13 @@ func (l *logbookService) InsertLogbookEntry(userID string, logbookRequest dto.Lo
 	if err != nil {
 		var invalidValidationError *validator.InvalidValidationError
 		if errors.As(err, &invalidValidationError) {
-			return dto.LogbookResponse{}, err
+			return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 		}
 
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
 			if len(validationErrors) > 0 {
-				return dto.LogbookResponse{}, fmt.Errorf("invalid data in field: %s", validationErrors[0].Field())
+				return dto.LogbookResponse{}, fmt.Errorf("%w: invalid data in field: %v", dto.ErrBadRequest, validationErrors[0].Field())
 			}
 		}
 	}
@@ -109,13 +112,13 @@ func (l *logbookService) InsertLogbookEntry(userID string, logbookRequest dto.Lo
 			tx.Rollback()
 			var invalidValidationError *validator.InvalidValidationError
 			if errors.As(err, &invalidValidationError) {
-				return dto.LogbookResponse{}, err
+				return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 			}
 
 			var validationErrors validator.ValidationErrors
 			if errors.As(err, &validationErrors) {
 				if len(validationErrors) > 0 {
-					return dto.LogbookResponse{}, fmt.Errorf("invalid data in field: %s", validationErrors[0].Field())
+					return dto.LogbookResponse{}, fmt.Errorf("%w: invalid data in field: %v", dto.ErrBadRequest, validationErrors[0].Field())
 				}
 			}
 		}
@@ -151,13 +154,13 @@ func (l *logbookService) InsertLogbookEntry(userID string, logbookRequest dto.Lo
 			tx.Rollback()
 			var invalidValidationError *validator.InvalidValidationError
 			if errors.As(err, &invalidValidationError) {
-				return dto.LogbookResponse{}, err
+				return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 			}
 
 			var validationErrors validator.ValidationErrors
 			if errors.As(err, &validationErrors) {
 				if len(validationErrors) > 0 {
-					return dto.LogbookResponse{}, fmt.Errorf("invalid data in field: %s", validationErrors[0].Field())
+					return dto.LogbookResponse{}, fmt.Errorf("%w: invalid data in field: %v", dto.ErrBadRequest, validationErrors[0].Field())
 				}
 			}
 		}
@@ -201,7 +204,7 @@ func (l *logbookService) InsertLogbookEntry(userID string, logbookRequest dto.Lo
 		Landings:            landingEntries,
 	}
 	if err := tx.Commit().Error; err != nil {
-		return dto.LogbookResponse{}, err
+		return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 	}
 
 	return logbookResponse, nil
@@ -210,11 +213,14 @@ func (l *logbookService) InsertLogbookEntry(userID string, logbookRequest dto.Lo
 func (l *logbookService) DeleteLogbookEntry(userID string, flightID uint) error {
 	flight, err := l.flightRepository.GetByID(flightID)
 	if err != nil {
+		if errors.Is(err, dto.ErrNotFound) {
+			return fmt.Errorf("%w: %v", dto.ErrBadRequest, "flight not found")
+		}
 		return err
 	}
 
 	if flight.UserID != userID {
-		return errors.New("flight does not belong to user")
+		return fmt.Errorf("%w: %v", dto.ErrBadRequest, "flight does not belong to user")
 	}
 
 	tx := l.flightRepository.Begin()
@@ -231,10 +237,14 @@ func (l *logbookService) DeleteLogbookEntry(userID string, flightID uint) error 
 
 	if err := l.flightRepository.DeleteByIDTx(tx, flightID); err != nil {
 		tx.Rollback()
-		return err
+		if errors.Is(err, dto.ErrNotFound) {
+			return fmt.Errorf("%w: %v", dto.ErrNotFound, "flight not found")
+		}
+
+		return fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 	}
 	if err := tx.Commit().Error; err != nil {
-		return err
+		return fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 	}
 	return nil
 }
@@ -321,15 +331,21 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 
 	flight, err := l.flightRepository.GetByID(flightID)
 	if err != nil {
+		if errors.Is(err, dto.ErrNotFound) {
+			return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrNotFound, "flight not found")
+		}
 		return dto.LogbookResponse{}, err
 	}
 
 	if flight.UserID != userID {
-		return dto.LogbookResponse{}, errors.New("flight does not belong to user")
+		return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrBadRequest, "flight does not belong to user")
 	}
 
 	if _, err := l.aircraftRepository.GetByUserIDAndID(userID, logbookRequest.AircraftID); err != nil {
-		return dto.LogbookResponse{}, errors.New("aircraft does not belong to user")
+		if errors.Is(err, dto.ErrNotFound) {
+			return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrBadRequest, "aircraft does not belong to user")
+		}
+		return dto.LogbookResponse{}, err
 	}
 
 	tx := l.flightRepository.Begin()
@@ -360,13 +376,13 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 	if err != nil {
 		var invalidValidationError *validator.InvalidValidationError
 		if errors.As(err, &invalidValidationError) {
-			return dto.LogbookResponse{}, err
+			return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 		}
 
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
 			if len(validationErrors) > 0 {
-				return dto.LogbookResponse{}, fmt.Errorf("invalid data in field: %s", validationErrors[0].Field())
+				return dto.LogbookResponse{}, fmt.Errorf("%w: invalid data in field: %v", dto.ErrBadRequest, validationErrors[0].Field())
 			}
 		}
 	}
@@ -398,13 +414,13 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 			tx.Rollback()
 			var invalidValidationError *validator.InvalidValidationError
 			if errors.As(err, &invalidValidationError) {
-				return dto.LogbookResponse{}, err
+				return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 			}
 
 			var validationErrors validator.ValidationErrors
 			if errors.As(err, &validationErrors) {
 				if len(validationErrors) > 0 {
-					return dto.LogbookResponse{}, fmt.Errorf("invalid data in field: %s", validationErrors[0].Field())
+					return dto.LogbookResponse{}, fmt.Errorf("%w: invalid data in field: %v", dto.ErrBadRequest, validationErrors[0].Field())
 				}
 			}
 		}
@@ -444,13 +460,13 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 			tx.Rollback()
 			var invalidValidationError *validator.InvalidValidationError
 			if errors.As(err, &invalidValidationError) {
-				return dto.LogbookResponse{}, err
+				return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 			}
 
 			var validationErrors validator.ValidationErrors
 			if errors.As(err, &validationErrors) {
 				if len(validationErrors) > 0 {
-					return dto.LogbookResponse{}, fmt.Errorf("invalid data in field: %s", validationErrors[0].Field())
+					return dto.LogbookResponse{}, fmt.Errorf("%w: invalid data in field: %v", dto.ErrBadRequest, validationErrors[0].Field())
 				}
 			}
 		}
@@ -494,7 +510,7 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 	}
 
 	if err := tx.Commit().Error; err != nil {
-		return dto.LogbookResponse{}, err
+		return dto.LogbookResponse{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 	}
 
 	return logbookResponse, nil
