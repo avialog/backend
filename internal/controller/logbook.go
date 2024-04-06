@@ -58,7 +58,6 @@ func (c *logbookController) GetLogbookEntries(ctx *gin.Context) {
 		start = time.Unix(*getLogbookRequest.Start, 0)
 		end = time.Unix(*getLogbookRequest.End, 0)
 	}
-
 	flights, err := c.logbookService.GetLogbookEntries(userID, start, end)
 	if err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, err)
