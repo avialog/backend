@@ -5,7 +5,7 @@ metadata:
   labels:
     app: avialog
 spec:
-  replicas: 3
+  replicas: 1
   selector:
     matchLabels:
       app: avialog
@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: avialog
-          image: ghcr.io/avialog/backend:9d7b9c1
+          image: ghcr.io/avialog/backend:2d848b1
           ports:
             - containerPort: 3000
           env:
