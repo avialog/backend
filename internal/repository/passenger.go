@@ -2,6 +2,8 @@ package repository
 
 import (
 	"errors"
+	"fmt"
+	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/infrastructure"
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
@@ -40,7 +42,7 @@ func (a *passenger) Create(passenger model.Passenger) (model.Passenger, error) {
 func (a *passenger) CreateTx(tx infrastructure.Database, passenger model.Passenger) (model.Passenger, error) {
 	result := tx.Create(&passenger)
 	if result.Error != nil {
-		return model.Passenger{}, result.Error
+		return model.Passenger{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 
 	return passenger, nil
@@ -87,7 +89,7 @@ func (a *passenger) GetByFlightID(flightID uint) ([]model.Passenger, error) {
 	var passengers []model.Passenger
 	result := a.db.Where("flight_id = ?", flightID).Find(&passengers)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 	return passengers, nil
 }
@@ -95,7 +97,7 @@ func (a *passenger) GetByFlightID(flightID uint) ([]model.Passenger, error) {
 func (a *passenger) DeleteByFlightIDTx(tx infrastructure.Database, flightID uint) error {
 	result := tx.Where("flight_id = ?", flightID).Delete(&model.Passenger{})
 	if result.Error != nil {
-		return result.Error
+		return fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 	return nil
 }
