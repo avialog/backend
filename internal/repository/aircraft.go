@@ -2,6 +2,8 @@ package repository
 
 import (
 	"errors"
+	"fmt"
+	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
 )
@@ -69,7 +71,10 @@ func (a *aircraft) GetByUserID(userID string) ([]model.Aircraft, error) {
 	var aircraft []model.Aircraft
 	result := a.db.Where("user_id = ?", userID).Find(&aircraft)
 	if result.Error != nil {
-		return nil, result.Error
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return []model.Aircraft{}, fmt.Errorf("%w: %s", dto.ErrNotFound, result.Error)
+		}
+		return []model.Aircraft{}, fmt.Errorf("%w: %s", dto.ErrInternalFailure, result.Error)
 	}
 	return aircraft, nil
 }
