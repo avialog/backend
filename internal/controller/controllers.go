@@ -45,12 +45,11 @@ func (c *controllers) Info() InfoController {
 
 func (c *controllers) Route(server *gin.Engine) {
 
+	server.GET("/livez", c.infoController.Info)
+	server.GET("/readyz", c.infoController.Info)
+
 	api := server.Group("/api")
 	{
-		info := api.Group("/info")
-		{
-			info.GET("", c.infoController.Info)
-		}
 
 		authenticated := api.Group("/")
 		{
