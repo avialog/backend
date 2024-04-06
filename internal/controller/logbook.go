@@ -7,6 +7,7 @@ import (
 	"github.com/avialog/backend/internal/util"
 	"github.com/gin-gonic/gin"
 	"net/http"
+	"strconv"
 	"time"
 )
 
@@ -27,16 +28,15 @@ func newLogbookController(logbookService service.LogbookService) LogbookControll
 
 // GetLogbookEntries godoc
 //
-// @Summary Get user flights
-// @Description Get a list of flights for a user
-// @Tags flights
-// @Accept  json
+// @Summary Get user logbook entries
+// @Description Get a list of logbook entries for a user
+// @Tags logbook
 // @Produce  json
 // @Security ApiKeyAuth
-// @Param   userRequest       body     dto.GetFlightsRequest true       "start and end time to get flights for user"
-// @Success 200 {object}      dto.LogbookResponse
+// @Success 200 {object} []dto.LogbookResponse
 // @Failure 500 {object}      util.HTTPError
-// @Router  /flights [get]
+// @Failure 400 {object}      util.HTTPError
+// @Router  /logbook [get]
 func (c *logbookController) GetLogbookEntries(ctx *gin.Context) {
 	userID := ctx.GetString("userID")
 	var start time.Time
@@ -68,6 +68,19 @@ func (c *logbookController) GetLogbookEntries(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, flights)
 }
 
+// InsertLogbookEntry godoc
+//
+// @Summary Insert a new logbook entry
+// @Description Insert a new logbook entry for a user
+// @Tags logbook
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param   logbookRequest     body     dto.LogbookRequest true    "Logbook entry information to insert"
+// @Success 201 {object}      dto.LogbookResponse
+// @Failure 400 {object}      util.HTTPError
+// @Failure 500 {object}      util.HTTPError
+// @Router  /logbook [post]
 func (c *logbookController) InsertLogbookEntry(ctx *gin.Context) {
 	userID := ctx.GetString("userID")
 
@@ -79,14 +92,92 @@ func (c *logbookController) InsertLogbookEntry(ctx *gin.Context) {
 
 	logbookResponse, err := c.logbookService.InsertLogbookEntry(userID, logbookRequest)
 	if err != nil {
-
+		if errors.Is(err, dto.ErrBadRequest) {
+			util.NewError(ctx, http.StatusBadRequest, err)
+			return
+		}
+		util.NewError(ctx, http.StatusInternalServerError, err)
+		return
 	}
+	ctx.JSON(http.StatusCreated, logbookResponse)
 }
 
+// UpdateLogbookEntry godoc
+//
+// @Summary Update an existing logbook entry
+// @Description Update an existing logbook entry for a user
+// @Tags logbook
+// @Accept  json
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param   id                path     int        true        "Flight ID to update"
+// @Param   logbookRequest     body     dto.LogbookRequest true    "Logbook entry information to update"
+// @Success 200 {object}      dto.LogbookResponse
+// @Failure 400 {object}      util.HTTPError
+// @Failure 500 {object}      util.HTTPError
+// @Router /logbook/{id} [put]
 func (c *logbookController) UpdateLogbookEntry(ctx *gin.Context) {
+	flightID, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	if err != nil {
+		util.NewError(ctx, http.StatusBadRequest, err)
+		return
+	}
 
+	userID := ctx.GetString("userID")
+
+	var logbookRequest dto.LogbookRequest
+	if err := ctx.ShouldBindJSON(&logbookRequest); err != nil {
+		util.NewError(ctx, http.StatusBadRequest, err)
+		return
+	}
+
+	logbookResponse, err := c.logbookService.UpdateLogbookEntry(userID, uint(flightID), logbookRequest)
+	if err != nil {
+		if errors.Is(err, dto.ErrBadRequest) {
+			util.NewError(ctx, http.StatusBadRequest, err)
+			return
+		}
+		util.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, logbookResponse)
 }
 
+// DeleteLogbookEntry godoc
+//
+// @Summary Delete an existing logbook entry
+// @Description Delete an existing logbook entry for a user
+// @Tags logbook
+// @Produce  json
+// @Security ApiKeyAuth
+// @Param   id                path     int        true        "Flight ID to delete"
+// @Success 200 {object}      object{message=string} "Logbook entry deleted successfully"
+// @Failure 400 {object}      util.HTTPError
+// @Failure 404 {object}      util.HTTPError
+// @Failure 500 {object}      util.HTTPError
+// @Router  /logbook/{id} [delete]
 func (c *logbookController) DeleteLogbookEntry(ctx *gin.Context) {
+	flightID, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
+	if err != nil {
+		util.NewError(ctx, http.StatusBadRequest, err)
+		return
+	}
 
+	userID := ctx.GetString("userID")
+
+	err = c.logbookService.DeleteLogbookEntry(userID, uint(flightID))
+	if err != nil {
+		if errors.Is(err, dto.ErrNotFound) {
+			util.NewError(ctx, http.StatusNotFound, err)
+			return
+		} else if errors.Is(err, dto.ErrBadRequest) {
+			util.NewError(ctx, http.StatusBadRequest, err)
+			return
+		}
+		util.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "Logbook entry deleted successfully"})
 }

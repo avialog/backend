@@ -148,7 +148,7 @@ func (c *contactController) UpdateContact(ctx *gin.Context) {
 // @Failure 400 {object}      util.HTTPError
 // @Failure 404 {object}      util.HTTPError
 // @Failure 500 {object}      util.HTTPError
-// @Router  /api/contacts/{id} [delete]
+// @Router  /contacts/{id} [delete]
 func (c *contactController) DeleteContact(ctx *gin.Context) {
 	contactID, err := strconv.ParseUint(ctx.Param("id"), 10, 32)
 	if err != nil {
