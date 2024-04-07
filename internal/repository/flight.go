@@ -131,7 +131,7 @@ func (f *flight) CountByUserIDAndAircraftID(userID string, aircraftID uint) (int
 	var count int64
 	result := f.db.Model(&model.Flight{}).Where("aircraft_id = ? AND user_id = ?", aircraftID, userID).Count(&count)
 	if result.Error != nil {
-		return 0, result.Error
+		return 0, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 	return count, nil
 }

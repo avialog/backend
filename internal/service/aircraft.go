@@ -43,13 +43,13 @@ func (a *aircraftService) InsertAircraft(userID string, aircraftRequest dto.Airc
 	if err != nil {
 		var invalidValidationError *validator.InvalidValidationError
 		if errors.As(err, &invalidValidationError) {
-			return model.Aircraft{}, err
+			return model.Aircraft{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 		}
 
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
 			if len(validationErrors) > 0 {
-				return model.Aircraft{}, fmt.Errorf("invalid data in field: %s", validationErrors[0].Field())
+				return model.Aircraft{}, fmt.Errorf("%w: invalid data in field: %v", dto.ErrBadRequest, validationErrors[0].Field())
 			}
 		}
 	}
@@ -64,11 +64,10 @@ func (a *aircraftService) GetUserAircraft(userID string) ([]model.Aircraft, erro
 func (a *aircraftService) UpdateAircraft(userID string, id uint, aircraftRequest dto.AircraftRequest) (model.Aircraft, error) {
 	aircraft, err := a.aircraftRepository.GetByUserIDAndID(userID, id)
 	if err != nil {
-		return model.Aircraft{}, err
-	}
-
-	if aircraft.UserID != userID {
-		return model.Aircraft{}, errors.New("unauthorized to update aircraft")
+		if errors.Is(err, dto.ErrNotFound) {
+			return model.Aircraft{}, fmt.Errorf("%w: %v", dto.ErrBadRequest, err)
+		}
+		return model.Aircraft{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 	}
 
 	aircraft.AircraftModel = aircraftRequest.AircraftModel
@@ -80,13 +79,13 @@ func (a *aircraftService) UpdateAircraft(userID string, id uint, aircraftRequest
 	if err != nil {
 		var invalidValidationError *validator.InvalidValidationError
 		if errors.As(err, &invalidValidationError) {
-			return model.Aircraft{}, err
+			return model.Aircraft{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 		}
 
 		var validationErrors validator.ValidationErrors
 		if errors.As(err, &validationErrors) {
 			if len(validationErrors) > 0 {
-				return model.Aircraft{}, fmt.Errorf("invalid data in field: %s", validationErrors[0].Field())
+				return model.Aircraft{}, fmt.Errorf("%w: invalid data in field: %v", dto.ErrBadRequest, validationErrors[0].Field())
 			}
 		}
 	}
@@ -101,7 +100,7 @@ func (a *aircraftService) DeleteAircraft(userID string, id uint) error {
 	}
 
 	if numberOfFlights > 0 {
-		return errors.New("the plane has assigned flights")
+		return fmt.Errorf("%w: aircraft has assigned flights", dto.ErrConflict)
 	}
 
 	err = a.aircraftRepository.DeleteByUserIDAndID(userID, id)
