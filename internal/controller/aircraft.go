@@ -185,7 +185,7 @@ func (a *aircraftController) adaptAircraft(aircraft model.Aircraft) dto.Aircraft
 }
 
 func (a *aircraftController) adaptAircraftArr(aircraftArr []model.Aircraft) []dto.AircraftResponse {
-	var aircraftResponses []dto.AircraftResponse
+	aircraftResponses := make([]dto.AircraftResponse, 0)
 	for _, aircraft := range aircraftArr {
 		aircraftResponses = append(aircraftResponses, a.adaptAircraft(aircraft))
 	}
