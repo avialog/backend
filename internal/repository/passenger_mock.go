@@ -12,6 +12,7 @@ package repository
 import (
 	reflect "reflect"
 
+	infrastructure "github.com/avialog/backend/internal/infrastructure"
 	model "github.com/avialog/backend/internal/model"
 	gomock "go.uber.org/mock/gomock"
 )
@@ -55,7 +56,7 @@ func (mr *MockPassengerRepositoryMockRecorder) Create(passenger any) *gomock.Cal
 }
 
 // CreateTx mocks base method.
-func (m *MockPassengerRepository) CreateTx(tx Database, passenger model.Passenger) (model.Passenger, error) {
+func (m *MockPassengerRepository) CreateTx(tx infrastructure.Database, passenger model.Passenger) (model.Passenger, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateTx", tx, passenger)
 	ret0, _ := ret[0].(model.Passenger)
@@ -70,7 +71,7 @@ func (mr *MockPassengerRepositoryMockRecorder) CreateTx(tx, passenger any) *gomo
 }
 
 // DeleteByFlightIDTx mocks base method.
-func (m *MockPassengerRepository) DeleteByFlightIDTx(tx Database, flightID uint) error {
+func (m *MockPassengerRepository) DeleteByFlightIDTx(tx infrastructure.Database, flightID uint) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteByFlightIDTx", tx, flightID)
 	ret0, _ := ret[0].(error)

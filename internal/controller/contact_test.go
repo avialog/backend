@@ -7,6 +7,7 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/service"
+	"github.com/avialog/backend/internal/util"
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -38,67 +39,67 @@ var _ = Describe("UserController", func() {
 		mockContacts = []model.Contact{
 			{
 				Model:        gorm.Model{ID: 1},
-				UserID:       1,
-				AvatarURL:    "https://test.com",
+				UserID:       "1",
+				AvatarURL:    util.String("https://test.com"),
 				FirstName:    "John",
-				LastName:     "Doe",
-				Company:      "Test Company",
-				Phone:        "1234567890",
-				EmailAddress: "test@test.com",
-				Note:         "Test note",
+				LastName:     util.String("Doe"),
+				Company:      util.String("Test Company"),
+				Phone:        util.String("1234567890"),
+				EmailAddress: util.String("test@test.com"),
+				Note:         util.String("Test note"),
 			},
 			{
 				Model:        gorm.Model{ID: 2},
-				UserID:       1,
-				AvatarURL:    "https://test.com",
+				UserID:       "1",
+				AvatarURL:    util.String("https://test.com"),
 				FirstName:    "Jane",
-				LastName:     "Doe",
-				Company:      "Test Company",
-				Phone:        "1234567890",
-				EmailAddress: "test2@test.com",
-				Note:         "Test notes",
+				LastName:     util.String("Doe"),
+				Company:      util.String("Test Company"),
+				Phone:        util.String("1234567890"),
+				EmailAddress: util.String("test2@test.com"),
+				Note:         util.String("Test notes"),
 			},
 		}
 
 		expectedContacts = []dto.ContactResponse{
 			{
-				AvatarURL:    "https://test.com",
+				AvatarURL:    util.String("https://test.com"),
 				FirstName:    "John",
-				LastName:     "Doe",
-				Company:      "Test Company",
-				Phone:        "1234567890",
-				EmailAddress: "test@test.com",
-				Note:         "Test note",
+				LastName:     util.String("Doe"),
+				Company:      util.String("Test Company"),
+				Phone:        util.String("1234567890"),
+				EmailAddress: util.String("test@test.com"),
+				Note:         util.String("Test note"),
 			},
 			{
-				AvatarURL:    "https://test.com",
+				AvatarURL:    util.String("https://test.com"),
 				FirstName:    "Jane",
-				LastName:     "Doe",
-				Company:      "Test Company",
-				Phone:        "1234567890",
-				EmailAddress: "test2@test.com",
-				Note:         "Test notes",
+				LastName:     util.String("Doe"),
+				Company:      util.String("Test Company"),
+				Phone:        util.String("1234567890"),
+				EmailAddress: util.String("test2@test.com"),
+				Note:         util.String("Test notes"),
 			},
 		}
 		contactRequest = dto.ContactRequest{
-			AvatarURL:    "https://test.com",
+			AvatarURL:    util.String("https://test.com"),
 			FirstName:    "John",
-			LastName:     "Doe",
-			Company:      "Test Company",
-			Phone:        "1234567890",
-			EmailAddress: "test@test.com",
-			Note:         "Test note",
+			LastName:     util.String("Doe"),
+			Company:      util.String("Test Company"),
+			Phone:        util.String("1234567890"),
+			EmailAddress: util.String("test@test.com"),
+			Note:         util.String("Test note"),
 		}
 		contactBeforeUpdate = model.Contact{
 			Model:        gorm.Model{ID: 3},
-			UserID:       5,
-			AvatarURL:    "https://test.com",
+			UserID:       "5",
+			AvatarURL:    util.String("https://test.com"),
 			FirstName:    "John",
-			LastName:     "Doe",
-			Company:      "Test Company",
-			Phone:        "1234567890",
-			EmailAddress: "test@test.com",
-			Note:         "Test note",
+			LastName:     util.String("Doe"),
+			Company:      util.String("Test Company"),
+			Phone:        util.String("1234567890"),
+			EmailAddress: util.String("test@test.com"),
+			Note:         util.String("Test note"),
 		}
 	})
 
@@ -113,12 +114,12 @@ var _ = Describe("UserController", func() {
 				expectedContactsJSON, err := json.Marshal(expectedContacts)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodGet, "/contacts", nil)
-
+				req, err := http.NewRequest(http.MethodGet, "/api/contacts", nil)
+				Expect(err).ToNot(HaveOccurred())
 				ctx.Request = req
 				ctx.Set("Accept", "application/json")
-
-				contactServiceMock.EXPECT().GetUserContacts(uint(1)).Return(mockContacts, nil)
+				ctx.Set("userID", "1")
+				contactServiceMock.EXPECT().GetUserContacts("1").Return(mockContacts, nil)
 				// when
 				contactController.GetContacts(ctx)
 
@@ -131,15 +132,15 @@ var _ = Describe("UserController", func() {
 			It("should return status 500", func() {
 				// given
 				ctx.Set("Accept", "application/json")
-
-				contactServiceMock.EXPECT().GetUserContacts(uint(1)).Return(nil, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
+				ctx.Set("userID", "1")
+				contactServiceMock.EXPECT().GetUserContacts("1").Return(nil, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
 
 				// when
 				contactController.GetContacts(ctx)
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				Expect(w.Body.String()).To(Equal(`{"error":"internal failure: invalid db"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":500,"message":"internal failure: invalid db"}`))
 			})
 		})
 	})
@@ -151,14 +152,14 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPost, "/contacts", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPost, "/api/contacts", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
-
-				contactServiceMock.EXPECT().InsertContact(uint(1), contactRequest).Return(mockContacts[0], nil)
+				ctx.Set("userID", "1")
+				contactServiceMock.EXPECT().InsertContact("1", contactRequest).Return(mockContacts[0], nil)
 				// when
 				contactController.InsertContact(ctx)
 
@@ -174,19 +175,19 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPost, "/contacts", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPost, "/api/contacts", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
-
+				ctx.Set("userID", "1")
 				// when
 				contactController.InsertContact(ctx)
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
-				Expect(w.Body.String()).To(Equal(`{"error":"Key: 'ContactRequest.FirstName' Error:Field validation for 'FirstName' failed on the 'required' tag"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":400,"message":"Key: 'ContactRequest.FirstName' Error:Field validation for 'FirstName' failed on the 'required' tag"}`))
 			})
 		})
 		Context("when internal error occurs", func() {
@@ -195,39 +196,39 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPost, "/contacts", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPost, "/api/contacts", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
-
-				contactServiceMock.EXPECT().InsertContact(uint(1), contactRequest).Return(model.Contact{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
+				ctx.Set("userID", "1")
+				contactServiceMock.EXPECT().InsertContact("1", contactRequest).Return(model.Contact{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
 
 				// when
 				contactController.InsertContact(ctx)
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				Expect(w.Body.String()).To(Equal(`{"error":"internal failure: invalid db"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":500,"message":"internal failure: invalid db"}`))
 			})
 		})
 		Context("when couldn't parse incoming request", func() {
 			It("should return status 400", func() {
 				// given
-				req, err := http.NewRequest(http.MethodPost, "/contacts", bytes.NewBuffer([]byte("")))
+				req, err := http.NewRequest(http.MethodPost, "/api/contacts", bytes.NewBuffer([]byte("")))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
-
+				ctx.Set("userID", "1")
 				// when
 				contactController.InsertContact(ctx)
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
-				Expect(w.Body.String()).To(Equal(`{"error":"EOF"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":400,"message":"EOF"}`))
 			})
 		})
 	})
@@ -240,14 +241,14 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPut, "/contacts/3", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPut, "/api/contacts/3", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
-
-				contactServiceMock.EXPECT().UpdateContact(uint(1), uint(3), contactRequest).Return(contactBeforeUpdate, nil)
+				ctx.Set("userID", "1")
+				contactServiceMock.EXPECT().UpdateContact("1", uint(3), contactRequest).Return(contactBeforeUpdate, nil)
 				// when
 				contactController.UpdateContact(ctx)
 
@@ -266,19 +267,19 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPut, "/contacts/3", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPut, "/api/contacts/3", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
-
+				ctx.Set("userID", "1")
 				// when
 				contactController.UpdateContact(ctx)
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
-				Expect(w.Body.String()).To(Equal(`{"error":"Key: 'ContactRequest.FirstName' Error:Field validation for 'FirstName' failed on the 'required' tag"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":400,"message":"Key: 'ContactRequest.FirstName' Error:Field validation for 'FirstName' failed on the 'required' tag"}`))
 			})
 		})
 		Context("when could not parse id", func() {
@@ -291,7 +292,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
-				Expect(w.Body.String()).To(Equal(`{"error":"strconv.ParseUint: parsing \"a\": invalid syntax"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":400,"message":"strconv.ParseUint: parsing \"a\": invalid syntax"}`))
 			})
 		})
 		Context("when contact is not found", func() {
@@ -302,21 +303,21 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPut, "/contacts/3", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPut, "/api/contacts/3", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
-
-				contactServiceMock.EXPECT().UpdateContact(uint(1), uint(3), contactRequest).Return(model.Contact{}, fmt.Errorf("%w: %v", dto.ErrNotFound, gorm.ErrRecordNotFound))
+				ctx.Set("userID", "1")
+				contactServiceMock.EXPECT().UpdateContact("1", uint(3), contactRequest).Return(model.Contact{}, fmt.Errorf("%w: %v", dto.ErrNotFound, gorm.ErrRecordNotFound))
 
 				// when
 				contactController.UpdateContact(ctx)
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusNotFound))
-				Expect(w.Body.String()).To(Equal(`{"error":"not found: record not found"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":404,"message":"not found: record not found"}`))
 			})
 		})
 		Context("when internal error occurs", func() {
@@ -327,21 +328,21 @@ var _ = Describe("UserController", func() {
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
 
-				req, err := http.NewRequest(http.MethodPut, "/contacts/3", bytes.NewBuffer(contactRequestJSON))
+				req, err := http.NewRequest(http.MethodPut, "/api/contacts/3", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
 
 				ctx.Request = req
 				ctx.Set("Content-Type", "application/json")
 				ctx.Set("Accept", "application/json")
-
-				contactServiceMock.EXPECT().UpdateContact(uint(1), uint(3), contactRequest).Return(model.Contact{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
+				ctx.Set("userID", "1")
+				contactServiceMock.EXPECT().UpdateContact("1", uint(3), contactRequest).Return(model.Contact{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
 
 				// when
 				contactController.UpdateContact(ctx)
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				Expect(w.Body.String()).To(Equal(`{"error":"internal failure: invalid db"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":500,"message":"internal failure: invalid db"}`))
 			})
 		})
 	})
@@ -350,9 +351,9 @@ var _ = Describe("UserController", func() {
 			It("should return status 200", func() {
 				// given
 				ctx.Set("Accept", "application/json")
-
+				ctx.Set("userID", "1")
 				ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
-				contactServiceMock.EXPECT().DeleteContact(uint(1), uint(1)).Return(nil)
+				contactServiceMock.EXPECT().DeleteContact("1", uint(1)).Return(nil)
 
 				// when
 				contactController.DeleteContact(ctx)
@@ -366,7 +367,7 @@ var _ = Describe("UserController", func() {
 			It("should return status 400", func() {
 				// given
 				ctx.Set("Accept", "application/json")
-
+				ctx.Set("userID", "1")
 				ctx.Params = gin.Params{gin.Param{Key: "id", Value: "a"}}
 
 				// when
@@ -374,39 +375,39 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusBadRequest))
-				Expect(w.Body.String()).To(Equal(`{"error":"strconv.ParseUint: parsing \"a\": invalid syntax"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":400,"message":"strconv.ParseUint: parsing \"a\": invalid syntax"}`))
 			})
 		})
 		Context("when contact is not found", func() {
 			It("should return status 404", func() {
 				// given
 				ctx.Set("Accept", "application/json")
-
+				ctx.Set("userID", "1")
 				ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
-				contactServiceMock.EXPECT().DeleteContact(uint(1), uint(1)).Return(fmt.Errorf("%w: %v", dto.ErrNotFound, gorm.ErrRecordNotFound))
+				contactServiceMock.EXPECT().DeleteContact("1", uint(1)).Return(fmt.Errorf("%w: %v", dto.ErrNotFound, gorm.ErrRecordNotFound))
 
 				// when
 				contactController.DeleteContact(ctx)
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusNotFound))
-				Expect(w.Body.String()).To(Equal(`{"error":"not found: record not found"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":404,"message":"not found: record not found"}`))
 			})
 		})
 		Context("when internal error occurs", func() {
 			It("should return status 500", func() {
 				// given
 				ctx.Set("Accept", "application/json")
-
+				ctx.Set("userID", "1")
 				ctx.Params = gin.Params{gin.Param{Key: "id", Value: "1"}}
-				contactServiceMock.EXPECT().DeleteContact(uint(1), uint(1)).Return(fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
+				contactServiceMock.EXPECT().DeleteContact("1", uint(1)).Return(fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
 
 				// when
 				contactController.DeleteContact(ctx)
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusInternalServerError))
-				Expect(w.Body.String()).To(Equal(`{"error":"internal failure: invalid db"}`))
+				Expect(w.Body.String()).To(Equal(`{"code":500,"message":"internal failure: invalid db"}`))
 			})
 		})
 	})

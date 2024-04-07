@@ -5,7 +5,7 @@ metadata:
   labels:
     app: avialog
 spec:
-  replicas: 3
+  replicas: 4
   selector:
     matchLabels:
       app: avialog
@@ -16,15 +16,26 @@ spec:
     spec:
       containers:
         - name: avialog
-          image: ghcr.io/avialog/backend:a6ec57c
+          image: ghcr.io/avialog/backend:30cb310
           ports:
             - containerPort: 3000
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 3000
+            initialDelaySeconds: 3
+            periodSeconds: 3
           env:
             - name: DSN
               valueFrom:
                 secretKeyRef:
                   name: avialog
                   key: dsn
+            - name: FIREBASE_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: avialog
+                  key: firebaseKey
             - name: GIN_MODE
               value: release
 ---

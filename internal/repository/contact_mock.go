@@ -55,7 +55,7 @@ func (mr *MockContactRepositoryMockRecorder) Create(contact any) *gomock.Call {
 }
 
 // DeleteByUserIDAndID mocks base method.
-func (m *MockContactRepository) DeleteByUserIDAndID(userID, id uint) error {
+func (m *MockContactRepository) DeleteByUserIDAndID(userID string, id uint) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteByUserIDAndID", userID, id)
 	ret0, _ := ret[0].(error)
@@ -69,7 +69,7 @@ func (mr *MockContactRepositoryMockRecorder) DeleteByUserIDAndID(userID, id any)
 }
 
 // GetByUserID mocks base method.
-func (m *MockContactRepository) GetByUserID(userID uint) ([]model.Contact, error) {
+func (m *MockContactRepository) GetByUserID(userID string) ([]model.Contact, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByUserID", userID)
 	ret0, _ := ret[0].([]model.Contact)
@@ -84,7 +84,7 @@ func (mr *MockContactRepositoryMockRecorder) GetByUserID(userID any) *gomock.Cal
 }
 
 // GetByUserIDAndID mocks base method.
-func (m *MockContactRepository) GetByUserIDAndID(userID, id uint) (model.Contact, error) {
+func (m *MockContactRepository) GetByUserIDAndID(userID string, id uint) (model.Contact, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetByUserIDAndID", userID, id)
 	ret0, _ := ret[0].(model.Contact)

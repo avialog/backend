@@ -7,7 +7,7 @@ import (
 
 type Flight struct {
 	gorm.Model
-	UserID              uint        `gorm:"required; not null; default:null" validate:"required"`
+	UserID              string      `gorm:"required; not null; default:null" validate:"required"`
 	User                User        `validate:"-"`
 	AircraftID          uint        `gorm:"required; not null; default:null" validate:"required"`
 	Aircraft            Aircraft    `validate:"-"`
@@ -18,19 +18,19 @@ type Flight struct {
 	LandingTime         time.Time   `gorm:"required; not null; default:null" validate:"required"`
 	LandingAirportCode  string      `gorm:"required; not null; default:null" validate:"required"`
 	Style               Style       `gorm:"required; not null; default:null" validate:"required,style"`
-	Remarks             string
-	PersonalRemarks     string
-	TotalBlockTime      time.Duration
-	PilotInCommandTime  time.Duration
-	SecondInCommandTime time.Duration
-	DualReceivedTime    time.Duration
-	DualGivenTime       time.Duration
-	MultiPilotTime      time.Duration
-	NightTime           time.Duration
-	IFRTime             time.Duration
-	IFRActualTime       time.Duration
-	IFRSimulatedTime    time.Duration
-	CrossCountryTime    time.Duration
-	SimulatorTime       time.Duration
-	SignatureURL        string
+	Remarks             *string
+	PersonalRemarks     *string
+	TotalBlockTime      *time.Duration
+	PilotInCommandTime  *time.Duration
+	SecondInCommandTime *time.Duration
+	DualReceivedTime    *time.Duration
+	DualGivenTime       *time.Duration
+	MultiPilotTime      *time.Duration
+	NightTime           *time.Duration
+	IFRTime             *time.Duration
+	IFRActualTime       *time.Duration
+	IFRSimulatedTime    *time.Duration
+	CrossCountryTime    *time.Duration
+	SimulatorTime       *time.Duration
+	SignatureURL        *string
 }

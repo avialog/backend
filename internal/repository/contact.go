@@ -10,10 +10,10 @@ import (
 //go:generate mockgen -source=contact.go -destination=contact_mock.go -package repository
 type ContactRepository interface {
 	Create(contact model.Contact) (model.Contact, error)
-	GetByUserIDAndID(userID, id uint) (model.Contact, error)
-	GetByUserID(userID uint) ([]model.Contact, error)
+	GetByUserIDAndID(userID string, id uint) (model.Contact, error)
+	GetByUserID(userID string) ([]model.Contact, error)
 	Save(contact model.Contact) (model.Contact, error)
-	DeleteByUserIDAndID(userID, id uint) error
+	DeleteByUserIDAndID(userID string, id uint) error
 }
 
 type contact struct {
@@ -35,7 +35,7 @@ func (c *contact) Create(contact model.Contact) (model.Contact, error) {
 	return contact, nil
 }
 
-func (c *contact) GetByUserIDAndID(userID, id uint) (model.Contact, error) {
+func (c *contact) GetByUserIDAndID(userID string, id uint) (model.Contact, error) {
 	var contact model.Contact
 	result := c.db.Where("user_id = ? AND id = ?", userID, id).First(&contact)
 	if result.Error != nil {
@@ -54,20 +54,20 @@ func (c *contact) Save(contact model.Contact) (model.Contact, error) {
 	return contact, nil
 }
 
-func (c *contact) DeleteByUserIDAndID(userID, id uint) error {
+func (c *contact) DeleteByUserIDAndID(userID string, id uint) error {
 	result := c.db.Where("id = ? AND user_id = ?", id, userID).Delete(&model.Contact{})
 	if result.Error != nil {
 		return fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 
 	if result.RowsAffected == 0 {
-		return fmt.Errorf("contact %d for user %d not found: %w", id, userID, dto.ErrNotFound)
+		return fmt.Errorf("contact %d for user %s not found: %w", id, userID, dto.ErrNotFound)
 	}
 
 	return nil
 }
 
-func (c *contact) GetByUserID(userID uint) ([]model.Contact, error) {
+func (c *contact) GetByUserID(userID string) ([]model.Contact, error) {
 	var contact []model.Contact
 
 	result := c.db.Where("user_id = ?", userID).Find(&contact)

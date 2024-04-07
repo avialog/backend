@@ -2,6 +2,9 @@ package repository
 
 import (
 	"errors"
+	"fmt"
+	"github.com/avialog/backend/internal/dto"
+	"github.com/avialog/backend/internal/infrastructure"
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
 	"time"
@@ -11,17 +14,17 @@ import (
 type FlightRepository interface {
 	Create(flight model.Flight) (model.Flight, error)
 	GetByID(id uint) (model.Flight, error)
-	GetByUserID(userID uint) ([]model.Flight, error)
+	GetByUserID(userID string) ([]model.Flight, error)
 	GetByAircraftID(aircraftID uint) ([]model.Flight, error)
 	Save(flight model.Flight) (model.Flight, error)
 	DeleteByID(id uint) error
-	CountByUserIDAndAircraftID(userID, aircraftID uint) (int64, error)
-	GetByUserIDAndDate(userID uint, start, end time.Time) ([]model.Flight, error)
-	Begin() Database
-	CreateTx(tx Database, flight model.Flight) (model.Flight, error)
-	DeleteByIDTx(tx Database, id uint) error
-	GetByIDTx(tx Database, id uint) (model.Flight, error)
-	SaveTx(tx Database, flight model.Flight) (model.Flight, error)
+	CountByUserIDAndAircraftID(userID string, aircraftID uint) (int64, error)
+	GetByUserIDAndDate(userID string, start, end time.Time) ([]model.Flight, error)
+	Begin() infrastructure.Database
+	CreateTx(tx infrastructure.Database, flight model.Flight) (model.Flight, error)
+	DeleteByIDTx(tx infrastructure.Database, id uint) error
+	GetByIDTx(tx infrastructure.Database, id uint) (model.Flight, error)
+	SaveTx(tx infrastructure.Database, flight model.Flight) (model.Flight, error)
 }
 
 type flight struct {
@@ -34,7 +37,7 @@ func newFlightRepository(db *gorm.DB) FlightRepository {
 	}
 }
 
-func (f *flight) Begin() Database {
+func (f *flight) Begin() infrastructure.Database {
 	return f.db.Begin()
 }
 
@@ -47,10 +50,10 @@ func (f *flight) Create(flight model.Flight) (model.Flight, error) {
 	return flight, nil
 }
 
-func (f *flight) CreateTx(tx Database, flight model.Flight) (model.Flight, error) {
+func (f *flight) CreateTx(tx infrastructure.Database, flight model.Flight) (model.Flight, error) {
 	result := tx.Create(&flight)
 	if result.Error != nil {
-		return model.Flight{}, result.Error
+		return model.Flight{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 
 	return flight, nil
@@ -61,7 +64,10 @@ func (f *flight) GetByID(id uint) (model.Flight, error) {
 	result := f.db.First(&flight, id)
 
 	if result.Error != nil {
-		return model.Flight{}, result.Error
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return model.Flight{}, fmt.Errorf("%w: %v", dto.ErrNotFound, result.Error)
+		}
+		return model.Flight{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 	return flight, nil
 }
@@ -79,10 +85,10 @@ func (f *flight) Save(flight model.Flight) (model.Flight, error) {
 	return flight, nil
 }
 
-func (f *flight) SaveTx(tx Database, flight model.Flight) (model.Flight, error) {
+func (f *flight) SaveTx(tx infrastructure.Database, flight model.Flight) (model.Flight, error) {
 	result := tx.Save(&flight)
 	if result.Error != nil {
-		return model.Flight{}, result.Error
+		return model.Flight{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 
 	return flight, nil
@@ -99,7 +105,7 @@ func (f *flight) DeleteByID(id uint) error {
 	return nil
 }
 
-func (f *flight) GetByUserID(userID uint) ([]model.Flight, error) {
+func (f *flight) GetByUserID(userID string) ([]model.Flight, error) {
 	var flights []model.Flight
 
 	result := f.db.Where("user_id = ?", userID).Find(&flights)
@@ -121,7 +127,7 @@ func (f *flight) GetByAircraftID(aircraftID uint) ([]model.Flight, error) {
 	return flights, nil
 }
 
-func (f *flight) CountByUserIDAndAircraftID(userID, aircraftID uint) (int64, error) {
+func (f *flight) CountByUserIDAndAircraftID(userID string, aircraftID uint) (int64, error) {
 	var count int64
 	result := f.db.Model(&model.Flight{}).Where("aircraft_id = ? AND user_id = ?", aircraftID, userID).Count(&count)
 	if result.Error != nil {
@@ -130,29 +136,29 @@ func (f *flight) CountByUserIDAndAircraftID(userID, aircraftID uint) (int64, err
 	return count, nil
 }
 
-func (f *flight) GetByUserIDAndDate(userID uint, start, end time.Time) ([]model.Flight, error) {
+func (f *flight) GetByUserIDAndDate(userID string, start, end time.Time) ([]model.Flight, error) {
 	var flights []model.Flight
 
-	result := f.db.Where("user_id = ? AND takeoff_time >= ? AND takeoff_time <= ?", userID, start, end).Find(&flights)
+	result := f.db.Where("user_id = ? AND takeoff_time >= ? AND takeoff_time <= ?", userID, start, end).Order("takeoff_time desc").Find(&flights)
 	if result.Error != nil {
-		return nil, result.Error
+		return nil, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 
 	return flights, nil
 }
 
-func (f *flight) DeleteByIDTx(tx Database, id uint) error {
+func (f *flight) DeleteByIDTx(tx infrastructure.Database, id uint) error {
 	result := tx.Delete(&model.Flight{}, id)
 	if result.Error != nil {
-		return result.Error
+		return fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 	if result.RowsAffected == 0 {
-		return errors.New("flight cannot be deleted")
+		return fmt.Errorf("%w: flight cannot be deleted", dto.ErrNotFound)
 	}
 	return nil
 }
 
-func (f *flight) GetByIDTx(tx Database, id uint) (model.Flight, error) {
+func (f *flight) GetByIDTx(tx infrastructure.Database, id uint) (model.Flight, error) {
 	var flight model.Flight
 	result := tx.First(&flight, id)
 	if result.Error != nil {

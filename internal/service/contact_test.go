@@ -2,10 +2,11 @@ package service
 
 import (
 	"errors"
+	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
-	"github.com/avialog/backend/internal/utils"
+	"github.com/avialog/backend/internal/util"
 	"github.com/go-playground/validator/v10"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -26,30 +27,30 @@ var _ = Describe("ContactService", func() {
 	BeforeEach(func() {
 		contactRepoCtrl = gomock.NewController(GinkgoT())
 		contactRepoMock = repository.NewMockContactRepository(contactRepoCtrl)
-		validator = utils.GetValidator()
-		contactService = newContactService(contactRepoMock, dto.Config{}, validator)
+		validator = util.GetValidator()
+		contactService = newContactService(contactRepoMock, config.Config{}, validator)
 		contactRequest = dto.ContactRequest{
 			FirstName:    "John",
-			LastName:     "Doe",
-			Phone:        "1234567890",
-			AvatarURL:    "https://example.com/avatar.jpg",
-			Company:      "Example Inc",
-			EmailAddress: "test@test.com",
-			Note:         "This is a test contact",
+			LastName:     util.String("Doe"),
+			Phone:        util.String("1234567890"),
+			AvatarURL:    util.String("https://example.com/avatar.jpg"),
+			Company:      util.String("Example Inc"),
+			EmailAddress: util.String("test@test.com"),
+			Note:         util.String("This is a test contact"),
 		}
 		mockContact = model.Contact{
-			UserID:       uint(1),
+			UserID:       "1",
 			FirstName:    "John",
-			LastName:     "Doe",
-			Phone:        "1234567890",
-			AvatarURL:    "https://example.com/avatar.jpg",
-			Company:      "Example Inc",
-			EmailAddress: "test@test.com",
-			Note:         "This is a test contact",
+			LastName:     util.String("Doe"),
+			Phone:        util.String("1234567890"),
+			AvatarURL:    util.String("https://example.com/avatar.jpg"),
+			Company:      util.String("Example Inc"),
+			EmailAddress: util.String("test@test.com"),
+			Note:         util.String("This is a test contact"),
 		}
 		mockContacts = []model.Contact{
-			{UserID: uint(1), FirstName: "John", LastName: "Doe", Phone: "1234567890", AvatarURL: "https://example.com/avatar.jpg", Company: "Example Inc", EmailAddress: "test@test.com", Note: "This is a test contact"},
-			{UserID: uint(1), FirstName: "Jane", LastName: "Doe", Phone: "1234567890", AvatarURL: "https://example.com/avatar.jpg", Company: "Example Inc", EmailAddress: "test@test.com", Note: "This is a test contact"},
+			{UserID: "1", FirstName: "John", LastName: util.String("Doe"), Phone: util.String("1234567890"), AvatarURL: util.String("https://example.com/avatar.jpg"), Company: util.String("Example Inc"), EmailAddress: util.String("test@test.com"), Note: util.String("This is a test contact")},
+			{UserID: "1", FirstName: "Jane", LastName: util.String("Doe"), Phone: util.String("1234567890"), AvatarURL: util.String("https://example.com/avatar.jpg"), Company: util.String("Example Inc"), EmailAddress: util.String("test@test.com"), Note: util.String("This is a test contact")},
 		}
 	})
 
@@ -62,7 +63,7 @@ var _ = Describe("ContactService", func() {
 			It("should insert contact and return no error", func() {
 				// given
 				contactRepoMock.EXPECT().Create(mockContact).Return(model.Contact{
-					UserID:       uint(1),
+					UserID:       "1",
 					FirstName:    contactRequest.FirstName,
 					LastName:     contactRequest.LastName,
 					Phone:        contactRequest.Phone,
@@ -73,11 +74,11 @@ var _ = Describe("ContactService", func() {
 				}, nil)
 
 				// when
-				insertedContact, err := contactService.InsertContact(uint(1), contactRequest)
+				insertedContact, err := contactService.InsertContact("1", contactRequest)
 
 				// then
 				Expect(err).To(BeNil())
-				Expect(insertedContact.UserID).To(Equal(uint(1)))
+				Expect(insertedContact.UserID).To(Equal("1"))
 				Expect(insertedContact.FirstName).To(Equal(contactRequest.FirstName))
 				Expect(insertedContact.LastName).To(Equal(contactRequest.LastName))
 				Expect(insertedContact.Phone).To(Equal(contactRequest.Phone))
@@ -93,7 +94,7 @@ var _ = Describe("ContactService", func() {
 				contactRepoMock.EXPECT().Create(mockContact).Return(model.Contact{}, errors.New("failed to save contact"))
 
 				// when
-				insertedContact, err := contactService.InsertContact(uint(1), contactRequest)
+				insertedContact, err := contactService.InsertContact("1", contactRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("failed to save contact"))
@@ -106,7 +107,7 @@ var _ = Describe("ContactService", func() {
 				contactRequest.FirstName = ""
 
 				// when
-				insertedContact, err := contactService.InsertContact(uint(1), contactRequest)
+				insertedContact, err := contactService.InsertContact("1", contactRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("bad request: invalid data in field: FirstName"))
@@ -119,10 +120,10 @@ var _ = Describe("ContactService", func() {
 		Context("when user has contacts", func() {
 			It("should return contacts", func() {
 				// given
-				contactRepoMock.EXPECT().GetByUserID(uint(1)).Return(mockContacts[:2], nil)
+				contactRepoMock.EXPECT().GetByUserID("1").Return(mockContacts[:2], nil)
 
 				// when
-				contacts, err := contactService.GetUserContacts(uint(1))
+				contacts, err := contactService.GetUserContacts("1")
 
 				// then
 				Expect(err).To(BeNil())
@@ -134,10 +135,10 @@ var _ = Describe("ContactService", func() {
 		Context("when user has no contacts", func() {
 			It("should return empty contacts", func() {
 				// given
-				contactRepoMock.EXPECT().GetByUserID(uint(1)).Return([]model.Contact{}, nil)
+				contactRepoMock.EXPECT().GetByUserID("1").Return([]model.Contact{}, nil)
 
 				// when
-				contacts, err := contactService.GetUserContacts(1)
+				contacts, err := contactService.GetUserContacts("1")
 
 				// then
 				Expect(err).To(BeNil())
@@ -147,10 +148,10 @@ var _ = Describe("ContactService", func() {
 		Context("when failed to get contacts", func() {
 			It("should return error", func() {
 				// given
-				contactRepoMock.EXPECT().GetByUserID(uint(1)).Return([]model.Contact{}, errors.New("failed to get contacts"))
+				contactRepoMock.EXPECT().GetByUserID("1").Return([]model.Contact{}, errors.New("failed to get contacts"))
 
 				// when
-				contacts, err := contactService.GetUserContacts(uint(1))
+				contacts, err := contactService.GetUserContacts("1")
 
 				// then
 				Expect(err.Error()).To(Equal("failed to get contacts"))
@@ -163,10 +164,10 @@ var _ = Describe("ContactService", func() {
 		Context("when contact is deleted successfully", func() {
 			It("should return no error", func() {
 				// given
-				contactRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(nil)
+				contactRepoMock.EXPECT().DeleteByUserIDAndID("1", uint(1)).Return(nil)
 
 				// when
-				err := contactService.DeleteContact(uint(1), uint(1))
+				err := contactService.DeleteContact("1", uint(1))
 
 				// then
 				Expect(err).To(BeNil())
@@ -175,10 +176,10 @@ var _ = Describe("ContactService", func() {
 		Context("when delete operation fails", func() {
 			It("should return error", func() {
 				// given
-				contactRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(errors.New("failed to delete contact"))
+				contactRepoMock.EXPECT().DeleteByUserIDAndID("1", uint(1)).Return(errors.New("failed to delete contact"))
 
 				// when
-				err := contactService.DeleteContact(uint(1), uint(1))
+				err := contactService.DeleteContact("1", uint(1))
 
 				// then
 				Expect(err.Error()).To(Equal("failed to delete contact"))
@@ -187,10 +188,10 @@ var _ = Describe("ContactService", func() {
 		Context("when unauthorized to delete contact", func() {
 			It("should return error", func() {
 				// given
-				contactRepoMock.EXPECT().DeleteByUserIDAndID(uint(1), uint(1)).Return(errors.New("no contact to delete or unauthorized to delete contact"))
+				contactRepoMock.EXPECT().DeleteByUserIDAndID("1", uint(1)).Return(errors.New("no contact to delete or unauthorized to delete contact"))
 
 				// when
-				err := contactService.DeleteContact(uint(1), uint(1))
+				err := contactService.DeleteContact("1", uint(1))
 
 				// then
 				Expect(err.Error()).To(Equal("no contact to delete or unauthorized to delete contact"))
@@ -201,10 +202,10 @@ var _ = Describe("ContactService", func() {
 		Context("when fail to get contact", func() {
 			It("should return error", func() {
 				// given
-				contactRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(model.Contact{}, errors.New("failed to get contact"))
+				contactRepoMock.EXPECT().GetByUserIDAndID("1", uint(1)).Return(model.Contact{}, errors.New("failed to get contact"))
 
 				// when
-				updatedContact, err := contactService.UpdateContact(uint(1), uint(1), contactRequest)
+				updatedContact, err := contactService.UpdateContact("1", uint(1), contactRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("failed to get contact"))
@@ -214,11 +215,11 @@ var _ = Describe("ContactService", func() {
 		Context("when update fails", func() {
 			It("should return error", func() {
 				// given
-				contactRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(model.Contact{UserID: uint(1)}, nil)
+				contactRepoMock.EXPECT().GetByUserIDAndID("1", uint(1)).Return(model.Contact{UserID: "1"}, nil)
 				contactRepoMock.EXPECT().Save(mockContact).Return(model.Contact{}, errors.New("failed to update contact"))
 
 				// when
-				updatedContact, err := contactService.UpdateContact(uint(1), uint(1), contactRequest)
+				updatedContact, err := contactService.UpdateContact("1", uint(1), contactRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("failed to update contact"))
@@ -228,11 +229,11 @@ var _ = Describe("ContactService", func() {
 		Context("when contact is updated", func() {
 			It("should return updated contact", func() {
 				// given
-				contactRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockContact, nil)
+				contactRepoMock.EXPECT().GetByUserIDAndID("1", uint(1)).Return(mockContact, nil)
 				contactRepoMock.EXPECT().Save(mockContact).Return(mockContact, nil)
 
 				// when
-				updatedContact, err := contactService.UpdateContact(uint(1), uint(1), contactRequest)
+				updatedContact, err := contactService.UpdateContact("1", uint(1), contactRequest)
 
 				// then
 				Expect(err).To(BeNil())
@@ -243,9 +244,9 @@ var _ = Describe("ContactService", func() {
 			It("should return error", func() {
 				// given
 				contactRequest.FirstName = ""
-				contactRepoMock.EXPECT().GetByUserIDAndID(uint(1), uint(1)).Return(mockContact, nil)
+				contactRepoMock.EXPECT().GetByUserIDAndID("1", uint(1)).Return(mockContact, nil)
 				// when
-				updatedContact, err := contactService.UpdateContact(uint(1), uint(1), contactRequest)
+				updatedContact, err := contactService.UpdateContact("1", uint(1), contactRequest)
 
 				// then
 				Expect(err.Error()).To(Equal("bad request: invalid data in field: FirstName"))

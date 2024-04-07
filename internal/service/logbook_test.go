@@ -2,10 +2,12 @@ package service
 
 import (
 	"errors"
+	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/dto"
+	"github.com/avialog/backend/internal/infrastructure"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
-	"github.com/avialog/backend/internal/utils"
+	"github.com/avialog/backend/internal/util"
 	"github.com/go-playground/validator/v10"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -26,7 +28,7 @@ var _ = Describe("LogbookService", func() {
 		aircraftRepoCtrl         *gomock.Controller
 		aircraftRepoMock         *repository.MockAircraftRepository
 		databaseCtrl             *gomock.Controller
-		databaseMock             *repository.MockDatabase
+		databaseMock             *infrastructure.MockDatabase
 		validator                *validator.Validate
 		logbookRequest           dto.LogbookRequest
 		fixedTime                time.Time
@@ -56,9 +58,9 @@ var _ = Describe("LogbookService", func() {
 		aircraftRepoCtrl = gomock.NewController(GinkgoT())
 		aircraftRepoMock = repository.NewMockAircraftRepository(aircraftRepoCtrl)
 		databaseCtrl = gomock.NewController(GinkgoT())
-		databaseMock = repository.NewMockDatabase(databaseCtrl)
-		validator = utils.GetValidator()
-		logbookService = newLogbookService(flightRepoMock, landingRepoMock, passengerRepoMock, aircraftRepoMock, dto.Config{}, validator)
+		databaseMock = infrastructure.NewMockDatabase(databaseCtrl)
+		validator = util.GetValidator()
+		logbookService = newLogbookService(flightRepoMock, landingRepoMock, passengerRepoMock, aircraftRepoMock, config.Config{}, validator)
 		logbookRequest = dto.LogbookRequest{
 			AircraftID:          uint(1),
 			TakeoffTime:         fixedTime,
@@ -66,207 +68,207 @@ var _ = Describe("LogbookService", func() {
 			LandingTime:         fixedTime,
 			LandingAirportCode:  "LAX",
 			Style:               model.StyleY,
-			Remarks:             "Remarks",
-			PersonalRemarks:     "Personal Remarks",
-			TotalBlockTime:      1 * time.Hour,
-			PilotInCommandTime:  2 * time.Hour,
-			SecondInCommandTime: 3 * time.Hour,
-			DualReceivedTime:    4 * time.Hour,
-			DualGivenTime:       5 * time.Hour,
-			MultiPilotTime:      6 * time.Hour,
-			NightTime:           7 * time.Hour,
-			IFRTime:             8 * time.Hour,
-			IFRActualTime:       9 * time.Hour,
-			IFRSimulatedTime:    10 * time.Hour,
-			CrossCountryTime:    11 * time.Hour,
-			SimulatorTime:       12 * time.Hour,
-			SignatureURL:        "https://signature.com",
+			Remarks:             util.String("Remarks"),
+			PersonalRemarks:     util.String("Personal Remarks"),
+			TotalBlockTime:      util.Duration(1 * time.Hour),
+			PilotInCommandTime:  util.Duration(2 * time.Hour),
+			SecondInCommandTime: util.Duration(3 * time.Hour),
+			DualReceivedTime:    util.Duration(4 * time.Hour),
+			DualGivenTime:       util.Duration(5 * time.Hour),
+			MultiPilotTime:      util.Duration(6 * time.Hour),
+			NightTime:           util.Duration(7 * time.Hour),
+			IFRTime:             util.Duration(8 * time.Hour),
+			IFRActualTime:       util.Duration(9 * time.Hour),
+			IFRSimulatedTime:    util.Duration(10 * time.Hour),
+			CrossCountryTime:    util.Duration(11 * time.Hour),
+			SimulatorTime:       util.Duration(12 * time.Hour),
+			SignatureURL:        util.String("https://signature.com"),
 			Passengers: []dto.PassengerEntry{
 				{
 					Role:         model.RolePilotInCommand,
 					FirstName:    "John",
-					LastName:     "Doe",
-					Company:      "Company",
-					Phone:        "1234567890",
-					EmailAddress: "test@test.com",
-					Note:         "Note",
+					LastName:     util.String("Doe"),
+					Company:      util.String("Company"),
+					Phone:        util.String("1234567890"),
+					EmailAddress: util.String("test@test.com"),
+					Note:         util.String("Note"),
 				},
 				{
 					Role:         model.RoleSecondInCommand,
 					FirstName:    "Jane",
-					LastName:     "Doe",
-					Company:      "Company",
-					Phone:        "1234567890",
-					EmailAddress: "testing@test.com",
-					Note:         "Note",
+					LastName:     util.String("Doe"),
+					Company:      util.String("Company"),
+					Phone:        util.String("1234567890"),
+					EmailAddress: util.String("testing@test.com"),
+					Note:         util.String("Note"),
 				},
 			},
 			Landings: []dto.LandingEntry{
 				{
 					ApproachType: model.ApproachTypeVisual,
-					Count:        1,
-					NightCount:   2,
-					DayCount:     3,
-					AirportCode:  "SFO",
+					Count:        util.Uint(1),
+					NightCount:   util.Uint(2),
+					DayCount:     util.Uint(3),
+					AirportCode:  util.String("SFO"),
 				},
 				{
 					ApproachType: model.ApproachTypeVisual,
-					Count:        4,
-					NightCount:   5,
-					DayCount:     6,
-					AirportCode:  "LAX",
+					Count:        util.Uint(4),
+					NightCount:   util.Uint(5),
+					DayCount:     util.Uint(6),
+					AirportCode:  util.String("LAX"),
 				},
 			},
 		}
 		mockFlight = model.Flight{
-			UserID:              uint(2),
+			UserID:              "2",
 			AircraftID:          uint(1),
 			TakeoffTime:         fixedTime,
 			TakeoffAirportCode:  "SFO",
 			LandingTime:         fixedTime,
 			LandingAirportCode:  "LAX",
 			Style:               model.StyleY,
-			Remarks:             "Remarks",
-			PersonalRemarks:     "Personal Remarks",
-			TotalBlockTime:      1 * time.Hour,
-			PilotInCommandTime:  2 * time.Hour,
-			SecondInCommandTime: 3 * time.Hour,
-			DualReceivedTime:    4 * time.Hour,
-			DualGivenTime:       5 * time.Hour,
-			MultiPilotTime:      6 * time.Hour,
-			NightTime:           7 * time.Hour,
-			IFRTime:             8 * time.Hour,
-			IFRActualTime:       9 * time.Hour,
-			IFRSimulatedTime:    10 * time.Hour,
-			CrossCountryTime:    11 * time.Hour,
-			SimulatorTime:       12 * time.Hour,
-			SignatureURL:        "https://signature.com",
+			Remarks:             util.String("Remarks"),
+			PersonalRemarks:     util.String("Personal Remarks"),
+			TotalBlockTime:      util.Duration(1 * time.Hour),
+			PilotInCommandTime:  util.Duration(2 * time.Hour),
+			SecondInCommandTime: util.Duration(3 * time.Hour),
+			DualReceivedTime:    util.Duration(4 * time.Hour),
+			DualGivenTime:       util.Duration(5 * time.Hour),
+			MultiPilotTime:      util.Duration(6 * time.Hour),
+			NightTime:           util.Duration(7 * time.Hour),
+			IFRTime:             util.Duration(8 * time.Hour),
+			IFRActualTime:       util.Duration(9 * time.Hour),
+			IFRSimulatedTime:    util.Duration(10 * time.Hour),
+			CrossCountryTime:    util.Duration(11 * time.Hour),
+			SimulatorTime:       util.Duration(12 * time.Hour),
+			SignatureURL:        util.String("https://signature.com"),
 		}
 		mockInsertedFlight = model.Flight{
 			Model:               gorm.Model{ID: uint(3)},
-			UserID:              uint(2),
+			UserID:              "2",
 			AircraftID:          uint(1),
 			TakeoffTime:         fixedTime,
 			TakeoffAirportCode:  "SFO",
 			LandingTime:         fixedTime,
 			LandingAirportCode:  "LAX",
 			Style:               model.StyleY,
-			Remarks:             "Remarks",
-			PersonalRemarks:     "Personal Remarks",
-			TotalBlockTime:      1 * time.Hour,
-			PilotInCommandTime:  2 * time.Hour,
-			SecondInCommandTime: 3 * time.Hour,
-			DualReceivedTime:    4 * time.Hour,
-			DualGivenTime:       5 * time.Hour,
-			MultiPilotTime:      6 * time.Hour,
-			NightTime:           7 * time.Hour,
-			IFRTime:             8 * time.Hour,
-			IFRActualTime:       9 * time.Hour,
-			IFRSimulatedTime:    10 * time.Hour,
-			CrossCountryTime:    11 * time.Hour,
-			SimulatorTime:       12 * time.Hour,
-			SignatureURL:        "https://signature.com",
+			Remarks:             util.String("Remarks"),
+			PersonalRemarks:     util.String("Personal Remarks"),
+			TotalBlockTime:      util.Duration(1 * time.Hour),
+			PilotInCommandTime:  util.Duration(2 * time.Hour),
+			SecondInCommandTime: util.Duration(3 * time.Hour),
+			DualReceivedTime:    util.Duration(4 * time.Hour),
+			DualGivenTime:       util.Duration(5 * time.Hour),
+			MultiPilotTime:      util.Duration(6 * time.Hour),
+			NightTime:           util.Duration(7 * time.Hour),
+			IFRTime:             util.Duration(8 * time.Hour),
+			IFRActualTime:       util.Duration(9 * time.Hour),
+			IFRSimulatedTime:    util.Duration(10 * time.Hour),
+			CrossCountryTime:    util.Duration(11 * time.Hour),
+			SimulatorTime:       util.Duration(12 * time.Hour),
+			SignatureURL:        util.String("https://signature.com"),
 		}
 		mockPassengerOne = model.Passenger{
 			FlightID:     uint(3),
 			Role:         model.RolePilotInCommand,
 			FirstName:    "John",
-			LastName:     "Doe",
-			Company:      "Company",
-			Phone:        "1234567890",
-			EmailAddress: "test@test.com",
-			Note:         "Note",
+			LastName:     util.String("Doe"),
+			Company:      util.String("Company"),
+			Phone:        util.String("1234567890"),
+			EmailAddress: util.String("test@test.com"),
+			Note:         util.String("Note"),
 		}
 		mockInsertedPassengerOne = model.Passenger{
 			Model:        gorm.Model{ID: uint(1)},
 			FlightID:     uint(3),
 			Role:         model.RolePilotInCommand,
 			FirstName:    "John",
-			LastName:     "Doe",
-			Company:      "Company",
-			Phone:        "1234567890",
-			EmailAddress: "test@test.com",
-			Note:         "Note",
+			LastName:     util.String("Doe"),
+			Company:      util.String("Company"),
+			Phone:        util.String("1234567890"),
+			EmailAddress: util.String("test@test.com"),
+			Note:         util.String("Note"),
 		}
 		mockPassengerTwo = model.Passenger{
 			FlightID:     uint(3),
 			Role:         model.RoleSecondInCommand,
 			FirstName:    "Jane",
-			LastName:     "Doe",
-			Company:      "Company",
-			Phone:        "1234567890",
-			EmailAddress: "testing@test.com",
-			Note:         "Note",
+			LastName:     util.String("Doe"),
+			Company:      util.String("Company"),
+			Phone:        util.String("1234567890"),
+			EmailAddress: util.String("testing@test.com"),
+			Note:         util.String("Note"),
 		}
 		mockInsertedPassengerTwo = model.Passenger{
 			Model:        gorm.Model{ID: uint(2)},
 			FlightID:     uint(3),
 			Role:         model.RoleSecondInCommand,
 			FirstName:    "Jane",
-			LastName:     "Doe",
-			Company:      "Company",
-			Phone:        "1234567890",
-			EmailAddress: "testing@test.com",
-			Note:         "Note",
+			LastName:     util.String("Doe"),
+			Company:      util.String("Company"),
+			Phone:        util.String("1234567890"),
+			EmailAddress: util.String("testing@test.com"),
+			Note:         util.String("Note"),
 		}
 		mockLandingOne = model.Landing{
 			FlightID:     uint(3),
 			ApproachType: model.ApproachTypeVisual,
-			Count:        1,
-			NightCount:   2,
-			DayCount:     3,
-			AirportCode:  "SFO",
+			Count:        util.Uint(1),
+			NightCount:   util.Uint(2),
+			DayCount:     util.Uint(3),
+			AirportCode:  util.String("SFO"),
 		}
 		mockInsertedLandingOne = model.Landing{
 			Model:        gorm.Model{ID: uint(1)},
 			FlightID:     uint(3),
 			ApproachType: model.ApproachTypeVisual,
-			Count:        1,
-			NightCount:   2,
-			DayCount:     3,
-			AirportCode:  "SFO",
+			Count:        util.Uint(1),
+			NightCount:   util.Uint(2),
+			DayCount:     util.Uint(3),
+			AirportCode:  util.String("SFO"),
 		}
 		mockLandingTwo = model.Landing{
 			FlightID:     3,
 			ApproachType: model.ApproachTypeVisual,
-			Count:        4,
-			NightCount:   5,
-			DayCount:     6,
-			AirportCode:  "LAX",
+			Count:        util.Uint(4),
+			NightCount:   util.Uint(5),
+			DayCount:     util.Uint(6),
+			AirportCode:  util.String("LAX"),
 		}
 		mockInsertedLandingTwo = model.Landing{
 			Model:        gorm.Model{ID: uint(2)},
 			FlightID:     uint(3),
 			ApproachType: model.ApproachTypeVisual,
-			Count:        4,
-			NightCount:   5,
-			DayCount:     6,
-			AirportCode:  "LAX",
+			Count:        util.Uint(4),
+			NightCount:   util.Uint(5),
+			DayCount:     util.Uint(6),
+			AirportCode:  util.String("LAX"),
 		}
 		mockFlightBeforeUpdate = model.Flight{
 			Model:               gorm.Model{ID: uint(3)},
-			UserID:              uint(2),
+			UserID:              "2",
 			AircraftID:          uint(1),
 			TakeoffTime:         fixedTime,
 			TakeoffAirportCode:  "SFO",
 			LandingTime:         fixedTime,
 			LandingAirportCode:  "LAX",
 			Style:               model.StyleY,
-			Remarks:             "MRemarks",
-			PersonalRemarks:     "Personal Remarks",
-			TotalBlockTime:      6 * time.Hour,
-			PilotInCommandTime:  2 * time.Hour,
-			SecondInCommandTime: 155 * time.Hour,
-			DualReceivedTime:    3 * time.Hour,
-			DualGivenTime:       3 * time.Hour,
-			MultiPilotTime:      2 * time.Hour,
-			NightTime:           5 * time.Hour,
-			IFRTime:             7 * time.Hour,
-			IFRActualTime:       1 * time.Hour,
-			IFRSimulatedTime:    10 * time.Hour,
-			CrossCountryTime:    11 * time.Hour,
-			SimulatorTime:       6 * time.Hour,
-			SignatureURL:        "https://signature.com",
+			Remarks:             util.String("MRemarks"),
+			PersonalRemarks:     util.String("Personal Remarks"),
+			TotalBlockTime:      util.Duration(6 * time.Hour),
+			PilotInCommandTime:  util.Duration(2 * time.Hour),
+			SecondInCommandTime: util.Duration(155 * time.Hour),
+			DualReceivedTime:    util.Duration(3 * time.Hour),
+			DualGivenTime:       util.Duration(3 * time.Hour),
+			MultiPilotTime:      util.Duration(2 * time.Hour),
+			NightTime:           util.Duration(5 * time.Hour),
+			IFRTime:             util.Duration(7 * time.Hour),
+			IFRActualTime:       util.Duration(1 * time.Hour),
+			IFRSimulatedTime:    util.Duration(10 * time.Hour),
+			CrossCountryTime:    util.Duration(11 * time.Hour),
+			SimulatorTime:       util.Duration(6 * time.Hour),
+			SignatureURL:        util.String("https://signature.com"),
 		}
 		startDate = time.Date(2022, time.March, 25, 0, 0, 0, 0, time.UTC)
 		endDate = time.Date(2022, time.March, 28, 0, 0, 0, 0, time.UTC)
@@ -284,7 +286,7 @@ var _ = Describe("LogbookService", func() {
 		Context("When the logbook entry is valid", func() {
 			It("Should return the logbook entry and no error", func() {
 				// given
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().CreateTx(databaseMock, mockFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerOne).Return(mockInsertedPassengerOne, nil)
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerTwo).Return(mockInsertedPassengerTwo, nil)
@@ -295,7 +297,7 @@ var _ = Describe("LogbookService", func() {
 				databaseMock.EXPECT().Commit().Return(&gorm.DB{Error: nil})
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).To(BeNil())
@@ -330,7 +332,7 @@ var _ = Describe("LogbookService", func() {
 		Context("when commit fails", func() {
 			It("Should return an error", func() {
 				// given
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().CreateTx(databaseMock, mockFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerOne).Return(mockInsertedPassengerOne, nil)
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerTwo).Return(mockInsertedPassengerTwo, nil)
@@ -341,107 +343,107 @@ var _ = Describe("LogbookService", func() {
 				databaseMock.EXPECT().Commit().Return(&gorm.DB{Error: errors.New("failed to commit")})
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("failed to commit"))
+				Expect(err.Error()).To(Equal("internal failure: failed to commit"))
 			})
 		})
 		// it also covers the case when the user does not provide the aircraft id in the request
 		Context("When the aircraft does not exist or the user does not own the aircraft", func() {
 			It("Should return an error", func() {
 				// given
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, errors.New("aircraft not found"))
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, errors.New("aircraft not found"))
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("aircraft does not belong to user"))
+				Expect(err.Error()).To(Equal("aircraft not found"))
 			})
 		})
 		Context("When flight to insert missing takeoff time", func() {
 			It("Should return an error", func() {
 				// given
 				logbookRequest.TakeoffTime = time.Time{}
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: TakeoffTime"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: TakeoffTime"))
 			})
 		})
 		Context("When flight to insert missing takeoff airport code", func() {
 			It("Should return an error", func() {
 				// given
 				logbookRequest.TakeoffAirportCode = ""
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: TakeoffAirportCode"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: TakeoffAirportCode"))
 			})
 		})
 		Context("When flight to insert missing landing time", func() {
 			It("Should return an error", func() {
 				// given
 				logbookRequest.LandingTime = time.Time{}
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: LandingTime"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: LandingTime"))
 			})
 		})
 		Context("When flight to insert missing landing airport code", func() {
 			It("Should return an error", func() {
 				// given
 				logbookRequest.LandingAirportCode = ""
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: LandingAirportCode"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: LandingAirportCode"))
 			})
 		})
 		Context("When flight to insert missing style", func() {
 			It("Should return an error and ", func() {
 				// given
 				logbookRequest.Style = ""
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Style"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Style"))
 
 			})
 		})
@@ -449,28 +451,28 @@ var _ = Describe("LogbookService", func() {
 			It("Should return an error", func() {
 				// given
 				logbookRequest.Style = "invalidStyle"
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Style"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Style"))
 			})
 		})
 		Context("when creating flight failed", func() {
 			It("Should return an error and rollback transaction", func() {
 				// given
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().CreateTx(databaseMock, mockFlight).Return(model.Flight{}, errors.New("failed to create flight"))
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -483,67 +485,67 @@ var _ = Describe("LogbookService", func() {
 			It("Should return an error and rollback transaction", func() {
 				// given
 				logbookRequest.Passengers[0].Role = ""
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().CreateTx(databaseMock, mockFlight).Return(mockInsertedFlight, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Role"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Role"))
 			})
 		})
 		Context("when passenger to insert have invalid role", func() {
 			It("Should return an error and rollback transaction", func() {
 				// given
 				logbookRequest.Passengers[0].Role = "invalidRole"
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().CreateTx(databaseMock, mockFlight).Return(mockInsertedFlight, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Role"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Role"))
 			})
 		})
 		Context("when passenger to insert missing first name", func() {
 			It("Should return an error and rollback transaction", func() {
 				// given
 				logbookRequest.Passengers[0].FirstName = ""
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().CreateTx(databaseMock, mockFlight).Return(mockInsertedFlight, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: FirstName"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: FirstName"))
 			})
 		})
 		Context("when creating passenger failed", func() {
 			It("Should return an error and rollback transaction", func() {
 				// given
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().CreateTx(databaseMock, mockFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerOne).Return(model.Passenger{}, errors.New("failed to create passenger"))
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -555,7 +557,7 @@ var _ = Describe("LogbookService", func() {
 			It("Should return an error and rollback transaction", func() {
 				// given
 				logbookRequest.Landings[0].ApproachType = ""
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().CreateTx(databaseMock, mockFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerOne).Return(mockInsertedPassengerOne, nil)
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerTwo).Return(mockInsertedPassengerTwo, nil)
@@ -563,19 +565,19 @@ var _ = Describe("LogbookService", func() {
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: ApproachType"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: ApproachType"))
 			})
 		})
 		Context("when landing to insert have invalid approach type", func() {
 			It("Should return an error and rollback transaction", func() {
 				// given
 				logbookRequest.Landings[0].ApproachType = "invalidApproachType"
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().CreateTx(databaseMock, mockFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerOne).Return(mockInsertedPassengerOne, nil)
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerTwo).Return(mockInsertedPassengerTwo, nil)
@@ -583,17 +585,17 @@ var _ = Describe("LogbookService", func() {
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: ApproachType"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: ApproachType"))
 			})
 		})
 		Context("when creating landing failed", func() {
 			It("Should return an error and rollback transaction", func() {
 				// given
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().CreateTx(databaseMock, mockFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerOne).Return(mockInsertedPassengerOne, nil)
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerTwo).Return(mockInsertedPassengerTwo, nil)
@@ -602,7 +604,7 @@ var _ = Describe("LogbookService", func() {
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				logbookResponse, err := logbookService.InsertLogbookEntry(uint(2), logbookRequest)
+				logbookResponse, err := logbookService.InsertLogbookEntry("2", logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -624,7 +626,7 @@ var _ = Describe("LogbookService", func() {
 				databaseMock.EXPECT().Commit().Return(&gorm.DB{Error: nil})
 
 				// when
-				err := logbookService.DeleteLogbookEntry(uint(2), uint(1))
+				err := logbookService.DeleteLogbookEntry("2", uint(1))
 
 				// then
 				Expect(err).To(BeNil())
@@ -642,11 +644,11 @@ var _ = Describe("LogbookService", func() {
 				databaseMock.EXPECT().Commit().Return(&gorm.DB{Error: errors.New("failed to commit")})
 
 				// when
-				err := logbookService.DeleteLogbookEntry(uint(2), uint(1))
+				err := logbookService.DeleteLogbookEntry("2", uint(1))
 
 				// then
 				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(Equal("failed to commit"))
+				Expect(err.Error()).To(Equal("internal failure: failed to commit"))
 			})
 		})
 		Context("when fail to fetch flight", func() {
@@ -655,7 +657,7 @@ var _ = Describe("LogbookService", func() {
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(model.Flight{}, errors.New("failed to fetch flight"))
 
 				// when
-				err := logbookService.DeleteLogbookEntry(uint(2), uint(1))
+				err := logbookService.DeleteLogbookEntry("2", uint(1))
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -665,13 +667,13 @@ var _ = Describe("LogbookService", func() {
 		Context("when user does not own the flight", func() {
 			It("Should return an error", func() {
 				// given
-				flightRepoMock.EXPECT().GetByID(uint(1)).Return(model.Flight{UserID: uint(3)}, nil)
+				flightRepoMock.EXPECT().GetByID(uint(1)).Return(model.Flight{UserID: "3"}, nil)
 				// when
-				err := logbookService.DeleteLogbookEntry(uint(2), uint(1))
+				err := logbookService.DeleteLogbookEntry("2", uint(1))
 
 				// then
 				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(Equal("flight does not belong to user"))
+				Expect(err.Error()).To(Equal("bad request: flight does not belong to user"))
 			})
 		})
 		Context("when fail to delete landings", func() {
@@ -682,7 +684,7 @@ var _ = Describe("LogbookService", func() {
 				landingRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(1)).Return(errors.New("failed to delete landings"))
 				databaseMock.EXPECT().Rollback()
 				// when
-				err := logbookService.DeleteLogbookEntry(uint(2), uint(1))
+				err := logbookService.DeleteLogbookEntry("2", uint(1))
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -698,7 +700,7 @@ var _ = Describe("LogbookService", func() {
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(1)).Return(errors.New("failed to delete passengers"))
 				databaseMock.EXPECT().Rollback()
 				// when
-				err := logbookService.DeleteLogbookEntry(uint(2), uint(1))
+				err := logbookService.DeleteLogbookEntry("2", uint(1))
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -716,11 +718,11 @@ var _ = Describe("LogbookService", func() {
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				err := logbookService.DeleteLogbookEntry(uint(2), uint(1))
+				err := logbookService.DeleteLogbookEntry("2", uint(1))
 
 				// then
 				Expect(err).ToNot(BeNil())
-				Expect(err.Error()).To(Equal("failed to delete flight"))
+				Expect(err.Error()).To(Equal("internal failure: failed to delete flight"))
 			})
 		})
 	})
@@ -730,7 +732,7 @@ var _ = Describe("LogbookService", func() {
 			It("Should return no error and updated model response", func() {
 				// given
 				flightRepoMock.EXPECT().GetByID(uint(3)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
@@ -742,7 +744,7 @@ var _ = Describe("LogbookService", func() {
 				landingRepoMock.EXPECT().CreateTx(databaseMock, mockLandingTwo).Return(mockInsertedLandingTwo, nil)
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(3), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(3), logbookRequest)
 				// then
 				Expect(err).To(BeNil())
 				Expect(logbookResponse).ToNot(BeNil())
@@ -776,7 +778,7 @@ var _ = Describe("LogbookService", func() {
 			It("Should return an error", func() {
 				// given
 				flightRepoMock.EXPECT().GetByID(uint(3)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
@@ -788,7 +790,7 @@ var _ = Describe("LogbookService", func() {
 				landingRepoMock.EXPECT().CreateTx(databaseMock, mockLandingTwo).Return(mockInsertedLandingTwo, nil)
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(3), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(3), logbookRequest)
 
 				// then
 				Expect(err).To(BeNil())
@@ -803,7 +805,7 @@ var _ = Describe("LogbookService", func() {
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(model.Flight{}, errors.New("failed to fetch flight"))
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(1), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -814,25 +816,25 @@ var _ = Describe("LogbookService", func() {
 		Context("when user does not own the flight", func() {
 			It("Should return an error", func() {
 				// given
-				flightRepoMock.EXPECT().GetByID(uint(1)).Return(model.Flight{UserID: uint(3)}, nil)
+				flightRepoMock.EXPECT().GetByID(uint(1)).Return(model.Flight{UserID: "3"}, nil)
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(1), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("flight does not belong to user"))
+				Expect(err.Error()).To(Equal("bad request: flight does not belong to user"))
 			})
 		})
 		Context("when aircraft does not exist or user does not own the aircraft", func() {
 			It("Should return an error", func() {
 				// given
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockInsertedFlight, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, errors.New(""))
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, errors.New("aircraft does not belong to user"))
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(1), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -845,16 +847,16 @@ var _ = Describe("LogbookService", func() {
 				// given
 				logbookRequest.TakeoffTime = time.Time{}
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(1), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: TakeoffTime"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: TakeoffTime"))
 			})
 		})
 		Context("when flight to update missing TakeoffAirportCode", func() {
@@ -862,16 +864,16 @@ var _ = Describe("LogbookService", func() {
 				// given
 				logbookRequest.TakeoffTime = time.Time{}
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(1), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: TakeoffTime"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: TakeoffTime"))
 			})
 		})
 		Context("when flight to update missing LandingTime", func() {
@@ -879,16 +881,16 @@ var _ = Describe("LogbookService", func() {
 				// given
 				logbookRequest.LandingTime = time.Time{}
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(1), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: LandingTime"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: LandingTime"))
 			})
 		})
 		Context("when flight to update missing LandingAirportCode", func() {
@@ -896,16 +898,16 @@ var _ = Describe("LogbookService", func() {
 				// given
 				logbookRequest.LandingAirportCode = ""
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(1), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: LandingAirportCode"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: LandingAirportCode"))
 
 			})
 		})
@@ -914,16 +916,16 @@ var _ = Describe("LogbookService", func() {
 				// given
 				logbookRequest.Style = ""
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(1), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Style"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Style"))
 			})
 		})
 		Context("when flight to update invalid Style", func() {
@@ -931,16 +933,16 @@ var _ = Describe("LogbookService", func() {
 				// given
 				logbookRequest.Style = "invalidStyle"
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(1), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Style"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Style"))
 
 			})
 		})
@@ -948,13 +950,13 @@ var _ = Describe("LogbookService", func() {
 			It("Should return an error and rollback transaction", func() {
 				// given
 				flightRepoMock.EXPECT().GetByID(uint(1)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(model.Flight{}, errors.New("failed to update flight"))
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(1), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(1), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -966,14 +968,14 @@ var _ = Describe("LogbookService", func() {
 			It("Should return an error and rollback transaction", func() {
 				// given
 				flightRepoMock.EXPECT().GetByID(uint(3)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(errors.New("failed to delete passengers"))
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(3), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(3), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -987,19 +989,19 @@ var _ = Describe("LogbookService", func() {
 				// given
 				logbookRequest.Passengers[0].Role = ""
 				flightRepoMock.EXPECT().GetByID(uint(3)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(3), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(3), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Role"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Role"))
 
 			})
 		})
@@ -1008,19 +1010,19 @@ var _ = Describe("LogbookService", func() {
 				// given
 				logbookRequest.Passengers[0].Role = "invalidRole"
 				flightRepoMock.EXPECT().GetByID(uint(3)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(3), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(3), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: Role"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: Role"))
 			})
 		})
 		Context("when passenger to insert missing first name", func() {
@@ -1028,26 +1030,26 @@ var _ = Describe("LogbookService", func() {
 				// given
 				logbookRequest.Passengers[0].FirstName = ""
 				flightRepoMock.EXPECT().GetByID(uint(3)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
 				databaseMock.EXPECT().Rollback()
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(3), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(3), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: FirstName"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: FirstName"))
 			})
 		})
 		Context("when creating passenger failed", func() {
 			It("Should return an error and rollback transaction", func() {
 				// given
 				flightRepoMock.EXPECT().GetByID(uint(3)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
@@ -1055,7 +1057,7 @@ var _ = Describe("LogbookService", func() {
 				passengerRepoMock.EXPECT().CreateTx(databaseMock, mockPassengerOne).Return(model.Passenger{}, errors.New("failed to create passenger"))
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(3), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(3), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -1067,7 +1069,7 @@ var _ = Describe("LogbookService", func() {
 			It("Should return an error and rollback transaction", func() {
 				// given
 				flightRepoMock.EXPECT().GetByID(uint(3)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
@@ -1077,7 +1079,7 @@ var _ = Describe("LogbookService", func() {
 				landingRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(errors.New("failed to delete landings"))
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(3), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(3), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -1090,7 +1092,7 @@ var _ = Describe("LogbookService", func() {
 				// given
 				logbookRequest.Landings[0].ApproachType = ""
 				flightRepoMock.EXPECT().GetByID(uint(3)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
@@ -1100,12 +1102,12 @@ var _ = Describe("LogbookService", func() {
 				landingRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(3), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(3), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: ApproachType"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: ApproachType"))
 			})
 		})
 		Context("when landing to insert have invalid approach type", func() {
@@ -1113,7 +1115,7 @@ var _ = Describe("LogbookService", func() {
 				// given
 				logbookRequest.Landings[0].ApproachType = "invalidApproachType"
 				flightRepoMock.EXPECT().GetByID(uint(3)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
@@ -1123,19 +1125,19 @@ var _ = Describe("LogbookService", func() {
 				landingRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(3), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(3), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
 				Expect(logbookResponse).To(Equal(dto.LogbookResponse{}))
-				Expect(err.Error()).To(Equal("invalid data in field: ApproachType"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: ApproachType"))
 			})
 		})
 		Context("when creating landing failed", func() {
 			It("Should return an error and rollback transaction", func() {
 				// given
 				flightRepoMock.EXPECT().GetByID(uint(3)).Return(mockFlightBeforeUpdate, nil)
-				aircraftRepoMock.EXPECT().GetByUserIDAndID(uint(2), uint(1)).Return(model.Aircraft{}, nil)
+				aircraftRepoMock.EXPECT().GetByUserIDAndID("2", uint(1)).Return(model.Aircraft{}, nil)
 				flightRepoMock.EXPECT().SaveTx(databaseMock, mockInsertedFlight).Return(mockInsertedFlight, nil)
 				passengerRepoMock.EXPECT().DeleteByFlightIDTx(databaseMock, uint(3)).Return(nil)
 				flightRepoMock.EXPECT().Begin().Return(databaseMock)
@@ -1146,7 +1148,7 @@ var _ = Describe("LogbookService", func() {
 				landingRepoMock.EXPECT().CreateTx(databaseMock, mockLandingOne).Return(model.Landing{}, errors.New("failed to create landing"))
 
 				// when
-				logbookResponse, err := logbookService.UpdateLogbookEntry(uint(2), uint(3), logbookRequest)
+				logbookResponse, err := logbookService.UpdateLogbookEntry("2", uint(3), logbookRequest)
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -1163,53 +1165,53 @@ var _ = Describe("LogbookService", func() {
 				mockFlightArr := []model.Flight{
 					{
 						Model:               gorm.Model{ID: 1},
-						UserID:              1,
+						UserID:              "1",
 						AircraftID:          1,
 						TakeoffTime:         time.Date(2022, time.March, 25, 0, 0, 0, 0, time.UTC),
 						LandingTime:         time.Date(2022, time.March, 25, 1, 0, 0, 0, time.UTC),
 						TakeoffAirportCode:  "T1",
 						LandingAirportCode:  "L1",
 						Style:               "S1",
-						Remarks:             "R1",
-						PersonalRemarks:     "PR1",
-						TotalBlockTime:      1,
-						PilotInCommandTime:  1,
-						SecondInCommandTime: 1,
-						DualReceivedTime:    1,
-						DualGivenTime:       1,
-						MultiPilotTime:      1,
-						NightTime:           1,
-						IFRTime:             1,
-						IFRActualTime:       1,
-						IFRSimulatedTime:    1,
-						CrossCountryTime:    1,
-						SimulatorTime:       1,
-						SignatureURL:        "DUAL2",
+						Remarks:             util.String("R1"),
+						PersonalRemarks:     util.String("PR1"),
+						TotalBlockTime:      util.Duration(1),
+						PilotInCommandTime:  util.Duration(1),
+						SecondInCommandTime: util.Duration(1),
+						DualReceivedTime:    util.Duration(1),
+						DualGivenTime:       util.Duration(1),
+						MultiPilotTime:      util.Duration(1),
+						NightTime:           util.Duration(1),
+						IFRTime:             util.Duration(1),
+						IFRActualTime:       util.Duration(1),
+						IFRSimulatedTime:    util.Duration(1),
+						CrossCountryTime:    util.Duration(1),
+						SimulatorTime:       util.Duration(1),
+						SignatureURL:        util.String("DUAL2"),
 					},
 					{
 						Model:               gorm.Model{ID: 2},
-						UserID:              1,
+						UserID:              "1",
 						AircraftID:          3,
 						TakeoffTime:         time.Date(2022, time.March, 26, 5, 0, 0, 0, time.UTC),
 						LandingTime:         time.Date(2022, time.March, 26, 6, 0, 0, 0, time.UTC),
 						TakeoffAirportCode:  "T1",
 						LandingAirportCode:  "L1",
 						Style:               "S1",
-						Remarks:             "R1",
-						PersonalRemarks:     "PR1",
-						TotalBlockTime:      2,
-						PilotInCommandTime:  1,
-						SecondInCommandTime: 3,
-						DualReceivedTime:    3,
-						DualGivenTime:       2,
-						MultiPilotTime:      5,
-						NightTime:           15,
-						IFRTime:             1,
-						IFRActualTime:       2,
-						IFRSimulatedTime:    21,
-						CrossCountryTime:    2,
-						SimulatorTime:       2,
-						SignatureURL:        "DUAL1",
+						Remarks:             util.String("R1"),
+						PersonalRemarks:     util.String("PR1"),
+						TotalBlockTime:      util.Duration(2),
+						PilotInCommandTime:  util.Duration(1),
+						SecondInCommandTime: util.Duration(3),
+						DualReceivedTime:    util.Duration(3),
+						DualGivenTime:       util.Duration(2),
+						MultiPilotTime:      util.Duration(5),
+						NightTime:           util.Duration(15),
+						IFRTime:             util.Duration(1),
+						IFRActualTime:       util.Duration(2),
+						IFRSimulatedTime:    util.Duration(21),
+						CrossCountryTime:    util.Duration(2),
+						SimulatorTime:       util.Duration(2),
+						SignatureURL:        util.String("DUAL1"),
 					},
 				}
 				mockPassengerArr := []model.Passenger{
@@ -1217,7 +1219,7 @@ var _ = Describe("LogbookService", func() {
 						Model:     gorm.Model{ID: 1},
 						FlightID:  1,
 						FirstName: "F1",
-						LastName:  "L1",
+						LastName:  util.String("L1"),
 						Role:      model.RoleSecondInCommand,
 					},
 				}
@@ -1226,14 +1228,14 @@ var _ = Describe("LogbookService", func() {
 						Model:     gorm.Model{ID: 2},
 						FlightID:  2,
 						FirstName: "F2",
-						LastName:  "L2",
+						LastName:  util.String("L2"),
 						Role:      model.RoleSecondInCommand,
 					},
 					{
 						Model:     gorm.Model{ID: 3},
 						FlightID:  2,
 						FirstName: "F3",
-						LastName:  "L3",
+						LastName:  util.String("L3"),
 						Role:      model.RoleSecondInCommand,
 					},
 				}
@@ -1242,19 +1244,19 @@ var _ = Describe("LogbookService", func() {
 						Model:        gorm.Model{ID: 1},
 						FlightID:     1,
 						ApproachType: model.ApproachTypeVisual,
-						Count:        1,
-						NightCount:   1,
-						DayCount:     4,
-						AirportCode:  "L1",
+						Count:        util.Uint(1),
+						NightCount:   util.Uint(1),
+						DayCount:     util.Uint(4),
+						AirportCode:  util.String("L1"),
 					},
 					{
 						Model:        gorm.Model{ID: 2},
 						FlightID:     1,
 						ApproachType: model.ApproachTypeVisual,
-						Count:        1,
-						NightCount:   1,
-						DayCount:     6,
-						AirportCode:  "L1",
+						Count:        util.Uint(1),
+						NightCount:   util.Uint(1),
+						DayCount:     util.Uint(6),
+						AirportCode:  util.String("L1"),
 					},
 				}
 				mockLandingArr2 := make([]model.Landing, 0)
@@ -1265,42 +1267,42 @@ var _ = Describe("LogbookService", func() {
 						TakeoffAirportCode:  "T1",
 						LandingAirportCode:  "L1",
 						Style:               "S1",
-						Remarks:             "R1",
-						PersonalRemarks:     "PR1",
-						TotalBlockTime:      1,
-						PilotInCommandTime:  1,
-						SecondInCommandTime: 1,
-						DualReceivedTime:    1,
-						DualGivenTime:       1,
-						MultiPilotTime:      1,
-						NightTime:           1,
-						IFRTime:             1,
-						IFRActualTime:       1,
-						IFRSimulatedTime:    1,
-						CrossCountryTime:    1,
-						SimulatorTime:       1,
-						SignatureURL:        "DUAL2",
+						Remarks:             util.String("R1"),
+						PersonalRemarks:     util.String("PR1"),
+						TotalBlockTime:      util.Duration(1),
+						PilotInCommandTime:  util.Duration(1),
+						SecondInCommandTime: util.Duration(1),
+						DualReceivedTime:    util.Duration(1),
+						DualGivenTime:       util.Duration(1),
+						MultiPilotTime:      util.Duration(1),
+						NightTime:           util.Duration(1),
+						IFRTime:             util.Duration(1),
+						IFRActualTime:       util.Duration(1),
+						IFRSimulatedTime:    util.Duration(1),
+						CrossCountryTime:    util.Duration(1),
+						SimulatorTime:       util.Duration(1),
+						SignatureURL:        util.String("DUAL2"),
 						Passengers: []dto.PassengerEntry{
 							{
 								FirstName: "F1",
-								LastName:  "L1",
+								LastName:  util.String("L1"),
 								Role:      model.RoleSecondInCommand,
 							},
 						},
 						Landings: []dto.LandingEntry{
 							{
 								ApproachType: model.ApproachTypeVisual,
-								Count:        1,
-								NightCount:   1,
-								DayCount:     4,
-								AirportCode:  "L1",
+								Count:        util.Uint(1),
+								NightCount:   util.Uint(1),
+								DayCount:     util.Uint(4),
+								AirportCode:  util.String("L1"),
 							},
 							{
 								ApproachType: model.ApproachTypeVisual,
-								Count:        1,
-								NightCount:   1,
-								DayCount:     6,
-								AirportCode:  "L1",
+								Count:        util.Uint(1),
+								NightCount:   util.Uint(1),
+								DayCount:     util.Uint(6),
+								AirportCode:  util.String("L1"),
 							},
 						},
 					},
@@ -1310,30 +1312,30 @@ var _ = Describe("LogbookService", func() {
 						TakeoffAirportCode:  "T1",
 						LandingAirportCode:  "L1",
 						Style:               "S1",
-						Remarks:             "R1",
-						PersonalRemarks:     "PR1",
-						TotalBlockTime:      2,
-						PilotInCommandTime:  1,
-						SecondInCommandTime: 3,
-						DualReceivedTime:    3,
-						DualGivenTime:       2,
-						MultiPilotTime:      5,
-						NightTime:           15,
-						IFRTime:             1,
-						IFRActualTime:       2,
-						IFRSimulatedTime:    21,
-						CrossCountryTime:    2,
-						SimulatorTime:       2,
-						SignatureURL:        "DUAL1",
+						Remarks:             util.String("R1"),
+						PersonalRemarks:     util.String("PR1"),
+						TotalBlockTime:      util.Duration(2),
+						PilotInCommandTime:  util.Duration(1),
+						SecondInCommandTime: util.Duration(3),
+						DualReceivedTime:    util.Duration(3),
+						DualGivenTime:       util.Duration(2),
+						MultiPilotTime:      util.Duration(5),
+						NightTime:           util.Duration(15),
+						IFRTime:             util.Duration(1),
+						IFRActualTime:       util.Duration(2),
+						IFRSimulatedTime:    util.Duration(21),
+						CrossCountryTime:    util.Duration(2),
+						SimulatorTime:       util.Duration(2),
+						SignatureURL:        util.String("DUAL1"),
 						Passengers: []dto.PassengerEntry{
 							{
 								FirstName: "F2",
-								LastName:  "L2",
+								LastName:  util.String("L2"),
 								Role:      model.RoleSecondInCommand,
 							},
 							{
 								FirstName: "F3",
-								LastName:  "L3",
+								LastName:  util.String("L3"),
 								Role:      model.RoleSecondInCommand,
 							},
 						},
@@ -1341,14 +1343,14 @@ var _ = Describe("LogbookService", func() {
 					},
 				}
 
-				flightRepoMock.EXPECT().GetByUserIDAndDate(uint(1), startDate, endDate).Return(mockFlightArr, nil)
+				flightRepoMock.EXPECT().GetByUserIDAndDate("1", startDate, endDate).Return(mockFlightArr, nil)
 				landingRepoMock.EXPECT().GetByFlightID(uint(1)).Return(mockLandingArr, nil)
 				landingRepoMock.EXPECT().GetByFlightID(uint(2)).Return(mockLandingArr2, nil)
 				passengerRepoMock.EXPECT().GetByFlightID(uint(1)).Return(mockPassengerArr, nil)
 				passengerRepoMock.EXPECT().GetByFlightID(uint(2)).Return(mockPassengerArr2, nil)
 
 				// when
-				logbookResponses, err := logbookService.GetLogbookEntries(uint(1), startDate, endDate)
+				logbookResponses, err := logbookService.GetLogbookEntries("1", startDate, endDate)
 
 				// then
 				Expect(err).To(BeNil())
@@ -1359,10 +1361,10 @@ var _ = Describe("LogbookService", func() {
 			It("Should return empty logbook response array", func() {
 				// given
 
-				flightRepoMock.EXPECT().GetByUserIDAndDate(uint(1), startDate, endDate).Return([]model.Flight{}, nil)
+				flightRepoMock.EXPECT().GetByUserIDAndDate("1", startDate, endDate).Return([]model.Flight{}, nil)
 
 				// when
-				logbookResponses, err := logbookService.GetLogbookEntries(uint(1), startDate, endDate)
+				logbookResponses, err := logbookService.GetLogbookEntries("1", startDate, endDate)
 
 				// then
 				Expect(err).To(BeNil())
@@ -1373,10 +1375,10 @@ var _ = Describe("LogbookService", func() {
 		Context("when getting flights failed", func() {
 			It("Should return an error and empty array", func() {
 				// given
-				flightRepoMock.EXPECT().GetByUserIDAndDate(uint(1), startDate, endDate).Return([]model.Flight{}, errors.New("failed to fetch flights"))
+				flightRepoMock.EXPECT().GetByUserIDAndDate("1", startDate, endDate).Return([]model.Flight{}, errors.New("failed to fetch flights"))
 
 				// when
-				logbookResponses, err := logbookService.GetLogbookEntries(uint(1), startDate, endDate)
+				logbookResponses, err := logbookService.GetLogbookEntries("1", startDate, endDate)
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -1388,37 +1390,37 @@ var _ = Describe("LogbookService", func() {
 		Context("when getting landings failed", func() {
 			It("Should return an error and empty array", func() {
 				// given
-				flightRepoMock.EXPECT().GetByUserIDAndDate(uint(1), startDate, endDate).Return([]model.Flight{
+				flightRepoMock.EXPECT().GetByUserIDAndDate("1", startDate, endDate).Return([]model.Flight{
 					{
 						Model:               gorm.Model{ID: 1},
-						UserID:              1,
+						UserID:              "1",
 						AircraftID:          1,
 						TakeoffTime:         time.Date(2022, time.March, 25, 0, 0, 0, 0, time.UTC),
 						LandingTime:         time.Date(2022, time.March, 25, 1, 0, 0, 0, time.UTC),
 						TakeoffAirportCode:  "T1",
 						LandingAirportCode:  "L1",
 						Style:               "S1",
-						Remarks:             "R1",
-						PersonalRemarks:     "PR1",
-						TotalBlockTime:      1,
-						PilotInCommandTime:  1,
-						SecondInCommandTime: 1,
-						DualReceivedTime:    1,
-						DualGivenTime:       1,
-						MultiPilotTime:      1,
-						NightTime:           1,
-						IFRTime:             1,
-						IFRActualTime:       1,
-						IFRSimulatedTime:    1,
-						CrossCountryTime:    1,
-						SimulatorTime:       1,
-						SignatureURL:        "DUAL2",
+						Remarks:             util.String("R1"),
+						PersonalRemarks:     util.String("PR1"),
+						TotalBlockTime:      util.Duration(1),
+						PilotInCommandTime:  util.Duration(1),
+						SecondInCommandTime: util.Duration(1),
+						DualReceivedTime:    util.Duration(1),
+						DualGivenTime:       util.Duration(1),
+						MultiPilotTime:      util.Duration(1),
+						NightTime:           util.Duration(1),
+						IFRTime:             util.Duration(1),
+						IFRActualTime:       util.Duration(1),
+						IFRSimulatedTime:    util.Duration(1),
+						CrossCountryTime:    util.Duration(1),
+						SimulatorTime:       util.Duration(1),
+						SignatureURL:        util.String("DUAL2"),
 					},
 				}, nil)
 				landingRepoMock.EXPECT().GetByFlightID(uint(1)).Return([]model.Landing{}, errors.New("failed to fetch landings"))
 
 				// when
-				logbookResponses, err := logbookService.GetLogbookEntries(uint(1), startDate, endDate)
+				logbookResponses, err := logbookService.GetLogbookEntries("1", startDate, endDate)
 
 				// then
 				Expect(err).ToNot(BeNil())
@@ -1430,38 +1432,38 @@ var _ = Describe("LogbookService", func() {
 		Context("when getting passengers failed", func() {
 			It("Should return an error and empty array", func() {
 				// given
-				flightRepoMock.EXPECT().GetByUserIDAndDate(uint(1), startDate, endDate).Return([]model.Flight{
+				flightRepoMock.EXPECT().GetByUserIDAndDate("1", startDate, endDate).Return([]model.Flight{
 					{
 						Model:               gorm.Model{ID: 1},
-						UserID:              1,
+						UserID:              "1",
 						AircraftID:          1,
 						TakeoffTime:         time.Date(2022, time.March, 25, 0, 0, 0, 0, time.UTC),
 						LandingTime:         time.Date(2022, time.March, 25, 1, 0, 0, 0, time.UTC),
 						TakeoffAirportCode:  "T1",
 						LandingAirportCode:  "L1",
 						Style:               "S1",
-						Remarks:             "R1",
-						PersonalRemarks:     "PR1",
-						TotalBlockTime:      1,
-						PilotInCommandTime:  1,
-						SecondInCommandTime: 1,
-						DualReceivedTime:    1,
-						DualGivenTime:       1,
-						MultiPilotTime:      1,
-						NightTime:           1,
-						IFRTime:             1,
-						IFRActualTime:       1,
-						IFRSimulatedTime:    1,
-						CrossCountryTime:    1,
-						SimulatorTime:       1,
-						SignatureURL:        "DUAL2",
+						Remarks:             util.String("R1"),
+						PersonalRemarks:     util.String("PR1"),
+						TotalBlockTime:      util.Duration(1),
+						PilotInCommandTime:  util.Duration(1),
+						SecondInCommandTime: util.Duration(1),
+						DualReceivedTime:    util.Duration(1),
+						DualGivenTime:       util.Duration(1),
+						MultiPilotTime:      util.Duration(1),
+						NightTime:           util.Duration(1),
+						IFRTime:             util.Duration(1),
+						IFRActualTime:       util.Duration(1),
+						IFRSimulatedTime:    util.Duration(1),
+						CrossCountryTime:    util.Duration(1),
+						SimulatorTime:       util.Duration(1),
+						SignatureURL:        util.String("DUAL2"),
 					},
 				}, nil)
 				landingRepoMock.EXPECT().GetByFlightID(uint(1)).Return([]model.Landing{}, nil)
 				passengerRepoMock.EXPECT().GetByFlightID(uint(1)).Return([]model.Passenger{}, errors.New("failed to fetch passengers"))
 
 				// when
-				logbookResponses, err := logbookService.GetLogbookEntries(uint(1), startDate, endDate)
+				logbookResponses, err := logbookService.GetLogbookEntries("1", startDate, endDate)
 
 				// then
 				Expect(err).ToNot(BeNil())
