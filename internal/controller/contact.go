@@ -47,7 +47,9 @@ func (c *contactController) GetContacts(ctx *gin.Context) {
 	}
 
 	contactsResponse := c.adaptContacts(contacts)
-
+	if len(contactsResponse) == 0 {
+		contactsResponse = []dto.ContactResponse{}
+	}
 	ctx.JSON(http.StatusOK, contactsResponse)
 }
 
@@ -184,6 +186,7 @@ func (c *contactController) adaptContact(contact model.Contact) dto.ContactRespo
 	}
 }
 
+// trafia pusta tablica
 func (c *contactController) adaptContacts(contacts []model.Contact) []dto.ContactResponse {
 	var contactsResponse []dto.ContactResponse
 	for _, contact := range contacts {
