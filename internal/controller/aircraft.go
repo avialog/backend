@@ -27,7 +27,7 @@ func newAircraftController(aircraftService service.AircraftService) AircraftCont
 }
 
 // GetAircraft godoc
-// @Summary Get user aircraft
+// @Summary Get user aircraft (all)
 // @Description Get user aircraft
 // @Tags aircraft
 // @Produce json
