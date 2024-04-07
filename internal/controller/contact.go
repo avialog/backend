@@ -185,7 +185,7 @@ func (c *contactController) adaptContact(contact model.Contact) dto.ContactRespo
 }
 
 func (c *contactController) adaptContacts(contacts []model.Contact) []dto.ContactResponse {
-	var contactsResponse []dto.ContactResponse
+	contactsResponse := make([]dto.ContactResponse, 0)
 	for _, contact := range contacts {
 		contactsResponse = append(contactsResponse, c.adaptContact(contact))
 	}
