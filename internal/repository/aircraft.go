@@ -51,9 +51,6 @@ func (a *aircraft) GetByUserIDAndID(userID string, id uint) (model.Aircraft, err
 func (a *aircraft) Save(aircraft model.Aircraft) (model.Aircraft, error) {
 	result := a.db.Save(&aircraft)
 	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return model.Aircraft{}, fmt.Errorf("%w: %v", dto.ErrNotFound, result.Error)
-		}
 		return model.Aircraft{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 
@@ -63,11 +60,11 @@ func (a *aircraft) Save(aircraft model.Aircraft) (model.Aircraft, error) {
 func (a *aircraft) DeleteByUserIDAndID(userID string, id uint) error {
 	result := a.db.Where("id = ? AND user_id = ?", id, userID).Delete(&model.Aircraft{})
 	if result.Error != nil {
-		return result.Error
+		return fmt.Errorf("%w: %v", dto.ErrInternalFailure, result.Error)
 	}
 
 	if result.RowsAffected == 0 {
-		return errors.New("aircraft cannot be deleted")
+		return fmt.Errorf("%w: %s", dto.ErrNotFound, "aircraft not found")
 	}
 
 	return nil
