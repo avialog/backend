@@ -2,6 +2,7 @@ package service
 
 import (
 	"firebase.google.com/go/auth"
+	authV4 "firebase.google.com/go/v4/auth"
 	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/repository"
 	"github.com/go-playground/validator/v10"
@@ -28,7 +29,7 @@ func NewServices(repositories repository.Repositories, config config.Config, val
 	aircraftService := newAircraftService(repositories.Aircraft(), repositories.Flight(), config, validator)
 	userService := newUserService(repositories.User(), config)
 	logbookService := newLogbookService(repositories.Flight(), repositories.Landing(), repositories.Passenger(), repositories.Aircraft(), config, validator)
-	authService := newAuthService(repositories.User(), authClient)
+	authService := newAuthService(repositories.User(), authClient, authV4.IsIDTokenExpired)
 	return &services{
 		contactService:  contactService,
 		aircraftService: aircraftService,

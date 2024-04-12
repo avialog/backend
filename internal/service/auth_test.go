@@ -24,16 +24,20 @@ var _ = Describe("AuthService", func() {
 		authClientMock         *infrastructure.MockAuthClient
 		authClientCtrl         *gomock.Controller
 		userMock               model.User
-		userMockWithIDandEmail model.User
+		userMockWithIDAndEmail model.User
+		tokenExpireVerifier    infrastructure.TokenExpireVerifier
 	)
 
 	BeforeEach(func() {
+		tokenExpireVerifier = func(err error) bool {
+			return false
+		}
 		authClientCtrl = gomock.NewController(GinkgoT())
 		authClientMock = infrastructure.NewMockAuthClient(authClientCtrl)
 		userRepoCtrl = gomock.NewController(GinkgoT())
 		userRepoMock = repository.NewMockUserRepository(userRepoCtrl)
-		authService = newAuthService(userRepoMock, authClientMock)
-		userMockWithIDandEmail = model.User{
+		authService = newAuthService(userRepoMock, authClientMock, tokenExpireVerifier)
+		userMockWithIDAndEmail = model.User{
 			ID:    "1",
 			Email: "test@test.com",
 		}
@@ -72,14 +76,14 @@ var _ = Describe("AuthService", func() {
 					Return(&auth.Token{Claims: map[string]interface{}{"email": "test@test.com"}, UID: "1"}, nil)
 
 				userRepoMock.EXPECT().GetByID("1").Return(model.User{}, fmt.Errorf("%w: %v", dto.ErrNotFound, gorm.ErrRecordNotFound))
-				userRepoMock.EXPECT().Create(userMockWithIDandEmail).Return(userMockWithIDandEmail, nil)
+				userRepoMock.EXPECT().Create(userMockWithIDAndEmail).Return(userMockWithIDAndEmail, nil)
 
 				// when
 				user, err := authService.ValidateToken(context.Background(), "test-token")
 
 				// then
 				Expect(err).To(BeNil())
-				Expect(user).To(Equal(userMockWithIDandEmail))
+				Expect(user).To(Equal(userMockWithIDAndEmail))
 			})
 		})
 		Context("when token is valid, user is not in database, but creating user fails", func() {
@@ -89,7 +93,7 @@ var _ = Describe("AuthService", func() {
 					Return(&auth.Token{Claims: map[string]interface{}{"email": "test@test.com"}, UID: "1"}, nil)
 
 				userRepoMock.EXPECT().GetByID("1").Return(model.User{}, fmt.Errorf("%w: %v", dto.ErrNotFound, gorm.ErrRecordNotFound))
-				userRepoMock.EXPECT().Create(userMockWithIDandEmail).Return(model.User{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
+				userRepoMock.EXPECT().Create(userMockWithIDAndEmail).Return(model.User{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, gorm.ErrInvalidDB))
 
 				// when
 				user, err := authService.ValidateToken(context.Background(), "test-token")
@@ -113,6 +117,29 @@ var _ = Describe("AuthService", func() {
 				// then
 				Expect(err).To(BeNil())
 				Expect(user).To(Equal(model.User{ID: "1", Email: "test@test.com"}))
+			})
+		})
+		Context("when token is outdated", func() {
+			It("should return error", func() {
+				// given
+				expectedErr := errors.New("invalid token")
+				authClientMock.EXPECT().VerifyIDToken(context.Background(), "test-token").Return(nil, expectedErr)
+				called := false
+				tokenExpireVerifier = func(err error) bool {
+					Expect(err).To(Equal(expectedErr))
+					called = true
+					return true
+				}
+
+				authService = newAuthService(userRepoMock, authClientMock, tokenExpireVerifier)
+				// when
+				user, err := authService.ValidateToken(context.Background(), "test-token")
+
+				// then
+				Expect(err).ToNot(BeNil())
+				Expect(err).To(Equal(fmt.Errorf("%w: %v", dto.ErrNotAuthorized, "invalid token")))
+				Expect(user).To(Equal(model.User{}))
+				Expect(called).To(BeTrue())
 			})
 		})
 		Context("when token is invalid", func() {

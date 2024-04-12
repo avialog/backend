@@ -9,3 +9,5 @@ import (
 type AuthClient interface {
 	VerifyIDToken(ctx context.Context, idToken string) (*auth.Token, error)
 }
+
+type TokenExpireVerifier func(err error) bool
