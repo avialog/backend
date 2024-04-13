@@ -174,6 +174,7 @@ func (c *contactController) DeleteContact(ctx *gin.Context) {
 
 func (c *contactController) adaptContact(contact model.Contact) dto.ContactResponse {
 	return dto.ContactResponse{
+		ID:           contact.ID,
 		AvatarURL:    contact.AvatarURL,
 		FirstName:    contact.FirstName,
 		LastName:     contact.LastName,

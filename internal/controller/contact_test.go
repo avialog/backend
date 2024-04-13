@@ -63,6 +63,7 @@ var _ = Describe("UserController", func() {
 
 		expectedContacts = []dto.ContactResponse{
 			{
+				ID:           1,
 				AvatarURL:    util.String("https://test.com"),
 				FirstName:    "John",
 				LastName:     util.String("Doe"),
@@ -72,6 +73,7 @@ var _ = Describe("UserController", func() {
 				Note:         util.String("Test note"),
 			},
 			{
+				ID:           2,
 				AvatarURL:    util.String("https://test.com"),
 				FirstName:    "Jane",
 				LastName:     util.String("Doe"),
@@ -91,7 +93,7 @@ var _ = Describe("UserController", func() {
 			Note:         util.String("Test note"),
 		}
 		contactBeforeUpdate = model.Contact{
-			Model:        gorm.Model{ID: 3},
+			Model:        gorm.Model{ID: 1},
 			UserID:       "5",
 			AvatarURL:    util.String("https://test.com"),
 			FirstName:    "John",
@@ -151,6 +153,8 @@ var _ = Describe("UserController", func() {
 				// given
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
+				contactResponseJSON, err := json.Marshal(expectedContacts[0])
+				Expect(err).ToNot(HaveOccurred())
 
 				req, err := http.NewRequest(http.MethodPost, "/api/contacts", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
@@ -165,7 +169,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusCreated))
-				Expect(w.Body).To(MatchJSON(contactRequestJSON))
+				Expect(w.Body).To(MatchJSON(contactResponseJSON))
 			})
 		})
 		Context("when contact request missing first name", func() {
@@ -240,6 +244,8 @@ var _ = Describe("UserController", func() {
 
 				contactRequestJSON, err := json.Marshal(contactRequest)
 				Expect(err).ToNot(HaveOccurred())
+				contactResponseJSON, err := json.Marshal(expectedContacts[0])
+				Expect(err).ToNot(HaveOccurred())
 
 				req, err := http.NewRequest(http.MethodPut, "/api/contacts/3", bytes.NewBuffer(contactRequestJSON))
 				Expect(err).ToNot(HaveOccurred())
@@ -254,7 +260,7 @@ var _ = Describe("UserController", func() {
 
 				// then
 				Expect(w.Code).To(Equal(http.StatusOK))
-				Expect(w.Body).To(MatchJSON(contactRequestJSON))
+				Expect(w.Body).To(MatchJSON(contactResponseJSON))
 			})
 		})
 		Context("when contact request missing first name", func() {
