@@ -1,6 +1,8 @@
 package middleware
 
 import (
+	"errors"
+	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -17,6 +19,11 @@ func AuthJWT(authService service.AuthService) gin.HandlerFunc {
 		token = strings.Replace(token, "Bearer ", "", 1)
 		user, err := authService.ValidateToken(c, token)
 		if err != nil {
+			if errors.Is(err, dto.ErrNotAuthorized) {
+				c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+				c.Abort()
+				return
+			}
 			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 			c.Abort()
 			return
