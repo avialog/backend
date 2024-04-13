@@ -43,13 +43,11 @@ func (a *aircraftController) GetAircraft(ctx *gin.Context) {
 	aircraft, err := a.aircraftService.GetUserAircraft(userID)
 
 	if err != nil {
-		if errors.Is(err, dto.ErrNotFound) {
-			util.NewError(ctx, http.StatusNotFound, err)
-		}
 		util.NewError(ctx, http.StatusInternalServerError, err)
+		return
 	}
 
-	aircraftResponse := a.adaptAircraftArr(aircraft)
+	aircraftResponse := a.adaptAircraftSlice(aircraft)
 
 	ctx.JSON(http.StatusOK, aircraftResponse)
 }
@@ -184,9 +182,9 @@ func (a *aircraftController) adaptAircraft(aircraft model.Aircraft) dto.Aircraft
 	}
 }
 
-func (a *aircraftController) adaptAircraftArr(aircraftArr []model.Aircraft) []dto.AircraftResponse {
+func (a *aircraftController) adaptAircraftSlice(aircraftSlice []model.Aircraft) []dto.AircraftResponse {
 	aircraftResponses := make([]dto.AircraftResponse, 0)
-	for _, aircraft := range aircraftArr {
+	for _, aircraft := range aircraftSlice {
 		aircraftResponses = append(aircraftResponses, a.adaptAircraft(aircraft))
 	}
 	return aircraftResponses

@@ -23,7 +23,7 @@ type controllers struct {
 	contactController  ContactController
 	authMiddleware     gin.HandlerFunc
 	aircraftController AircraftController
-	logbookController LogbookController
+	logbookController  LogbookController
 }
 
 func NewControllers(services service.Services, config config.Config) Controllers {
@@ -40,7 +40,7 @@ func NewControllers(services service.Services, config config.Config) Controllers
 		config:             config,
 		authMiddleware:     authMiddleware,
 		aircraftController: aircraftController,
-		logbookController: flightController,
+		logbookController:  flightController,
 	}
 }
 
@@ -89,6 +89,13 @@ func (c *controllers) Route(server *gin.Engine) {
 				flights.POST("", c.logbookController.InsertLogbookEntry)
 				flights.PUT(":id", c.logbookController.UpdateLogbookEntry)
 				flights.DELETE(":id", c.logbookController.DeleteLogbookEntry)
+			}
+			aircraft := authenticated.Group("/aircraft")
+			{
+				aircraft.GET("", c.aircraftController.GetAircraft)
+				aircraft.POST("", c.aircraftController.InsertAircraft)
+				aircraft.PUT(":id", c.aircraftController.UpdateAircraft)
+				aircraft.DELETE(":id", c.aircraftController.DeleteAircraft)
 			}
 
 		}
