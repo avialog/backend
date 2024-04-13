@@ -13,7 +13,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	auth "firebase.google.com/go/auth"
+	auth "firebase.google.com/go/v4/auth"
 	gomock "go.uber.org/mock/gomock"
 )
 

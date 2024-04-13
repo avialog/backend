@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"errors"
-	"firebase.google.com/go/auth"
+	"firebase.google.com/go/v4/auth"
 	"fmt"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/infrastructure"
