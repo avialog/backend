@@ -24,6 +24,7 @@ var _ = Describe("LogbookController", func() {
 		ctx                    *gin.Context
 		logbookEntriesMock     []dto.LogbookResponse
 		expectedLogbookRequest dto.LogbookRequest
+		getLogbookRequest      dto.GetLogbookRequest
 	)
 
 	BeforeEach(func() {
@@ -209,6 +210,10 @@ var _ = Describe("LogbookController", func() {
 				},
 			},
 		}
+		getLogbookRequest = dto.GetLogbookRequest{
+			Start: util.Int64(time.Now().AddDate(0, 0, -90).Unix()),
+			End:   nil,
+		}
 
 	})
 
@@ -240,6 +245,40 @@ var _ = Describe("LogbookController", func() {
 				Expect(w.Body).To(MatchJSON(expectedLogbookEntriesJSON))
 			})
 		})
+		Context("When user request fail to bind", func() {
+			It("should return 400 and error message", func() {
+				// given
+				ctx.Request = httptest.NewRequest("GET", "/logbook", bytes.NewBuffer([]byte("")))
+				ctx.Set("userID", "1")
+				// when
+				logbookController.GetLogbookEntries(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(400))
+				Expect(w.Body).To(MatchJSON(`{"code": 400, "message":"EOF"}`))
+			})
+		})
+		Context("When the user doesn't provide a start date but provide an end date.", func() {
+			It("should return 400 and error message", func() {
+				// given
+				getLogbookRequestJSON, err := json.Marshal(getLogbookRequest)
+				Expect(err).ToNot(HaveOccurred())
+
+				ctx.Request = httptest.NewRequest("GET", "/logbook", bytes.NewBuffer(getLogbookRequestJSON))
+				ctx.Set("userID", "1")
+
+				// when
+				logbookController.GetLogbookEntries(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(400))
+				Expect(w.Body).To(MatchJSON(`{"code": 400, "message":"both start and end time must be provided or neither"}`))
+			})
+		})
+		//Context("When the user doesn't provide an end date but provide a start date.", func() {
+		//
+		//})
+
 	})
 	Describe("InsertLogbookEntry", func() {
 		Context("When the user sends a request and no error occurs.", func() {
