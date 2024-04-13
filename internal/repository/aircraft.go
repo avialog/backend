@@ -74,9 +74,6 @@ func (a *aircraft) GetByUserID(userID string) ([]model.Aircraft, error) {
 	var aircraft []model.Aircraft
 	result := a.db.Where("user_id = ?", userID).Find(&aircraft)
 	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
-			return []model.Aircraft{}, fmt.Errorf("%w: %s", dto.ErrNotFound, result.Error)
-		}
 		return []model.Aircraft{}, fmt.Errorf("%w: %s", dto.ErrInternalFailure, result.Error)
 	}
 	return aircraft, nil

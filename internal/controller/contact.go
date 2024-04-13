@@ -187,7 +187,6 @@ func (c *contactController) adaptContact(contact model.Contact) dto.ContactRespo
 	}
 }
 
-// trafia pusta tablica
 func (c *contactController) adaptContacts(contacts []model.Contact) []dto.ContactResponse {
 	contactsResponse := make([]dto.ContactResponse, 0)
 	for _, contact := range contacts {
