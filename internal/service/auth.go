@@ -16,12 +16,13 @@ type AuthService interface {
 }
 
 type authService struct {
-	userRepository repository.UserRepository
-	authClient     infrastructure.AuthClient
+	userRepository      repository.UserRepository
+	authClient          infrastructure.AuthClient
+	tokenExpireVerifier infrastructure.TokenExpireVerifier
 }
 
-func newAuthService(userRepository repository.UserRepository, authClient infrastructure.AuthClient) AuthService {
-	return &authService{userRepository: userRepository, authClient: authClient}
+func newAuthService(userRepository repository.UserRepository, authClient infrastructure.AuthClient, verifier infrastructure.TokenExpireVerifier) AuthService {
+	return &authService{userRepository: userRepository, authClient: authClient, tokenExpireVerifier: verifier}
 }
 
 func (a *authService) ValidateToken(ctx context.Context, token string) (model.User, error) {
@@ -29,9 +30,11 @@ func (a *authService) ValidateToken(ctx context.Context, token string) (model.Us
 
 	response, err := a.authClient.VerifyIDToken(ctx, token)
 	if err != nil {
+		if a.tokenExpireVerifier(err) {
+			return model.User{}, fmt.Errorf("%w: %v", dto.ErrNotAuthorized, err)
+		}
 		return model.User{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, err)
 	}
-	// TODO: check if the token is expired if not return not authorized error
 
 	if _, ok := response.Claims["email"]; !ok {
 		return model.User{}, fmt.Errorf("%w: %v", dto.ErrInternalFailure, "email claim not found")
@@ -56,7 +59,7 @@ func (a *authService) ValidateToken(ctx context.Context, token string) (model.Us
 			}
 			return newUser, nil
 		}
-		return model.User{}, err // internal error
+		return model.User{}, err
 	}
 
 	if user.Email != userEmail {
