@@ -1,7 +1,6 @@
 package service
 
 import (
-	"firebase.google.com/go/auth"
 	authV4 "firebase.google.com/go/v4/auth"
 	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/repository"
@@ -24,7 +23,7 @@ type services struct {
 	authService     AuthService
 }
 
-func NewServices(repositories repository.Repositories, config config.Config, validator *validator.Validate, authClient *auth.Client) Services {
+func NewServices(repositories repository.Repositories, config config.Config, validator *validator.Validate, authClient *authV4.Client) Services {
 	contactService := newContactService(repositories.Contact(), config, validator)
 	aircraftService := newAircraftService(repositories.Aircraft(), repositories.Flight(), config, validator)
 	userService := newUserService(repositories.User(), config)
