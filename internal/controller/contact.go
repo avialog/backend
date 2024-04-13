@@ -176,6 +176,7 @@ func (c *contactController) DeleteContact(ctx *gin.Context) {
 
 func (c *contactController) adaptContact(contact model.Contact) dto.ContactResponse {
 	return dto.ContactResponse{
+		ID:           contact.ID,
 		AvatarURL:    contact.AvatarURL,
 		FirstName:    contact.FirstName,
 		LastName:     contact.LastName,
@@ -188,7 +189,7 @@ func (c *contactController) adaptContact(contact model.Contact) dto.ContactRespo
 
 // trafia pusta tablica
 func (c *contactController) adaptContacts(contacts []model.Contact) []dto.ContactResponse {
-	var contactsResponse []dto.ContactResponse
+	contactsResponse := make([]dto.ContactResponse, 0)
 	for _, contact := range contacts {
 		contactsResponse = append(contactsResponse, c.adaptContact(contact))
 	}
