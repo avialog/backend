@@ -13,30 +13,34 @@ type Controllers interface {
 	Logbook() LogbookController
 	Info() InfoController
 	Route(server *gin.Engine)
+	Aircraft() AircraftController
 }
 
 type controllers struct {
-	userController    UserController
-	infoController    InfoController
-	config            config.Config
-	contactController ContactController
-	authMiddleware    gin.HandlerFunc
-	logbookController LogbookController
+	userController     UserController
+	infoController     InfoController
+	config             config.Config
+	contactController  ContactController
+	authMiddleware     gin.HandlerFunc
+	aircraftController AircraftController
+	logbookController  LogbookController
 }
 
 func NewControllers(services service.Services, config config.Config) Controllers {
 	userController := newUserController(services.User())
 	contactController := newContactController(services.Contact())
+	aircraftController := newAircraftController(services.Aircraft())
 	infoController := newInfoController()
 	authMiddleware := middleware.AuthJWT(services.Auth())
 	flightController := newLogbookController(services.Logbook())
 	return &controllers{
-		userController:    userController,
-		contactController: contactController,
-		infoController:    infoController,
-		config:            config,
-		authMiddleware:    authMiddleware,
-		logbookController: flightController,
+		userController:     userController,
+		contactController:  contactController,
+		infoController:     infoController,
+		config:             config,
+		authMiddleware:     authMiddleware,
+		aircraftController: aircraftController,
+		logbookController:  flightController,
 	}
 }
 
@@ -47,6 +51,8 @@ func (c *controllers) User() UserController {
 func (c *controllers) Info() InfoController {
 	return c.infoController
 }
+
+func (c *controllers) Aircraft() AircraftController { return c.aircraftController }
 
 func (c *controllers) Contact() ContactController { return c.contactController }
 
@@ -83,6 +89,13 @@ func (c *controllers) Route(server *gin.Engine) {
 				flights.POST("", c.logbookController.InsertLogbookEntry)
 				flights.PUT(":id", c.logbookController.UpdateLogbookEntry)
 				flights.DELETE(":id", c.logbookController.DeleteLogbookEntry)
+			}
+			aircraft := authenticated.Group("/aircraft")
+			{
+				aircraft.GET("", c.aircraftController.GetAircraft)
+				aircraft.POST("", c.aircraftController.InsertAircraft)
+				aircraft.PUT(":id", c.aircraftController.UpdateAircraft)
+				aircraft.DELETE(":id", c.aircraftController.DeleteAircraft)
 			}
 
 		}

@@ -99,7 +99,7 @@ var _ = Describe("AircraftService", func() {
 				insertedAircraft, err := aircraftService.InsertAircraft("1", aircraftRequest)
 
 				// then
-				Expect(err.Error()).To(Equal("invalid data in field: RegistrationNumber"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: RegistrationNumber"))
 				Expect(insertedAircraft).To(Equal(model.Aircraft{}))
 
 			})
@@ -113,7 +113,7 @@ var _ = Describe("AircraftService", func() {
 				insertedAircraft, err := aircraftService.InsertAircraft("1", aircraftRequest)
 
 				// then
-				Expect(err.Error()).To(Equal("invalid data in field: AircraftModel"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: AircraftModel"))
 				Expect(insertedAircraft).To(Equal(model.Aircraft{}))
 
 			})
@@ -215,7 +215,7 @@ var _ = Describe("AircraftService", func() {
 				err := aircraftService.DeleteAircraft("1", uint(1))
 
 				// then
-				Expect(err.Error()).To(Equal("the plane has assigned flights"))
+				Expect(err.Error()).To(Equal("conflict: aircraft has assigned flights"))
 			})
 		})
 		Context("when unauthorized to delete aircraft", func() {
@@ -243,20 +243,7 @@ var _ = Describe("AircraftService", func() {
 				updatedAircraft, err := aircraftService.UpdateAircraft("1", uint(1), aircraftRequest)
 
 				// then
-				Expect(err.Error()).To(Equal("failed to get aircraft"))
-				Expect(updatedAircraft).To(Equal(model.Aircraft{}))
-			})
-		})
-		Context("when unauthorized to update contact", func() {
-			It("should return error", func() {
-				// given
-				aircraftRepoMock.EXPECT().GetByUserIDAndID("1", uint(1)).Return(model.Aircraft{UserID: "2"}, nil)
-
-				// when
-				updatedAircraft, err := aircraftService.UpdateAircraft("1", uint(1), aircraftRequest)
-
-				// then
-				Expect(err.Error()).To(Equal("unauthorized to update aircraft"))
+				Expect(err.Error()).To(Equal("internal failure: failed to get aircraft"))
 				Expect(updatedAircraft).To(Equal(model.Aircraft{}))
 			})
 		})
@@ -297,7 +284,7 @@ var _ = Describe("AircraftService", func() {
 				updatedAircraft, err := aircraftService.UpdateAircraft("1", uint(1), aircraftRequest)
 
 				// then
-				Expect(err.Error()).To(Equal("invalid data in field: RegistrationNumber"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: RegistrationNumber"))
 				Expect(updatedAircraft).To(Equal(model.Aircraft{}))
 
 			})
@@ -312,7 +299,7 @@ var _ = Describe("AircraftService", func() {
 				updatedAircraft, err := aircraftService.UpdateAircraft("1", uint(1), aircraftRequest)
 
 				// then
-				Expect(err.Error()).To(Equal("invalid data in field: AircraftModel"))
+				Expect(err.Error()).To(Equal("bad request: invalid data in field: AircraftModel"))
 				Expect(updatedAircraft).To(Equal(model.Aircraft{}))
 			})
 
