@@ -173,6 +173,7 @@ func (a *aircraftController) DeleteAircraft(ctx *gin.Context) {
 
 func (a *aircraftController) adaptAircraft(aircraft model.Aircraft) dto.AircraftResponse {
 	return dto.AircraftResponse{
+		ID:                 aircraft.ID,
 		AircraftModel:      aircraft.AircraftModel,
 		RegistrationNumber: aircraft.RegistrationNumber,
 		ImageURL:           aircraft.ImageURL,
