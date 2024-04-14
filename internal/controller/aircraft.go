@@ -34,7 +34,6 @@ func newAircraftController(aircraftService service.AircraftService) AircraftCont
 // @Security ApiKeyAuth
 // @Success 200 {object} dto.AircraftResponse
 // @Router /aircraft [get]
-// @Param id path string true "Aircraft ID"
 // @Failure 404 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
 func (a *aircraftController) GetAircraft(ctx *gin.Context) {
