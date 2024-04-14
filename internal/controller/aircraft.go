@@ -61,7 +61,6 @@ func (a *aircraftController) GetAircraft(ctx *gin.Context) {
 // @Security ApiKeyAuth
 // @Success 201 {object} dto.AircraftResponse
 // @Router /aircraft [post]
-// @Param id path string true "Aircraft ID"
 // @Param aircraft body dto.AircraftRequest true "Aircraft"
 // @Failure 400 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
