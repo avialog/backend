@@ -61,12 +61,14 @@ var _ = Describe("AircraftController", func() {
 		}
 		expectedServerResponse = []dto.AircraftResponse{
 			{
+				ID:                 1,
 				RegistrationNumber: "PK-ABC",
 				AircraftModel:      "Airbus A320",
 				Remarks:            nil,
 				ImageURL:           util.String("TestURL"),
 			},
 			{
+				ID:                 2,
 				RegistrationNumber: "PK-DEF",
 				AircraftModel:      "Boeing 737",
 				Remarks:            util.String("Test Remarks"),

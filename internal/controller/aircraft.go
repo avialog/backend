@@ -34,7 +34,6 @@ func newAircraftController(aircraftService service.AircraftService) AircraftCont
 // @Security ApiKeyAuth
 // @Success 200 {object} dto.AircraftResponse
 // @Router /aircraft [get]
-// @Param id path string true "Aircraft ID"
 // @Failure 404 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
 func (a *aircraftController) GetAircraft(ctx *gin.Context) {
@@ -61,7 +60,6 @@ func (a *aircraftController) GetAircraft(ctx *gin.Context) {
 // @Security ApiKeyAuth
 // @Success 201 {object} dto.AircraftResponse
 // @Router /aircraft [post]
-// @Param id path string true "Aircraft ID"
 // @Param aircraft body dto.AircraftRequest true "Aircraft"
 // @Failure 400 {object} util.HTTPError
 // @Failure 500 {object} util.HTTPError
@@ -175,6 +173,7 @@ func (a *aircraftController) DeleteAircraft(ctx *gin.Context) {
 
 func (a *aircraftController) adaptAircraft(aircraft model.Aircraft) dto.AircraftResponse {
 	return dto.AircraftResponse{
+		ID:                 aircraft.ID,
 		AircraftModel:      aircraft.AircraftModel,
 		RegistrationNumber: aircraft.RegistrationNumber,
 		ImageURL:           aircraft.ImageURL,
