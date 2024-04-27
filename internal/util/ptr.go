@@ -13,3 +13,7 @@ func Duration(t time.Duration) *time.Duration {
 func Uint(u uint) *uint {
 	return &u
 }
+
+func Int64(i int64) *int64 {
+	return &i
+}
