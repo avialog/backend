@@ -34,6 +34,7 @@ var _ = Describe("LogbookController", func() {
 		logbookController = newLogbookController(logbookServiceMock)
 		logbookEntriesMock = []dto.LogbookResponse{
 			{
+				AircraftID:          1,
 				TakeoffTime:         time.Date(2024, 3, 1, 0, 0, 0, 0, time.UTC),
 				TakeoffAirportCode:  "JFK",
 				LandingTime:         time.Date(2024, 3, 1, 1, 0, 0, 0, time.UTC),
