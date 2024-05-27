@@ -301,6 +301,7 @@ var _ = Describe("LogbookService", func() {
 
 				// then
 				Expect(err).To(BeNil())
+				Expect(logbookResponse.AircraftID).To(Equal(uint(1)))
 				Expect(logbookResponse).ToNot(BeNil())
 				Expect(logbookResponse.TakeoffTime).To(Equal(logbookRequest.TakeoffTime))
 				Expect(logbookResponse.TakeoffAirportCode).To(Equal(logbookRequest.TakeoffAirportCode))
@@ -1262,6 +1263,7 @@ var _ = Describe("LogbookService", func() {
 				mockLandingArr2 := make([]model.Landing, 0)
 				expectedLogbookResponse := []dto.LogbookResponse{
 					{
+						AircraftID:          uint(1),
 						TakeoffTime:         time.Date(2022, time.March, 25, 0, 0, 0, 0, time.UTC),
 						LandingTime:         time.Date(2022, time.March, 25, 1, 0, 0, 0, time.UTC),
 						TakeoffAirportCode:  "T1",
@@ -1307,6 +1309,7 @@ var _ = Describe("LogbookService", func() {
 						},
 					},
 					{
+						AircraftID:          uint(3),
 						TakeoffTime:         time.Date(2022, time.March, 26, 5, 0, 0, 0, time.UTC),
 						LandingTime:         time.Date(2022, time.March, 26, 6, 0, 0, 0, time.UTC),
 						TakeoffAirportCode:  "T1",
