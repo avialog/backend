@@ -180,6 +180,7 @@ func (l *logbookService) InsertLogbookEntry(userID string, logbookRequest dto.Lo
 	}
 
 	logbookResponse = dto.LogbookResponse{
+		AircraftID:          insertedFlight.AircraftID,
 		TakeoffTime:         insertedFlight.TakeoffTime,
 		TakeoffAirportCode:  insertedFlight.TakeoffAirportCode,
 		LandingTime:         insertedFlight.LandingTime,
@@ -294,6 +295,7 @@ func (l *logbookService) GetLogbookEntries(userID string, start, end time.Time) 
 		}
 
 		logbookResponse := dto.LogbookResponse{
+			AircraftID:          flight.AircraftID,
 			TakeoffTime:         flight.TakeoffTime,
 			TakeoffAirportCode:  flight.TakeoffAirportCode,
 			LandingTime:         flight.LandingTime,
@@ -485,6 +487,7 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 	}
 
 	logbookResponse = dto.LogbookResponse{
+		AircraftID:          flight.AircraftID,
 		TakeoffTime:         flight.TakeoffTime,
 		TakeoffAirportCode:  flight.TakeoffAirportCode,
 		LandingTime:         flight.LandingTime,
