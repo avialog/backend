@@ -4,6 +4,8 @@
 
 ## API Reference 🚧🚧🚧 **IN PROGRESS** 🚧🚧🚧
 
+EC2 hostname: `ec2-13-48-148-72.eu-north-1.compute.amazonaws.com`
+
 #### Get server health info
 
 ```http
