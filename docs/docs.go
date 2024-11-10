@@ -16,6 +16,215 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/aircraft": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Get user aircraft",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "aircraft"
+                ],
+                "summary": "Get user aircraft (all)",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.AircraftResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Update aircraft",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "aircraft"
+                ],
+                "summary": "Update aircraft",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Aircraft ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Aircraft",
+                        "name": "aircraft",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.AircraftRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.AircraftResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Insert aircraft",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "aircraft"
+                ],
+                "summary": "Insert aircraft",
+                "parameters": [
+                    {
+                        "description": "Aircraft",
+                        "name": "aircraft",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.AircraftRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_dto.AircraftResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete aircraft",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "aircraft"
+                ],
+                "summary": "Delete aircraft",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Aircraft ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Aircraft deleted successfully",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "message": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/github_com_avialog_backend_internal_util.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/contacts": {
             "get": {
                 "security": [
@@ -221,19 +430,16 @@ const docTemplate = `{
                 }
             }
         },
-        "/info": {
+        "/healthz": {
             "get": {
-                "description": "Get information about the server's health status",
-                "consumes": [
-                    "application/json"
-                ],
+                "description": "Returns the health status of the server",
                 "produces": [
                     "application/json"
                 ],
                 "tags": [
                     "info"
                 ],
-                "summary": "Get server health information",
+                "summary": "Health check endpoint",
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -528,6 +734,51 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "github_com_avialog_backend_internal_dto.AircraftRequest": {
+            "type": "object",
+            "required": [
+                "aircraft_model",
+                "registration_number"
+            ],
+            "properties": {
+                "aircraft_model": {
+                    "type": "string"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "registration_number": {
+                    "type": "string"
+                },
+                "remarks": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_avialog_backend_internal_dto.AircraftResponse": {
+            "type": "object",
+            "required": [
+                "aircraft_model",
+                "registration_number"
+            ],
+            "properties": {
+                "aircraft_model": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "image_url": {
+                    "type": "string"
+                },
+                "registration_number": {
+                    "type": "string"
+                },
+                "remarks": {
+                    "type": "string"
+                }
+            }
+        },
         "github_com_avialog_backend_internal_dto.ContactRequest": {
             "type": "object",
             "required": [
@@ -574,6 +825,9 @@ const docTemplate = `{
                 },
                 "first_name": {
                     "type": "string"
+                },
+                "id": {
+                    "type": "integer"
                 },
                 "last_name": {
                     "type": "string"
@@ -689,6 +943,9 @@ const docTemplate = `{
         "github_com_avialog_backend_internal_dto.LogbookResponse": {
             "type": "object",
             "properties": {
+                "aircraft_id": {
+                    "type": "integer"
+                },
                 "cross_country_time": {
                     "$ref": "#/definitions/time.Duration"
                 },
@@ -942,24 +1199,28 @@ const docTemplate = `{
         "time.Duration": {
             "type": "integer",
             "enum": [
-                -9223372036854775808,
-                9223372036854775807,
                 1,
                 1000,
                 1000000,
                 1000000000,
                 60000000000,
-                3600000000000
+                3600000000000,
+                1,
+                1000,
+                1000000,
+                1000000000
             ],
             "x-enum-varnames": [
-                "minDuration",
-                "maxDuration",
                 "Nanosecond",
                 "Microsecond",
                 "Millisecond",
                 "Second",
                 "Minute",
-                "Hour"
+                "Hour",
+                "Nanosecond",
+                "Microsecond",
+                "Millisecond",
+                "Second"
             ]
         }
     },
@@ -976,7 +1237,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:3000",
+	Host:             "",
 	BasePath:         "/api",
 	Schemes:          []string{},
 	Title:            "Avialog API",
