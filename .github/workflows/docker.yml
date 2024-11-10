@@ -48,7 +48,7 @@ jobs:
       # Deployment
 
       - uses: actions-hub/kubectl@master
-        if: github.ref == 'refs/heads/dev'
+        if: github.ref == 'refs/heads/main'
         env:
           KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
         with:
