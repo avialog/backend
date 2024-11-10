@@ -47,7 +47,9 @@ func (c *contactController) GetContacts(ctx *gin.Context) {
 	}
 
 	contactsResponse := c.adaptContacts(contacts)
-
+	if len(contactsResponse) == 0 {
+		contactsResponse = []dto.ContactResponse{}
+	}
 	ctx.JSON(http.StatusOK, contactsResponse)
 }
 

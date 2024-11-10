@@ -34,6 +34,7 @@ var _ = Describe("LogbookController", func() {
 		logbookController = newLogbookController(logbookServiceMock)
 		logbookEntriesMock = []dto.LogbookResponse{
 			{
+				AircraftID:          1,
 				TakeoffTime:         time.Date(2024, 3, 1, 0, 0, 0, 0, time.UTC),
 				TakeoffAirportCode:  "JFK",
 				LandingTime:         time.Date(2024, 3, 1, 1, 0, 0, 0, time.UTC),
@@ -240,6 +241,83 @@ var _ = Describe("LogbookController", func() {
 				Expect(w.Body).To(MatchJSON(expectedLogbookEntriesJSON))
 			})
 		})
+		Context("When user request fail to bind", func() {
+			It("should return 400 and error message", func() {
+				// given
+				ctx.Request = httptest.NewRequest("GET", "/logbook", bytes.NewBuffer([]byte("")))
+				ctx.Set("userID", "1")
+				// when
+				logbookController.GetLogbookEntries(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(400))
+				Expect(w.Body).To(MatchJSON(`{"code": 400, "message":"EOF"}`))
+			})
+		})
+		Context("When the user doesn't provide a start date but provide an end date.", func() {
+			It("should return 400 and error message", func() {
+				// given
+				getLogbookRequestJSON, err := json.Marshal(dto.GetLogbookRequest{
+					Start: nil,
+					End:   util.Int64(time.Now().AddDate(0, 0, -90).Unix()),
+				})
+				Expect(err).ToNot(HaveOccurred())
+
+				ctx.Request = httptest.NewRequest("GET", "/logbook", bytes.NewBuffer(getLogbookRequestJSON))
+				ctx.Set("userID", "1")
+
+				// when
+				logbookController.GetLogbookEntries(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(400))
+				Expect(w.Body).To(MatchJSON(`{"code": 400, "message":"both start and end time must be provided or neither"}`))
+			})
+		})
+		Context("When the user doesn't provide an end date but provide a start date.", func() {
+			It("should return 400 and error message", func() {
+				// given
+				getLogbookRequestJSON, err := json.Marshal(dto.GetLogbookRequest{
+					Start: util.Int64(time.Now().AddDate(0, 0, -90).Unix()),
+					End:   nil,
+				})
+				Expect(err).ToNot(HaveOccurred())
+
+				ctx.Request = httptest.NewRequest("GET", "/logbook", bytes.NewBuffer(getLogbookRequestJSON))
+				ctx.Set("userID", "1")
+
+				// when
+				logbookController.GetLogbookEntries(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(400))
+				Expect(w.Body).To(MatchJSON(`{"code": 400, "message":"both start and end time must be provided or neither"}`))
+			})
+		})
+		Context("when getting user logbook entries fails", func() {
+			It("should return 500 and error message", func() {
+				// given
+				start := time.Date(2024, time.April, 12, 12, 0, 0, 0, time.Local)
+				end := time.Date(2024, time.April, 14, 12, 0, 0, 0, time.Local)
+				getLogbookRequestJSON, err := json.Marshal(dto.GetLogbookRequest{
+					Start: util.Int64(start.Unix()),
+					End:   util.Int64(end.Unix()),
+				})
+				Expect(err).ToNot(HaveOccurred())
+
+				ctx.Request = httptest.NewRequest("GET", "/logbook", bytes.NewBuffer(getLogbookRequestJSON))
+				ctx.Set("userID", "1")
+				logbookServiceMock.EXPECT().GetLogbookEntries("1", start, end).Return(nil, dto.ErrInternalFailure)
+
+				// when
+				logbookController.GetLogbookEntries(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(500))
+				Expect(w.Body).To(MatchJSON(`{"code": 500, "message":"internal failure"}`))
+			})
+		})
+
 	})
 	Describe("InsertLogbookEntry", func() {
 		Context("When the user sends a request and no error occurs.", func() {
@@ -260,6 +338,56 @@ var _ = Describe("LogbookController", func() {
 				// then
 				Expect(w.Code).To(Equal(201))
 				Expect(w.Body).To(MatchJSON(expectedLogbookResponseJSON))
+			})
+		})
+		Context("When the user sends a request and fails to bind", func() {
+			It("should return 400 and error message", func() {
+				// given
+				ctx.Request = httptest.NewRequest("POST", "/logbook", bytes.NewBuffer([]byte("")))
+				ctx.Set("userID", "1")
+
+				// when
+				logbookController.InsertLogbookEntry(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(400))
+				Expect(w.Body).To(MatchJSON(`{"code": 400, "message":"EOF"}`))
+			})
+		})
+		Context("When the user sends a request and fails (internal failure) to insert", func() {
+			It("should return 500 and error message", func() {
+				// given
+				expectedLogbookInsertRequestJSON, err := json.Marshal(expectedLogbookRequest)
+				Expect(err).ToNot(HaveOccurred())
+
+				ctx.Request = httptest.NewRequest("POST", "/logbook", bytes.NewBuffer(expectedLogbookInsertRequestJSON))
+				ctx.Set("userID", "1")
+				logbookServiceMock.EXPECT().InsertLogbookEntry("1", expectedLogbookRequest).Return(dto.LogbookResponse{}, dto.ErrInternalFailure)
+
+				// when
+				logbookController.InsertLogbookEntry(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(500))
+				Expect(w.Body).To(MatchJSON(`{"code": 500, "message":"internal failure"}`))
+			})
+		})
+		Context("When the user sends a request and fails (bad request) to insert", func() {
+			It("should return 400 and error message", func() {
+				// given
+				expectedLogbookInsertRequestJSON, err := json.Marshal(expectedLogbookRequest)
+				Expect(err).ToNot(HaveOccurred())
+
+				ctx.Request = httptest.NewRequest("POST", "/logbook", bytes.NewBuffer(expectedLogbookInsertRequestJSON))
+				ctx.Set("userID", "1")
+				logbookServiceMock.EXPECT().InsertLogbookEntry("1", expectedLogbookRequest).Return(dto.LogbookResponse{}, dto.ErrBadRequest)
+
+				// when
+				logbookController.InsertLogbookEntry(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(400))
+				Expect(w.Body).To(MatchJSON(`{"code": 400, "message":"bad request"}`))
 			})
 		})
 	})
@@ -285,6 +413,77 @@ var _ = Describe("LogbookController", func() {
 				Expect(w.Body).To(MatchJSON(expectedLogbookResponseJSON))
 			})
 		})
+		Context("When the user sends a request and fails to bind", func() {
+			It("should return 400 and error message", func() {
+				// given
+				ctx.Request = httptest.NewRequest("PUT", "/logbook", bytes.NewBuffer([]byte("")))
+				ctx.Set("userID", "1")
+				ctx.Params = append(ctx.Params, gin.Param{Key: "id", Value: "1"})
+
+				// when
+				logbookController.UpdateLogbookEntry(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(400))
+				Expect(w.Body).To(MatchJSON(`{"code": 400, "message":"EOF"}`))
+			})
+		})
+		Context("When the user sends a request and fails (internal failure) to update", func() {
+			It("should return 500 and error message", func() {
+				// given
+				expectedLogbookUpdateRequestJSON, err := json.Marshal(expectedLogbookRequest)
+				Expect(err).ToNot(HaveOccurred())
+
+				ctx.Request = httptest.NewRequest("PUT", "/logbook", bytes.NewBuffer(expectedLogbookUpdateRequestJSON))
+				ctx.Set("userID", "1")
+				ctx.Params = append(ctx.Params, gin.Param{Key: "id", Value: "1"})
+				logbookServiceMock.EXPECT().UpdateLogbookEntry("1", uint(1), expectedLogbookRequest).Return(dto.LogbookResponse{}, dto.ErrInternalFailure)
+
+				// when
+				logbookController.UpdateLogbookEntry(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(500))
+				Expect(w.Body).To(MatchJSON(`{"code": 500, "message":"internal failure"}`))
+
+			})
+		})
+		Context("when the user sends a request and fail to fetch id from params", func() {
+			It("should return 400 and error message", func() {
+				// given
+				expectedLogbookUpdateRequestJSON, err := json.Marshal(expectedLogbookRequest)
+				Expect(err).ToNot(HaveOccurred())
+
+				ctx.Request = httptest.NewRequest("PUT", "/logbook", bytes.NewBuffer(expectedLogbookUpdateRequestJSON))
+				ctx.Set("userID", "1")
+
+				// when
+				logbookController.UpdateLogbookEntry(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(400))
+				Expect(w.Body).To(MatchJSON(`{"code": 400, "message":"strconv.ParseUint: parsing \"\": invalid syntax"}`))
+			})
+		})
+		Context("When the user sends a request and fails (bad request) to update", func() {
+			It("should return 400 and error message", func() {
+				// given
+				expectedLogbookUpdateRequestJSON, err := json.Marshal(expectedLogbookRequest)
+				Expect(err).ToNot(HaveOccurred())
+
+				ctx.Request = httptest.NewRequest("PUT", "/logbook", bytes.NewBuffer(expectedLogbookUpdateRequestJSON))
+				ctx.Set("userID", "1")
+				ctx.Params = append(ctx.Params, gin.Param{Key: "id", Value: "1"})
+				logbookServiceMock.EXPECT().UpdateLogbookEntry("1", uint(1), expectedLogbookRequest).Return(dto.LogbookResponse{}, dto.ErrBadRequest)
+
+				// when
+				logbookController.UpdateLogbookEntry(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(400))
+				Expect(w.Body).To(MatchJSON(`{"code": 400, "message":"bad request"}`))
+			})
+		})
 	})
 	Describe("DeleteLogbookEntry", func() {
 		Context("When the user sends a request and no error occurs.", func() {
@@ -301,6 +500,89 @@ var _ = Describe("LogbookController", func() {
 				// then
 				Expect(w.Code).To(Equal(200))
 				Expect(w.Body).To(MatchJSON(`{"message":"Logbook entry deleted successfully"}`))
+			})
+		})
+		Context("When the user sends a request and fails to fetch id from params", func() {
+			It("should return 400 and error message", func() {
+				// given
+
+				ctx.Request = httptest.NewRequest("DELETE", "/logbook", nil)
+				ctx.Set("userID", "1")
+
+				// when
+				logbookController.DeleteLogbookEntry(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(400))
+				Expect(w.Body).To(MatchJSON(`{"code": 400, "message":"strconv.ParseUint: parsing \"\": invalid syntax"}`))
+			})
+		})
+		Context("When the user sends a request and fails (internal failure) to delete", func() {
+			It("should return 500 and error message", func() {
+				// given
+
+				ctx.Request = httptest.NewRequest("DELETE", "/logbook", nil)
+				ctx.Set("userID", "1")
+				ctx.Params = append(ctx.Params, gin.Param{Key: "id", Value: "1"})
+				logbookServiceMock.EXPECT().DeleteLogbookEntry("1", uint(1)).Return(dto.ErrInternalFailure)
+
+				// when
+				logbookController.DeleteLogbookEntry(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(500))
+				Expect(w.Body).To(MatchJSON(`{"code": 500, "message":"internal failure"}`))
+			})
+		})
+		Context("When the user sends a request and fails (not found) to delete", func() {
+			It("should return 404 and error message", func() {
+				// given
+
+				ctx.Request = httptest.NewRequest("DELETE", "/logbook", nil)
+				ctx.Set("userID", "1")
+				ctx.Params = append(ctx.Params, gin.Param{Key: "id", Value: "1"})
+				logbookServiceMock.EXPECT().DeleteLogbookEntry("1", uint(1)).Return(dto.ErrNotFound)
+
+				// when
+				logbookController.DeleteLogbookEntry(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(404))
+				Expect(w.Body).To(MatchJSON(`{"code": 404, "message":"not found"}`))
+			})
+		})
+		Context("When the user sends a request and fails (bad request) to delete", func() {
+			It("should return 400 and error message", func() {
+				// given
+
+				ctx.Request = httptest.NewRequest("DELETE", "/logbook", nil)
+				ctx.Set("userID", "1")
+				ctx.Params = append(ctx.Params, gin.Param{Key: "id", Value: "1"})
+				logbookServiceMock.EXPECT().DeleteLogbookEntry("1", uint(1)).Return(dto.ErrBadRequest)
+
+				// when
+				logbookController.DeleteLogbookEntry(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(400))
+				Expect(w.Body).To(MatchJSON(`{"code": 400, "message":"bad request"}`))
+			})
+		})
+		Context("When the user sends a request and fails (internal failure) to delete", func() {
+			It("should return 500 and error message", func() {
+				// given
+
+				ctx.Request = httptest.NewRequest("DELETE", "/logbook", nil)
+				ctx.Set("userID", "1")
+				ctx.Params = append(ctx.Params, gin.Param{Key: "id", Value: "1"})
+				logbookServiceMock.EXPECT().DeleteLogbookEntry("1", uint(1)).Return(dto.ErrInternalFailure)
+
+				// when
+				logbookController.DeleteLogbookEntry(ctx)
+
+				// then
+				Expect(w.Code).To(Equal(500))
+				Expect(w.Body).To(MatchJSON(`{"code": 500, "message":"internal failure"}`))
 			})
 		})
 	})
