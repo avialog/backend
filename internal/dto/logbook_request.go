@@ -27,6 +27,7 @@ type LogbookRequest struct {
 	CrossCountryTime    *time.Duration   `json:"cross_country_time"`
 	SimulatorTime       *time.Duration   `json:"simulator_time"`
 	SignatureURL        *string          `json:"signature_url"`
+	MyRole              model.Role       `json:"my_role"`	// moja rola
 	Passengers          []PassengerEntry `json:"passengers"`
 	Landings            []LandingEntry   `json:"landings"`
 }

@@ -1,5 +1,35 @@
 basePath: /api
 definitions:
+  github_com_avialog_backend_internal_dto.AircraftRequest:
+    properties:
+      aircraft_model:
+        type: string
+      image_url:
+        type: string
+      registration_number:
+        type: string
+      remarks:
+        type: string
+    required:
+    - aircraft_model
+    - registration_number
+    type: object
+  github_com_avialog_backend_internal_dto.AircraftResponse:
+    properties:
+      aircraft_model:
+        type: string
+      id:
+        type: integer
+      image_url:
+        type: string
+      registration_number:
+        type: string
+      remarks:
+        type: string
+    required:
+    - aircraft_model
+    - registration_number
+    type: object
   github_com_avialog_backend_internal_dto.ContactRequest:
     properties:
       avatar_url:
@@ -29,6 +59,8 @@ definitions:
         type: string
       first_name:
         type: string
+      id:
+        type: integer
       last_name:
         type: string
       note:
@@ -106,6 +138,8 @@ definitions:
     type: object
   github_com_avialog_backend_internal_dto.LogbookResponse:
     properties:
+      aircraft_id:
+        type: integer
       cross_country_time:
         $ref: '#/definitions/time.Duration'
       dual_given_time:
@@ -281,25 +315,28 @@ definitions:
     type: object
   time.Duration:
     enum:
-    - -9223372036854775808
-    - 9223372036854775807
     - 1
     - 1000
     - 1000000
     - 1000000000
     - 60000000000
     - 3600000000000
+    - 1
+    - 1000
+    - 1000000
+    - 1000000000
     type: integer
     x-enum-varnames:
-    - minDuration
-    - maxDuration
     - Nanosecond
     - Microsecond
     - Millisecond
     - Second
     - Minute
     - Hour
-host: localhost:3000
+    - Nanosecond
+    - Microsecond
+    - Millisecond
+    - Second
 info:
   contact: {}
   description: This is a sample server.
@@ -307,6 +344,139 @@ info:
   title: Avialog API
   version: "1.0"
 paths:
+  /aircraft:
+    delete:
+      description: Delete aircraft
+      parameters:
+      - description: Aircraft ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Aircraft deleted successfully
+          schema:
+            properties:
+              message:
+                type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_util.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_util.HTTPError'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_util.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_util.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete aircraft
+      tags:
+      - aircraft
+    get:
+      description: Get user aircraft
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_dto.AircraftResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_util.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_util.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get user aircraft (all)
+      tags:
+      - aircraft
+    post:
+      consumes:
+      - application/json
+      description: Insert aircraft
+      parameters:
+      - description: Aircraft
+        in: body
+        name: aircraft
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_avialog_backend_internal_dto.AircraftRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_dto.AircraftResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_util.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_util.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Insert aircraft
+      tags:
+      - aircraft
+    put:
+      consumes:
+      - application/json
+      description: Update aircraft
+      parameters:
+      - description: Aircraft ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Aircraft
+        in: body
+        name: aircraft
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_avialog_backend_internal_dto.AircraftRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_dto.AircraftResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_util.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_util.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/github_com_avialog_backend_internal_util.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update aircraft
+      tags:
+      - aircraft
   /contacts:
     get:
       description: Get a list of contacts for a user
@@ -437,11 +607,9 @@ paths:
       summary: Update an existing contact
       tags:
       - contacts
-  /info:
+  /healthz:
     get:
-      consumes:
-      - application/json
-      description: Get information about the server's health status
+      description: Returns the health status of the server
       produces:
       - application/json
       responses:
@@ -449,7 +617,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/github_com_avialog_backend_internal_dto.ServerInfo'
-      summary: Get server health information
+      summary: Health check endpoint
       tags:
       - info
   /logbook:
