@@ -2,6 +2,8 @@ package service
 
 import (
 	"errors"
+	"time"
+
 	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/infrastructure"
@@ -13,7 +15,6 @@ import (
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
 	"gorm.io/gorm"
-	"time"
 )
 
 var _ = Describe("LogbookService", func() {
@@ -83,6 +84,7 @@ var _ = Describe("LogbookService", func() {
 			CrossCountryTime:    util.Duration(11 * time.Hour),
 			SimulatorTime:       util.Duration(12 * time.Hour),
 			SignatureURL:        util.String("https://signature.com"),
+			MyRole:              model.RolePilotInCommand,
 			Passengers: []dto.PassengerEntry{
 				{
 					Role:         model.RolePilotInCommand,
@@ -143,6 +145,7 @@ var _ = Describe("LogbookService", func() {
 			CrossCountryTime:    util.Duration(11 * time.Hour),
 			SimulatorTime:       util.Duration(12 * time.Hour),
 			SignatureURL:        util.String("https://signature.com"),
+			MyRole:              model.RolePilotInCommand,
 		}
 		mockInsertedFlight = model.Flight{
 			Model:               gorm.Model{ID: uint(3)},
@@ -168,6 +171,7 @@ var _ = Describe("LogbookService", func() {
 			CrossCountryTime:    util.Duration(11 * time.Hour),
 			SimulatorTime:       util.Duration(12 * time.Hour),
 			SignatureURL:        util.String("https://signature.com"),
+			MyRole:              model.RolePilotInCommand,
 		}
 		mockPassengerOne = model.Passenger{
 			FlightID:     uint(3),
@@ -269,6 +273,7 @@ var _ = Describe("LogbookService", func() {
 			CrossCountryTime:    util.Duration(11 * time.Hour),
 			SimulatorTime:       util.Duration(6 * time.Hour),
 			SignatureURL:        util.String("https://signature.com"),
+			MyRole:              model.RolePilotInCommand,
 		}
 		startDate = time.Date(2022, time.March, 25, 0, 0, 0, 0, time.UTC)
 		endDate = time.Date(2022, time.March, 28, 0, 0, 0, 0, time.UTC)
@@ -324,6 +329,7 @@ var _ = Describe("LogbookService", func() {
 				Expect(logbookResponse.SimulatorTime).To(Equal(logbookRequest.SimulatorTime))
 				Expect(logbookResponse.SignatureURL).To(Equal(logbookRequest.SignatureURL))
 				Expect(logbookResponse.Passengers).To(HaveLen(2))
+				Expect(logbookResponse.MyRole).To(Equal(logbookRequest.MyRole))
 				Expect(logbookResponse.Passengers).To(Equal(logbookRequest.Passengers))
 				Expect(logbookResponse.Landings).To(HaveLen(2))
 				Expect(logbookResponse.Landings).To(Equal(logbookRequest.Landings))
@@ -1188,6 +1194,7 @@ var _ = Describe("LogbookService", func() {
 						CrossCountryTime:    util.Duration(1),
 						SimulatorTime:       util.Duration(1),
 						SignatureURL:        util.String("DUAL2"),
+						MyRole:              model.RolePilotInCommand,
 					},
 					{
 						Model:               gorm.Model{ID: 2},
@@ -1213,6 +1220,7 @@ var _ = Describe("LogbookService", func() {
 						CrossCountryTime:    util.Duration(2),
 						SimulatorTime:       util.Duration(2),
 						SignatureURL:        util.String("DUAL1"),
+						MyRole:              model.RoleSecondInCommand,
 					},
 				}
 				mockPassengerArr := []model.Passenger{
@@ -1284,6 +1292,7 @@ var _ = Describe("LogbookService", func() {
 						CrossCountryTime:    util.Duration(1),
 						SimulatorTime:       util.Duration(1),
 						SignatureURL:        util.String("DUAL2"),
+						MyRole:              model.RolePilotInCommand,
 						Passengers: []dto.PassengerEntry{
 							{
 								FirstName: "F1",
@@ -1330,6 +1339,7 @@ var _ = Describe("LogbookService", func() {
 						CrossCountryTime:    util.Duration(2),
 						SimulatorTime:       util.Duration(2),
 						SignatureURL:        util.String("DUAL1"),
+						MyRole:              model.RoleSecondInCommand,
 						Passengers: []dto.PassengerEntry{
 							{
 								FirstName: "F2",
@@ -1418,6 +1428,7 @@ var _ = Describe("LogbookService", func() {
 						CrossCountryTime:    util.Duration(1),
 						SimulatorTime:       util.Duration(1),
 						SignatureURL:        util.String("DUAL2"),
+						MyRole:              model.RolePilotInCommand,
 					},
 				}, nil)
 				landingRepoMock.EXPECT().GetByFlightID(uint(1)).Return([]model.Landing{}, errors.New("failed to fetch landings"))
@@ -1460,6 +1471,7 @@ var _ = Describe("LogbookService", func() {
 						CrossCountryTime:    util.Duration(1),
 						SimulatorTime:       util.Duration(1),
 						SignatureURL:        util.String("DUAL2"),
+						MyRole:              model.RolePilotInCommand,
 					},
 				}, nil)
 				landingRepoMock.EXPECT().GetByFlightID(uint(1)).Return([]model.Landing{}, nil)

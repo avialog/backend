@@ -3,12 +3,13 @@ package service
 import (
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
 	"github.com/go-playground/validator/v10"
-	"time"
 )
 
 //go:generate mockgen -source=logbook.go -destination=logbook_mock.go -package service
@@ -66,6 +67,7 @@ func (l *logbookService) InsertLogbookEntry(userID string, logbookRequest dto.Lo
 		DualGivenTime:       logbookRequest.DualGivenTime,
 		MultiPilotTime:      logbookRequest.MultiPilotTime,
 		NightTime:           logbookRequest.NightTime,
+		MyRole:              logbookRequest.MyRole,
 		IFRTime:             logbookRequest.IFRTime,
 		IFRActualTime:       logbookRequest.IFRActualTime,
 		IFRSimulatedTime:    logbookRequest.IFRSimulatedTime,
@@ -189,6 +191,7 @@ func (l *logbookService) InsertLogbookEntry(userID string, logbookRequest dto.Lo
 		Remarks:             insertedFlight.Remarks,
 		PersonalRemarks:     insertedFlight.PersonalRemarks,
 		TotalBlockTime:      insertedFlight.TotalBlockTime,
+		MyRole:              insertedFlight.MyRole,
 		PilotInCommandTime:  insertedFlight.PilotInCommandTime,
 		SecondInCommandTime: insertedFlight.SecondInCommandTime,
 		DualReceivedTime:    insertedFlight.DualReceivedTime,
@@ -304,6 +307,7 @@ func (l *logbookService) GetLogbookEntries(userID string, start, end time.Time) 
 			Remarks:             flight.Remarks,
 			PersonalRemarks:     flight.PersonalRemarks,
 			TotalBlockTime:      flight.TotalBlockTime,
+			MyRole:              flight.MyRole,
 			PilotInCommandTime:  flight.PilotInCommandTime,
 			SecondInCommandTime: flight.SecondInCommandTime,
 			DualReceivedTime:    flight.DualReceivedTime,
@@ -367,6 +371,7 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 	flight.DualGivenTime = logbookRequest.DualGivenTime
 	flight.MultiPilotTime = logbookRequest.MultiPilotTime
 	flight.NightTime = logbookRequest.NightTime
+	flight.MyRole = logbookRequest.MyRole
 	flight.IFRTime = logbookRequest.IFRTime
 	flight.IFRActualTime = logbookRequest.IFRActualTime
 	flight.IFRSimulatedTime = logbookRequest.IFRSimulatedTime
@@ -496,6 +501,7 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 		Remarks:             flight.Remarks,
 		PersonalRemarks:     flight.PersonalRemarks,
 		TotalBlockTime:      flight.TotalBlockTime,
+		MyRole:              flight.MyRole,
 		PilotInCommandTime:  flight.PilotInCommandTime,
 		SecondInCommandTime: flight.SecondInCommandTime,
 		DualReceivedTime:    flight.DualReceivedTime,
