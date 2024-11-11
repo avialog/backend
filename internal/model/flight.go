@@ -1,8 +1,9 @@
 package model
 
 import (
-	"gorm.io/gorm"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Flight struct {
@@ -18,7 +19,7 @@ type Flight struct {
 	LandingTime         time.Time   `gorm:"required; not null; default:null" validate:"required"`
 	LandingAirportCode  string      `gorm:"required; not null; default:null" validate:"required"`
 	Style               Style       `gorm:"required; not null; default:null" validate:"required,style"`
-	MyRole              Role        `gorm:"required; not null; default:null" validate:"required,role"` // added
+	MyRole              Role        `gorm:"required; not null; default:null" validate:"required,role"`
 	Remarks             *string
 	PersonalRemarks     *string
 	TotalBlockTime      *time.Duration
