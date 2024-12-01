@@ -3,6 +3,9 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"net/http/httptest"
+	"time"
+
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/service"
@@ -11,8 +14,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
-	"net/http/httptest"
-	"time"
 )
 
 var _ = Describe("LogbookController", func() {
@@ -55,6 +56,7 @@ var _ = Describe("LogbookController", func() {
 				CrossCountryTime:    util.Duration(11 * time.Hour),
 				SimulatorTime:       util.Duration(12 * time.Hour),
 				SignatureURL:        util.String("SignatureURL"),
+				MyRole:              model.RolePilotInCommand,
 				Passengers: []dto.PassengerEntry{
 					{
 						Role:         model.RolePilotInCommand,
@@ -113,6 +115,7 @@ var _ = Describe("LogbookController", func() {
 				CrossCountryTime:    util.Duration(12 * time.Hour),
 				SimulatorTime:       util.Duration(13 * time.Hour),
 				SignatureURL:        util.String("SignatureURL2"),
+				MyRole:              model.RolePilotInCommand,
 				Passengers: []dto.PassengerEntry{
 					{
 						Role:         model.RolePilotInCommand,
@@ -173,6 +176,7 @@ var _ = Describe("LogbookController", func() {
 			CrossCountryTime:    util.Duration(11 * time.Hour),
 			SimulatorTime:       util.Duration(12 * time.Hour),
 			SignatureURL:        util.String("SignatureURL"),
+			MyRole:              model.RolePilotInCommand,
 			Passengers: []dto.PassengerEntry{
 				{
 					Role:         model.RolePilotInCommand,
