@@ -13,6 +13,7 @@ type Services interface {
 	User() UserService
 	Logbook() LogbookService
 	Auth() AuthService
+	
 }
 
 type services struct {
