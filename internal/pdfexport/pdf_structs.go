@@ -7,8 +7,7 @@ import (
 )
 
 type SingleLogbookEntry struct {
-	Date  string
-	MDate string
+	Date string
 
 	Departure struct {
 		Place string
@@ -36,8 +35,6 @@ type SingleLogbookEntry struct {
 		CoPilot    string
 		Dual       string
 		Instructor string
-
-		CrossCountry string
 	}
 
 	Landings struct {
@@ -46,91 +43,90 @@ type SingleLogbookEntry struct {
 	}
 
 	SIM struct {
-		Type string
-		Time string
+		Type string 
+		Time string 
 	}
-	PIC     string
-	Remarks string
+	PIC     string 
+	Remarks string 
 }
 
 type ExportPDF struct {
-	LogbookRows          int           `json:"logbook_rows"`
-	Fill                 int           `json:"fill"`
-	LeftMargin           float64       `json:"left_margin"`
-	LeftMarginA          float64       `json:"left_margin_a"`
-	LeftMarginB          float64       `json:"left_margin_b"`
-	TopMargin            float64       `json:"top_margin"`
-	BodyRow              float64       `json:"body_row_height"`
-	FooterRow            float64       `json:"footer_row_height"`
-	PageBreaks           string        `json:"page_breaks"`
-	Columns              ColumnsWidth  `json:"columns"`
-	Headers              ColumnsHeader `json:"headers"`
-	ReplaceSPTime        bool          `json:"replace_sp_time"`
-	IncludeSignature     bool          `json:"include_signature"`
-	IsExtended           bool          `json:"is_extended"`
-	TimeFieldsAutoFormat byte          `json:"time_fields_auto_format"`
-	CustomTitle          string        `json:"custom_title"`
+	LogbookRows          int
+	Fill                 int
+	LeftMargin           float64
+	LeftMarginA          float64
+	LeftMarginB          float64
+	TopMargin            float64
+	BodyRow              float64
+	FooterRow            float64
+	PageBreaks           string
+	Columns              ColumnsWidth
+	Headers              ColumnsHeader
+	ReplaceSPTime        bool
+	IncludeSignature     bool
+	TimeFieldsAutoFormat byte
+	CustomTitle          string
 	CustomTitleBlob      []byte
 }
 
 type ColumnsWidth struct {
-	Col1  float64 `json:"col1"`
-	Col2  float64 `json:"col2"`
-	Col3  float64 `json:"col3"`
-	Col4  float64 `json:"col4"`
-	Col5  float64 `json:"col5"`
-	Col6  float64 `json:"col6"`
-	Col7  float64 `json:"col7"`
-	Col8  float64 `json:"col8"`
-	Col9  float64 `json:"col9"`
-	Col10 float64 `json:"col10"`
-	Col11 float64 `json:"col11"`
-	Col12 float64 `json:"col12"`
-	Col13 float64 `json:"col13"`
-	Col14 float64 `json:"col14"`
-	Col15 float64 `json:"col15"`
-	Col16 float64 `json:"col16"`
-	Col17 float64 `json:"col17"`
-	Col18 float64 `json:"col18"`
-	Col19 float64 `json:"col19"`
-	Col20 float64 `json:"col20"`
-	Col21 float64 `json:"col21"`
-	Col22 float64 `json:"col22"`
-	Col23 float64 `json:"col23"`
+	Col1  float64
+	Col2  float64
+	Col3  float64
+	Col4  float64
+	Col5  float64
+	Col6  float64
+	Col7  float64
+	Col8  float64
+	Col9  float64
+	Col10 float64
+	Col11 float64
+	Col12 float64
+	Col13 float64
+	Col14 float64
+	Col15 float64
+	Col16 float64
+	Col17 float64
+	Col18 float64
+	Col19 float64
+	Col20 float64
+	Col21 float64
+	Col22 float64
+	Col23 float64
 }
 
 type ColumnsHeader struct {
-	Date      string `json:"date"`
-	Departure string `json:"departure"`
-	Arrival   string `json:"arrival"`
-	Aircraft  string `json:"aircraft"`
-	SPT       string `json:"spt"`
-	MCC       string `json:"mcc"`
-	Total     string `json:"total"`
-	PICName   string `json:"pic_name"`
-	Landings  string `json:"landings"`
-	OCT       string `json:"oct"`
-	PFT       string `json:"pft"`
-	FSTD      string `json:"fstd"`
-	Remarks   string `json:"remarks"`
-	DepPlace  string `json:"dep_place"`
-	DepTime   string `json:"dep_time"`
-	ArrPlace  string `json:"arr_place"`
-	ArrTime   string `json:"arr_time"`
-	Model     string `json:"model"`
-	Reg       string `json:"reg"`
-	SE        string `json:"se"`
-	ME        string `json:"me"`
-	LandDay   string `json:"land_day"`
-	LandNight string `json:"land_night"`
-	Night     string `json:"night"`
-	IFR       string `json:"ifr"`
-	PIC       string `json:"pic"`
-	COP       string `json:"cop"`
-	Dual      string `json:"dual"`
-	Instr     string `json:"instr"`
-	SimType   string `json:"sim_type"`
-	SimTime   string `json:"sim_time"`
+	Date      string
+	Departure string
+	Arrival   string
+	Aircraft  string
+	SPT       string
+	MCC       string
+	Total     string
+	PICName   string
+	Landings  string
+	OCT       string
+	PFT       string
+	FSTD      string
+	Remarks   string
+	DepPlace  string
+	DepTime   string
+	ArrPlace  string
+	ArrTime   string
+	Model     string
+	Reg       string
+	SE        string
+	ME        string
+	LandDay   string
+	LandNight string
+	Night     string
+	IFR       string
+	PIC       string
+	COP       string
+	Dual      string
+	Instr     string
+	SimType   string
+	SimTime   string
 }
 
 func CalculateTotals(totals SingleLogbookEntry, record SingleLogbookEntry) SingleLogbookEntry {
@@ -149,12 +145,10 @@ func CalculateTotals(totals SingleLogbookEntry, record SingleLogbookEntry) Singl
 	totals.Landings.Day += record.Landings.Day
 	totals.Landings.Night += record.Landings.Night
 
-	totals.Time.CrossCountry = dtoa(atod(totals.Time.CrossCountry) + atod(record.Time.CrossCountry))
-
 	return totals
 }
 
-// atod converts formatted string to time.Duration
+// string -> time.Duration
 func atod(value string) time.Duration {
 	if value == "" {
 		value = "0:0"
@@ -171,9 +165,7 @@ func atod(value string) time.Duration {
 	return duration
 }
 
-// exported dtoa function
-
-// dtoa converts time.Duration to formatted string
+// time.Duration -> string
 func dtoa(value time.Duration) string {
 
 	d := value.Round(time.Minute)

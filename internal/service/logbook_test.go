@@ -31,6 +31,8 @@ var _ = Describe("LogbookService", func() {
 		databaseCtrl             *gomock.Controller
 		databaseMock             *infrastructure.MockDatabase
 		validator                *validator.Validate
+		userRepoCtrl             *gomock.Controller
+		userRepoMock             *repository.MockUserRepository
 		logbookRequest           dto.LogbookRequest
 		fixedTime                time.Time
 		mockFlight               model.Flight
@@ -61,7 +63,9 @@ var _ = Describe("LogbookService", func() {
 		databaseCtrl = gomock.NewController(GinkgoT())
 		databaseMock = infrastructure.NewMockDatabase(databaseCtrl)
 		validator = util.GetValidator()
-		logbookService = newLogbookService(flightRepoMock, landingRepoMock, passengerRepoMock, aircraftRepoMock, config.Config{}, validator)
+		userRepoCtrl = gomock.NewController(GinkgoT())
+		userRepoMock = repository.NewMockUserRepository(userRepoCtrl)
+		logbookService = newLogbookService(flightRepoMock, landingRepoMock, passengerRepoMock, aircraftRepoMock, userRepoMock, config.Config{}, validator)
 		logbookRequest = dto.LogbookRequest{
 			AircraftID:          uint(1),
 			TakeoffTime:         fixedTime,

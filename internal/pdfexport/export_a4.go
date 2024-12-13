@@ -3,13 +3,8 @@ package pdfexport
 import (
 	"fmt"
 	"io"
-
-	
 )
 
-// this file contains the A4 format specific functions
-
-// exportA4 creates A4 pdf with logbook in EASA format
 func (p *PDFExporter) ExportA4(flightRecords []SingleLogbookEntry, w io.Writer) error {
 	err := p.initPDF()
 	if err != nil {
@@ -75,7 +70,7 @@ func (p *PDFExporter) printA4LogbookHeader() {
 	for i, str := range p.headers.header3 {
 		width := p.columns.w3[i]
 		// add Date columns for FSTD if format is extended
-		if i == 20 && p.Export.IsExtended {
+		if i == 20 {
 			p.pdf.Rect(x, y-1, p.columns.w3[0], 4, "FD")
 			p.pdf.MultiCell(p.columns.w3[0], 2, "Date", "", "C", false)
 			x += p.columns.w3[0]
@@ -96,7 +91,7 @@ func (p *PDFExporter) printA4LogbookHeader() {
 	p.pdf.SetY(y)
 }
 
-// logBookRow prints the logbook row
+
 func (p *PDFExporter) logBookRow(record SingleLogbookEntry) {
 	p.rowCounter += 1
 
@@ -134,7 +129,7 @@ func (p *PDFExporter) printA4LogbookBody(record SingleLogbookEntry) {
 
 	// 	Data
 	p.pdf.SetX(p.Export.LeftMargin)
-	if p.Export.IsExtended && record.SIM.Type != "" {
+	if record.SIM.Type != "" {
 		p.printBodyTimeCell(p.columns.w3[0], "", fill)
 	} else {
 		p.printBodyTimeCell(p.columns.w3[0], record.Date, fill)
@@ -158,13 +153,13 @@ func (p *PDFExporter) printA4LogbookBody(record SingleLogbookEntry) {
 	p.printBodyTimeCell(p.columns.w3[17], p.formatTimeField(record.Time.CoPilot), fill)
 	p.printBodyTimeCell(p.columns.w3[18], p.formatTimeField(record.Time.Dual), fill)
 	p.printBodyTimeCell(p.columns.w3[19], p.formatTimeField(record.Time.Instructor), fill)
-	if p.Export.IsExtended {
-		if record.SIM.Type != "" {
-			p.printBodyTimeCell(p.columns.w3[0], record.Date, fill)
-		} else {
-			p.printBodyTimeCell(p.columns.w3[0], "", fill)
-		}
+
+	if record.SIM.Type != "" {
+		p.printBodyTimeCell(p.columns.w3[0], record.Date, fill)
+	} else {
+		p.printBodyTimeCell(p.columns.w3[0], "", fill)
 	}
+
 	p.printBodyTimeCell(p.columns.w3[20], record.SIM.Type, fill)
 	p.printBodyTimeCell(p.columns.w3[21], p.formatTimeField(record.SIM.Time), fill)
 	p.printBodyRemarksCell(p.columns.w3[22], record.Remarks, fill)
@@ -173,14 +168,13 @@ func (p *PDFExporter) printA4LogbookBody(record SingleLogbookEntry) {
 	p.pdf.SetX(p.Export.LeftMargin)
 }
 
-// printA4LogbookFooter prints the logbook footer
 func (p *PDFExporter) printA4LogbookFooter() {
 	p.printA4Total(FooterThisPage, p.totalPage)
 	p.printA4Total(FooterPreviousPage, p.totalPrevious)
 	p.printA4Total(FooterTotalTime, p.totalTime)
 }
 
-// printA4Total prints the logbook total
+
 func (p *PDFExporter) printA4Total(totalName string, total SingleLogbookEntry) {
 	p.setFontLogbookFooter()
 

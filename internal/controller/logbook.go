@@ -2,14 +2,15 @@ package controller
 
 import (
 	"errors"
+	"net/http"
+	"strconv"
+	"time"
+
 	"github.com/avialog/backend/internal/common"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/service"
 	"github.com/avialog/backend/internal/util"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
-	"time"
 )
 
 type LogbookController interface {
@@ -17,6 +18,7 @@ type LogbookController interface {
 	InsertLogbookEntry(*gin.Context)
 	UpdateLogbookEntry(*gin.Context)
 	DeleteLogbookEntry(*gin.Context)
+	DownloadLogbookPDF(*gin.Context)
 }
 
 type logbookController struct {
@@ -180,4 +182,38 @@ func (c *logbookController) DeleteLogbookEntry(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "Logbook entry deleted successfully"})
+}
+
+// DownloadLogbookPDF godoc
+//
+// @Summary Download logbook entries as PDF
+// @Description Generate and download logbook entries in PDF format
+// @Tags logbook
+// @Produce application/pdf
+// @Security ApiKeyAuth
+// @Success 200 {file} file "PDF file"
+// @Failure 400 {object} util.HTTPError
+// @Failure 404 {object} util.HTTPError
+// @Failure 500 {object} util.HTTPError
+// @Router /logbook/download [get]
+func (c *logbookController) DownloadLogbookPDF(ctx *gin.Context) {
+		userID := ctx.GetString(common.UserID)
+
+		pdf, err := c.logbookService.GeneratePDF(userID)
+		if err != nil {
+			if errors.Is(err, dto.ErrNotFound) {
+				util.NewError(ctx, http.StatusNotFound, err)
+				return
+			}
+			util.NewError(ctx, http.StatusInternalServerError, err)
+			return
+		}
+
+		// Set PDF response headers
+		ctx.Header("Content-Description", "File Transfer")
+		ctx.Header("Content-Disposition", "attachment; filename=logbook.pdf")
+		ctx.Header("Content-Type", "application/pdf")
+
+		ctx.Data(http.StatusOK, "application/pdf", pdf)
+	
 }

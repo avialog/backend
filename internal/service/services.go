@@ -13,7 +13,6 @@ type Services interface {
 	User() UserService
 	Logbook() LogbookService
 	Auth() AuthService
-	
 }
 
 type services struct {
@@ -28,7 +27,7 @@ func NewServices(repositories repository.Repositories, config config.Config, val
 	contactService := newContactService(repositories.Contact(), config, validator)
 	aircraftService := newAircraftService(repositories.Aircraft(), repositories.Flight(), config, validator)
 	userService := newUserService(repositories.User(), config)
-	logbookService := newLogbookService(repositories.Flight(), repositories.Landing(), repositories.Passenger(), repositories.Aircraft(), config, validator)
+	logbookService := newLogbookService(repositories.Flight(), repositories.Landing(), repositories.Passenger(), repositories.Aircraft(), repositories.User(), config, validator)
 	authService := newAuthService(repositories.User(), authClient, authV4.IsIDTokenExpired)
 	return &services{
 		contactService:  contactService,
