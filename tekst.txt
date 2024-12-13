@@ -1,0 +1,65 @@
+\subsection{Autentykacja użytkowników i autoryzacja zasobów}
+Autentykacja jest realizowana za pomocą usługi \textit{Firebase Authentication}~\cite{firebaseAuth} (więcej w rozdziale~\ref{subsec:firebaseAuth}).
+W kodzie źródłowym wykorzystano bibliotekę Firebase Admin SDK, która służy do weryfikacji tokenów JWT. Serwer oczekuje poprawnego tokenu w nagłówku \textit{Authorization} każdego żądania HTTP przychodzącego od aplikacji klienckiej. Sposób działania tego komponentu przedstawia diagram na rys.~\ref{fig:authService}. Kod jest przedstawiony na listingu~\ref{lst:authValidateToken}.
+
+Warto zwrócić uwagę, że do poprawnego działania biblioteki Firebase Admin SDK wymagane są poświadczenia, dzięki którym biblioteka jest w stanie rozpoznać projekt. Te poświadczenia są zapisane w tak zwanym pliku Klucza Konta Usługi (z ang. \textit{Service Account Key}). W trakcie opracowywania projektu jeden z autorów pracy wygenerował taki plik z wykorzystaniem konsoli przeglądarkowej Firebase i umieścił na serwerze VPS (o którym mowa w rozdziale~\ref{subsec:deployment}). 
+
+Autoryzacja dostępu do zasobów odbywa się na poziomie warstwy repozytoriów. Schemat bazy danych zakłada, że kluczowe zasoby domeny (takie jak samoloty, loty, kontakty) są ściśle związane z identyfikatorem użytkownika. Wybranie zasobów przypisanych do zadanego użytkownika wymaga dodania prostego filtra (to jest odpowiednia formuła klauzuli \textit{WHERE} w SQL).
+
+\begin{figure}
+    \centering
+\includegraphics[height=0.4\textheight]{diagramsBackend/authService.png}
+    \caption{Diagram działania komponentu autentykacji w aplikacji serwerowej}
+    \label{fig:authService}
+\end{figure}
+
+\lstinputlisting[label={lst:authValidateToken}, caption={Kod mechanizmu autentykacji w aplikacji serwerowej}, language=Golang]{codeBackend/authValidateToken.go}
+
+\subsection{Wdrożenie}
+\label{subsec:deployment}
+
+W celu ułatwienia testowania produktu przez użytkowników, aplikacja serwerowa została wdrożona na serwer VPS (z ang. \textit{Virtual Private Server}).
+Obraz kontenera opracowany za pomocą technologii Docker \cite{docker} jest archiwizowany w Github Container Registry \cite{ghcr}.
+Następnie jednowęzłowy klaster K3S \cite{k3s} (zgodny z \textit{Kubernetes} \cite{k8s}) pobiera obraz i uruchamia go jako wdrożenie (zasób \textit{Deployment}) na serwerze.
+
+\subsubsection{Konteneryzacja aplikacji}
+Aplikacja może zostać spakowana do obrazu kontenera na podstawie pliku konfiguracyjnego Dockerfile (zob. listing \ref{lst:dockerfile}). Warte uwagi jest dwukrotnie wystąpienie słowa kluczowego \textit{FROM} - pozwala ono na zbudowanie tak zwanego wieloetapowego obrazu. Pierwszy etap powstający na bazie obrazu pierwotnego \textit{golang} kompiluje projekt do postaci wykonywalnego  pliku binarnego. Ten plik jest następnie kopiowany do drugiego, wyjściowego etapu, który jest stworzony na bazie lekkiego obrazu \textit{alpine}. Taka architektura pozwala na oszczędność rozmiaru wyjściowego obrazu. 
+
+\lstinputlisting[label={lst:dockerfile}, caption={Zawartość pliku Dockerfile}, language=Docker]{codeBackend/Dockerfile}
+
+\subsubsection{Wdrożenie na środowisko chmurowe}
+
+W klastrze zgodnym z Kubernetes tworzone są trzy obiekty: \textit{apps/v1/Deployment}, \textit{v1/Service}, \textit{networking.k8s.io/v1/Ingress}.
+
+\begin{itemize}
+    \item \textit{apps/v1/Deployment} - odpowiada za utworzenie podów w klastrze, w obrębie których uruchamiane są kontenery z aplikacją. Sekrety aplikacji są importowane z zasobu \textit{v1/Secret}.
+    \item \textit{v1/Service} - zapewnia kierowanie ruchem do podów.
+    \item \textit{networking.k8s.io/v1/Ingress} - powoduje wystawienie publicznego dostępu za pomocą \textit{ingress-controller}. W specyfikacji zasobu skonfigurowane jest filtrowanie żądań po nagłówku \textit{Host}.
+\end{itemize}
+
+Opisane powyżej zasoby są utworzone za pomocą manifestów Kubernetes w języku Yaml (zob. listing \ref{lst:kubernetes}). Architektura jest przedstawiona na rys. \ref{fig:worklaod}
+
+\lstinputlisting[label={lst:kubernetes}, caption={Manifesty Kubernetes}, language=Yaml]{codeBackend/kubernetes.yaml}
+
+\begin{figure}
+    \centering
+\includegraphics[height=0.4\textheight]{diagramsBackend/workload.png}
+    \caption{Architektura wdrożenia aplikacji wewnątrz klastra}
+    \label{fig:worklaod}
+\end{figure}
+
+\subsubsection{Automatyzacja \textit{CI/CD}}
+
+W celu zapewnienia optymalnego tempa pracy nad projektem, repozytorium posiada skonfigurowaną automatyzację \textit{CI/CD} opartą o \textit{Github Actions} \cite{actions}. Mechanizm działania automatyzacji (zob. rys. \ref{fig:cicd}):
+\begin{itemize}
+    \item gdy do repozytorium kodu zostaną wypchnięte nowe zmiany, automatyzacja uruchomi narzędzie sprawdzania jakości kodu (tzw. \textit{linter} ~\cite{linter}).
+    \item zostanie zbudowany obraz Docker. Jego tag jest determinowany na podstawie krótkiego skrótu commitu (z ang. \textit{short commit SHA}).
+    \item jeżeli gałąź systemu kontroli wersji to \textit{main}, automatyzacja wykona żądanie do klastra o zmianę wersji aplikacji na najnowszą. Jest to realizowane za pomocą polecenia \textit{kubectl set image}. 
+\end{itemize}
+
+\begin{figure}
+    \centering
+\includegraphics[height=0.25\textheight]{diagramsBackend/cicd2.png}
+    \caption{Mechanizm działania automatyzacji}
+    \label{fig:cicd}
+\end{figure}

@@ -2,13 +2,14 @@ package controller
 
 import (
 	"errors"
+	"net/http"
+	"strconv"
+
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/service"
 	"github.com/avialog/backend/internal/util"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 type AircraftController interface {
@@ -176,6 +177,7 @@ func (a *aircraftController) adaptAircraft(aircraft model.Aircraft) dto.Aircraft
 		ID:                 aircraft.ID,
 		AircraftModel:      aircraft.AircraftModel,
 		RegistrationNumber: aircraft.RegistrationNumber,
+		IsSingleEngine:     aircraft.IsSingleEngine,
 		ImageURL:           aircraft.ImageURL,
 		Remarks:            aircraft.Remarks,
 	}

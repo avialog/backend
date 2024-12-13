@@ -3,6 +3,7 @@ package service
 import (
 	"errors"
 	"fmt"
+
 	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
@@ -35,6 +36,7 @@ func (a *aircraftService) InsertAircraft(userID string, aircraftRequest dto.Airc
 		UserID:             userID,
 		AircraftModel:      aircraftRequest.AircraftModel,
 		RegistrationNumber: aircraftRequest.RegistrationNumber,
+		IsSingleEngine:     aircraftRequest.IsSingleEngine,
 		ImageURL:           aircraftRequest.ImageURL,
 		Remarks:            aircraftRequest.Remarks,
 	}
@@ -74,6 +76,7 @@ func (a *aircraftService) UpdateAircraft(userID string, id uint, aircraftRequest
 	aircraft.RegistrationNumber = aircraftRequest.RegistrationNumber
 	aircraft.ImageURL = aircraftRequest.ImageURL
 	aircraft.Remarks = aircraftRequest.Remarks
+	aircraft.IsSingleEngine = aircraftRequest.IsSingleEngine
 
 	err = a.validator.Struct(aircraft)
 	if err != nil {

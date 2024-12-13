@@ -55,6 +55,21 @@ func (mr *MockLogbookServiceMockRecorder) DeleteLogbookEntry(userID, flightID an
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLogbookEntry", reflect.TypeOf((*MockLogbookService)(nil).DeleteLogbookEntry), userID, flightID)
 }
 
+// GeneratePDF mocks base method.
+func (m *MockLogbookService) GeneratePDF(userID string) ([]byte, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GeneratePDF", userID)
+	ret0, _ := ret[0].([]byte)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GeneratePDF indicates an expected call of GeneratePDF.
+func (mr *MockLogbookServiceMockRecorder) GeneratePDF(userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GeneratePDF", reflect.TypeOf((*MockLogbookService)(nil).GeneratePDF), userID)
+}
+
 // GetLogbookEntries mocks base method.
 func (m *MockLogbookService) GetLogbookEntries(userID string, start, end time.Time) ([]dto.LogbookResponse, error) {
 	m.ctrl.T.Helper()

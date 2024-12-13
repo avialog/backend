@@ -89,6 +89,7 @@ func (c *controllers) Route(server *gin.Engine) {
 				flights.POST("", c.logbookController.InsertLogbookEntry)
 				flights.PUT(":id", c.logbookController.UpdateLogbookEntry)
 				flights.DELETE(":id", c.logbookController.DeleteLogbookEntry)
+				flights.GET("/download", c.logbookController.DownloadLogbookPDF)
 			}
 			aircraft := authenticated.Group("/aircraft")
 			{
