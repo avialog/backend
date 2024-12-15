@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"time"
@@ -10,6 +11,8 @@ import (
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
 	"github.com/go-playground/validator/v10"
+
+	"github.com/avialog/backend/internal/pdfexport"
 )
 
 //go:generate mockgen -source=logbook.go -destination=logbook_mock.go -package service
@@ -18,6 +21,7 @@ type LogbookService interface {
 	DeleteLogbookEntry(userID string, flightID uint) error
 	UpdateLogbookEntry(userID string, flightID uint, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error)
 	GetLogbookEntries(userID string, start, end time.Time) ([]dto.LogbookResponse, error)
+	GeneratePDF(userID string) ([]byte, error)
 }
 
 type logbookService struct {
@@ -25,15 +29,111 @@ type logbookService struct {
 	landingRepository   repository.LandingRepository
 	passengerRepository repository.PassengerRepository
 	aircraftRepository  repository.AircraftRepository
+	userRepository      repository.UserRepository
 	validator           *validator.Validate
 	config              config.Config
 }
 
 func newLogbookService(flightRepository repository.FlightRepository, landingRepository repository.LandingRepository,
 	passengerRepository repository.PassengerRepository, aircraftRepository repository.AircraftRepository,
-	config config.Config, validator *validator.Validate) LogbookService {
+	userRepository repository.UserRepository, config config.Config, validator *validator.Validate) LogbookService {
 	return &logbookService{flightRepository, landingRepository,
-		passengerRepository, aircraftRepository, validator, config}
+		passengerRepository, aircraftRepository, userRepository, validator, config}
+}
+func (l *logbookService) GeneratePDF(userID string) ([]byte, error) {
+	// Create a buffer to store the PDF
+	buf := new(bytes.Buffer)
+
+	// Create export configuration
+	exportConfig := pdfexport.ExportPDF{
+		LogbookRows:          18,
+		Fill:                 3,
+		LeftMargin:           10.0,
+		TopMargin:            30.0,
+		BodyRow:              5.0,
+		FooterRow:            6.0,
+		IncludeSignature:     true,
+		TimeFieldsAutoFormat: 1,
+		Columns: pdfexport.ColumnsWidth{
+			Col1:  12.2, // Date
+			Col2:  8.25, // Departure
+			Col3:  8.25,
+			Col4:  8.25, // Arrival
+			Col5:  8.25,
+			Col6:  10.0, // Aircraft
+			Col7:  12.9,
+			Col8:  11.2,  // SE
+			Col9:  11.2,  // ME
+			Col10: 11.2,  // MCC
+			Col11: 11.2,  // Total time
+			Col12: 22.86, // PIC name
+			Col13: 8.38,  // Landings
+			Col14: 8.38,
+			Col15: 11.2, // Night
+			Col16: 11.2, // IFR
+			Col17: 11.2, // PIC
+			Col18: 11.2, // COP
+			Col19: 11.2, // Dual
+			Col20: 11.2, // Instr
+			Col21: 11.2, // FSTD
+			Col22: 11.2,
+			Col23: 33.8, // Remarks
+		},
+		Headers: pdfexport.ColumnsHeader{
+			Date:      "DATE",
+			Departure: "DEPARTURE",
+			Arrival:   "ARRIVAL",
+			Aircraft:  "AIRCRAFT",
+			SPT:       "SINGLE PILOT TIME",
+			MCC:       "MULTI PILOT TIME",
+			Total:     "TOTAL TIME",
+			PICName:   "PIC NAME",
+			Landings:  "LANDINGS",
+			OCT:       "OPERATIONAL CONDITION TIME",
+			PFT:       "PILOT FUNCTION TIME",
+			FSTD:      "FSTD SESSION",
+			Remarks:   "REMARKS AND ENDORSEMENTS",
+			DepPlace:  "Place",
+			DepTime:   "Time",
+			ArrPlace:  "Place",
+			ArrTime:   "Time",
+			Model:     "Type",
+			Reg:       "Reg",
+			SE:        "SE",
+			ME:        "ME",
+			LandDay:   "Day",
+			LandNight: "Night",
+			Night:     "Night",
+			IFR:       "IFR",
+			PIC:       "PIC",
+			COP:       "COP",
+			Dual:      "DUAL",
+			Instr:     "INSTR",
+			SimType:   "Type",
+			SimTime:   "Time",
+		},
+	}
+
+	// Create PDF exporter
+	exporter, err := pdfexport.NewPDFExporter(
+		"A4",
+		"John Doe",         // Owner name
+		"PPL123",           // License number
+		"123 Aviation Way", // Address
+		"John Doe",         // Signature
+		"",                 // Signature image
+		exportConfig,
+	)
+	if err != nil {
+		return nil, fmt.Errorf("failed to create PDF exporter: %w", err)
+	}
+
+	err = exporter.ExportA4(l.mapToSingleLogbookEntry(userID), buf)
+	if err != nil {
+		return nil, fmt.Errorf("failed to export PDF: %w", err)
+	}
+
+	return buf.Bytes(), nil
 }
 
 func (l *logbookService) InsertLogbookEntry(userID string, logbookRequest dto.LogbookRequest) (dto.LogbookResponse, error) {
@@ -523,4 +623,213 @@ func (l *logbookService) UpdateLogbookEntry(userID string, flightID uint, logboo
 	}
 
 	return logbookResponse, nil
+}
+
+func (l *logbookService) mapToSingleLogbookEntry(userID string) []pdfexport.SingleLogbookEntry {
+	userFlights, err := l.flightRepository.GetFlightForLogbook(userID)
+	if err != nil {
+		return nil
+	}
+
+	var logbookEntries []pdfexport.SingleLogbookEntry
+
+	for _, flight := range userFlights {
+		if flight.Remarks == nil {
+			fmt.Printf("Warning: flight %d has nil Remarks\n", flight.ID)
+			continue
+		}
+
+		// Get date and times from takeoff/landing
+		date, depTime := l.transformDateTime(flight.TakeoffTime)
+		_, arrTime := l.transformDateTime(flight.LandingTime)
+
+		// Calculate total landings (day/night)
+		dayLandings := 0
+		nightLandings := 0
+		for _, landing := range flight.Landings {
+			if landing.DayCount != nil {
+				dayLandings += int(*landing.DayCount)
+			}
+			if landing.NightCount != nil {
+				nightLandings += int(*landing.NightCount)
+			}
+		}
+
+		// Determine PIC name
+		picName := ""
+		if flight.MyRole == "PIC" {
+			picName = "SELF"
+		} else {
+			// Look for PIC in passengers
+			for _, passenger := range flight.Passengers {
+				if passenger.Role == "PIC" {
+					picName = fmt.Sprintf("%s %s", passenger.FirstName, *passenger.LastName)
+					break
+				}
+			}
+		}
+
+		// Check if it's a multi-pilot flight
+		isMultiPilot := false
+		qualifiedPassengers := 0
+
+		// Check if my role qualifies
+		if flight.MyRole == "PIC" || flight.MyRole == "SIC" ||
+			flight.MyRole == "INS" || flight.MyRole == "EXM" ||
+			flight.MyRole == "P1S" {
+			qualifiedPassengers++
+		}
+
+		// Count qualified passengers
+		for _, passenger := range flight.Passengers {
+			if passenger.Role == "PIC" || passenger.Role == "SIC" ||
+				passenger.Role == "INS" || passenger.Role == "EXM" ||
+				passenger.Role == "P1S" {
+				qualifiedPassengers++
+			}
+		}
+
+		// Multi-pilot requires at least 2 qualified crew members
+		isMultiPilot = qualifiedPassengers >= 2
+
+		// Convert all duration fields
+		var totalTime string
+		if flight.TotalBlockTime != nil {
+			totalTime = l.translateDurationToString(flight.TotalBlockTime.Nanoseconds())
+		}
+
+		// Determine SE/ME/MCC times based on aircraft type and multi-pilot status
+		var seTime, meTime, mccTime string
+		if !isMultiPilot {
+			if flight.Aircraft.IsSingleEngine == "true" {
+				seTime = totalTime
+			} else {
+				meTime = totalTime
+			}
+		} else {
+			mccTime = totalTime
+		}
+
+		// Convert other time fields
+		var picTime, sicTime, nightTime, ifrTime,
+			dualTime, instrTime, simTime string
+
+		if flight.PilotInCommandTime != nil {
+			picTime = l.translateDurationToString(flight.PilotInCommandTime.Nanoseconds())
+		}
+		if flight.SecondInCommandTime != nil {
+			sicTime = l.translateDurationToString(flight.SecondInCommandTime.Nanoseconds())
+		}
+		if flight.NightTime != nil {
+			nightTime = l.translateDurationToString(flight.NightTime.Nanoseconds())
+		}
+		if flight.IFRTime != nil {
+			ifrTime = l.translateDurationToString(flight.IFRTime.Nanoseconds())
+		}
+		if flight.DualReceivedTime != nil {
+			dualTime = l.translateDurationToString(flight.DualReceivedTime.Nanoseconds())
+		}
+		if flight.DualGivenTime != nil {
+			instrTime = l.translateDurationToString(flight.DualGivenTime.Nanoseconds())
+		}
+		if flight.SimulatorTime != nil {
+			simTime = l.translateDurationToString(flight.SimulatorTime.Nanoseconds())
+		}
+
+		entry := pdfexport.SingleLogbookEntry{
+			Date: date,
+			Departure: struct {
+				Place string
+				Time  string
+			}{
+				Place: flight.TakeoffAirportCode,
+				Time:  depTime,
+			},
+			Arrival: struct {
+				Place string
+				Time  string
+			}{
+				Place: flight.LandingAirportCode,
+				Time:  arrTime,
+			},
+			Aircraft: struct {
+				Model string
+				Reg   string
+			}{
+				Model: flight.Aircraft.AircraftModel,
+				Reg:   flight.Aircraft.RegistrationNumber,
+			},
+			Time: struct {
+				SE         string
+				ME         string
+				MCC        string
+				Total      string
+				Night      string
+				IFR        string
+				PIC        string
+				CoPilot    string
+				Dual       string
+				Instructor string
+			}{
+				SE:         seTime,
+				ME:         meTime,
+				MCC:        mccTime,
+				Total:      totalTime,
+				Night:      nightTime,
+				IFR:        ifrTime,
+				PIC:        picTime,
+				CoPilot:    sicTime,
+				Dual:       dualTime,
+				Instructor: instrTime,
+			},
+			Landings: struct {
+				Day   int
+				Night int
+			}{
+				Day:   dayLandings,
+				Night: nightLandings,
+			},
+			SIM: struct {
+				Type string
+				Time string
+			}{
+				Type: func() string {
+					if flight.FSTDtype != nil {
+						return *flight.FSTDtype
+					}
+					return ""
+				}(),
+				Time: simTime,
+			},
+			PIC:     picName,
+			Remarks: *flight.Remarks,
+		}
+
+		logbookEntries = append(logbookEntries, entry)
+	}
+
+	return logbookEntries
+}
+
+func (l *logbookService) translateDurationToString(durationNano int64) string {
+	if durationNano == 0 {
+		return ""
+	}
+
+	duration := time.Duration(durationNano)
+	hours := int(duration.Hours())
+	minutes := int(duration.Minutes()) % 60
+
+	return fmt.Sprintf("%d:%02d", hours, minutes)
+}
+
+func (l *logbookService) transformDateTime(t time.Time) (date string, timeStr string) {
+	if t.IsZero() {
+		return "", ""
+	}
+
+	date = t.Format("02.01.2006") // DD.MM.YYYY
+	timeStr = t.Format("15:04")   // HH:MM (24-hour format)
+
+	return date, timeStr
 }

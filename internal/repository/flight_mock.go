@@ -204,6 +204,21 @@ func (mr *MockFlightRepositoryMockRecorder) GetByUserIDAndDate(userID, start, en
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetByUserIDAndDate", reflect.TypeOf((*MockFlightRepository)(nil).GetByUserIDAndDate), userID, start, end)
 }
 
+// GetFlightForLogbook mocks base method.
+func (m *MockFlightRepository) GetFlightForLogbook(userID string) ([]model.Flight, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetFlightForLogbook", userID)
+	ret0, _ := ret[0].([]model.Flight)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetFlightForLogbook indicates an expected call of GetFlightForLogbook.
+func (mr *MockFlightRepositoryMockRecorder) GetFlightForLogbook(userID any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetFlightForLogbook", reflect.TypeOf((*MockFlightRepository)(nil).GetFlightForLogbook), userID)
+}
+
 // Save mocks base method.
 func (m *MockFlightRepository) Save(flight model.Flight) (model.Flight, error) {
 	m.ctrl.T.Helper()

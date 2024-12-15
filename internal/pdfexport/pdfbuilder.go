@@ -242,19 +242,17 @@ func (p *PDFExporter) initColumns() {
 		},
 	}
 
-	// extended format add Date column to the FSTD session by reducing Remarks
-	if p.Export.IsExtended {
-		p.columns.w1[10] += c.Col1
-		p.columns.w1[11] -= c.Col1
+	p.columns.w1[10] += c.Col1
+	p.columns.w1[11] -= c.Col1
 
-		p.columns.w2[11] += c.Col1
-		p.columns.w2[12] -= c.Col1
+	p.columns.w2[11] += c.Col1
+	p.columns.w2[12] -= c.Col1
 
-		p.columns.w3[22] -= c.Col1
+	p.columns.w3[22] -= c.Col1
 
-		p.columns.w4[15] += c.Col1
-		p.columns.w4[17] -= c.Col1
-	}
+	p.columns.w4[15] += c.Col1
+	p.columns.w4[17] -= c.Col1
+
 }
 
 // initPDF initializes the PDF object
@@ -318,7 +316,6 @@ func (p *PDFExporter) loadSignature() error {
 	return nil
 }
 
-// titlePage prints title page
 func (p *PDFExporter) titlePage() {
 
 	type XY struct {
@@ -402,60 +399,51 @@ func (p *PDFExporter) printCustomTitle() {
 	}
 }
 
-// isFillLine checks if the line should be filled
 func (p *PDFExporter) isFillLine() bool {
-	return p.rowCounter%p.Export.Fill == 0 // fill every "fill" row only
+	return p.rowCounter%p.Export.Fill == 0
 }
 
-// setFontLogbookHeader sets font for logbook header
 func (p *PDFExporter) setFontLogbookHeader() {
 	p.pdf.SetFillColor(HeaderBG.r, HeaderBG.g, HeaderBG.b)
 	p.pdf.SetTextColor(HeaderText.r, HeaderText.g, HeaderText.b)
 	p.pdf.SetFont(fontBold, "", HeaderFontSize)
 }
 
-// setFontLogbookFooter sets font for logbook footer
 func (p *PDFExporter) setFontLogbookFooter() {
 	p.setFontLogbookHeader()
 }
 
-// setFontLogbookBody sets font for logbook rows
 func (p *PDFExporter) setFontLogbookBody() {
 	p.pdf.SetFillColor(BodyFillBG.r, BodyFillBG.g, BodyFillBG.b)
 	p.pdf.SetTextColor(BodyText.r, BodyText.g, BodyText.b)
 	p.pdf.SetFont(fontRegular, "", BodyFontSize)
 }
 
-// printBodyTimeCell prints time cell in the row of the logbook
 func (p *PDFExporter) printBodyTimeCell(w float64, value string, fill bool) {
 	p.pdf.CellFormat(w, p.Export.BodyRow, value, "1", 0, "C", fill, 0, "")
 }
 
-// printBodyTextCell prints text cell in the row of the logbook
 func (p *PDFExporter) printBodyTextCell(w float64, value string, fill bool) {
 	p.pdf.CellFormat(w, p.Export.BodyRow, value, "1", 0, "L", fill, 0, "")
 }
 
-// printFooterCell prints cell in the footer of the logbook
 func (p *PDFExporter) printFooterCell(w float64, value string) {
 	p.pdf.CellFormat(w, p.Export.FooterRow, value, "1", 0, "C", true, 0, "")
 }
 
-// printSinglePilotTime prints time cell for single pilot in the row of the logbook
 func (p *PDFExporter) printSinglePilotTime(w float64, value string, fill bool) {
 	if p.Export.ReplaceSPTime && value != "" {
-		// set new font with symbol support
+
 		p.pdf.SetFont(fontB612, "", BodyFontSize)
-		// put check symbol
+
 		p.printBodyTimeCell(w, CheckSymbol, fill)
-		// set back the regular font
+
 		p.pdf.SetFont(fontRegular, "", BodyFontSize)
 	} else {
 		p.printBodyTimeCell(w, value, fill)
 	}
 }
 
-// formatTimeField formats time field in the logbook
 func (p *PDFExporter) formatTimeField(timeField string) string {
 	if p.Export.TimeFieldsAutoFormat == 0 || timeField == "" {
 		return timeField
@@ -463,7 +451,7 @@ func (p *PDFExporter) formatTimeField(timeField string) string {
 
 	parts := strings.Split(timeField, ":")
 
-	if len(parts) != 2 { // probably some wrong value in the field
+	if len(parts) != 2 {
 		if timeField == "0" {
 			return ""
 		}
@@ -475,12 +463,10 @@ func (p *PDFExporter) formatTimeField(timeField string) string {
 	minutes := parts[1]
 
 	if p.Export.TimeFieldsAutoFormat == 1 {
-		// add leading zero if missing
 		if len(hours) == 1 {
 			hours = fmt.Sprintf("0%s", hours)
 		}
 	} else {
-		// Remove leading zero if present
 		if strings.HasPrefix(hours, "0") && len(hours) == 2 {
 			hours = hours[1:]
 		}
@@ -497,16 +483,13 @@ func (p *PDFExporter) printBodyRemarksCell(w float64, value string, fill bool) {
 	longCut := int(1.75 * float64(wFactored))
 
 	if vL > longCut {
-		// too long remark, cut it and set font 5
 		p.pdf.SetFont(fontRegular, "", BodyFontSize-3)
 		value = value[:longCut-3] + "..."
 
 	} else if vL > wFactored*3/2 {
-		// slightly long remark
 		p.pdf.SetFont(fontRegular, "", BodyFontSize-3)
 
 	} else if vL > wFactored {
-		// long remark
 		p.pdf.SetFont(fontRegular, "", BodyFontSize-2)
 	}
 
@@ -514,7 +497,6 @@ func (p *PDFExporter) printBodyRemarksCell(w float64, value string, fill bool) {
 	p.pdf.SetFont(fontRegular, "", BodyFontSize)
 }
 
-// printFooterLeftBlock prints left block in the footer of the logbook
 func (p *PDFExporter) printFooterLeftBlock(totalName string) {
 	var border string
 	switch totalName {
@@ -529,46 +511,36 @@ func (p *PDFExporter) printFooterLeftBlock(totalName string) {
 	p.pdf.CellFormat(p.columns.w4[0], p.Export.FooterRow, "", border, 0, "", true, 0, "")
 }
 
-// printFooterSignatureBlock prints signature block in the footer of the logbook
 func (p *PDFExporter) printFooterSignatureBlock(totalName string) {
 	p.pdf.SetFont(fontRegular, "", SignatureFontSize)
 
 	if totalName == FooterThisPage {
-		if p.Export.IsExtended {
-			// let's save the coordinates
-			p.signatureBlockX, p.signatureBlockY = p.pdf.GetXY()
-			// and put empty filled box
-			p.pdf.CellFormat(p.columns.w4[17], p.Export.FooterRow, "", "LTR", 0, "C", true, 0, "")
-		} else {
-			p.pdf.CellFormat(p.columns.w4[17], p.Export.FooterRow, p.Signature, "LTR", 0, "C", true, 0, "")
-		}
+
+		p.signatureBlockX, p.signatureBlockY = p.pdf.GetXY()
+
+		p.pdf.CellFormat(p.columns.w4[17], p.Export.FooterRow, "", "LTR", 0, "C", true, 0, "")
+
 	} else if totalName == FooterPreviousPage {
 		p.pdf.CellFormat(p.columns.w4[17], p.Export.FooterRow, "", "LR", 0, "", true, 0, "")
 
-		if p.Export.IsExtended {
-			// in case it's extended format, the remarks field can be too short to
-			// include the signature text, especially for A4 format. In this case
-			// there will be MultiCell function which support new line automatically
-			x, y := p.pdf.GetXY()
-			rowH := p.Export.FooterRow
-			if len(p.Signature) > int(p.columns.w4[17]*0.8) {
-				// looks like the signature text is really too long,
-				// so let's fit multiline cell into one normal footerRowHeight
-				rowH = p.Export.FooterRow / 2
-			}
-			p.pdf.SetXY(p.signatureBlockX, p.signatureBlockY)
-			p.pdf.MultiCell(p.columns.w4[17], rowH, strings.TrimRight(p.Signature, "\r\n"), "LTR", "C", true)
-			p.pdf.SetXY(x, y)
-			// empty tiny cell to set the footerRowHeight back
-			p.pdf.CellFormat(0.01, p.Export.FooterRow, "", "", 0, "", true, 0, "")
+		x, y := p.pdf.GetXY()
+		rowH := p.Export.FooterRow
+		if len(p.Signature) > int(p.columns.w4[17]*0.8) {
+
+			rowH = p.Export.FooterRow / 2
 		}
+		p.pdf.SetXY(p.signatureBlockX, p.signatureBlockY)
+		p.pdf.MultiCell(p.columns.w4[17], rowH, strings.TrimRight(p.Signature, "\r\n"), "LTR", "C", true)
+		p.pdf.SetXY(x, y)
+
+		p.pdf.CellFormat(0.01, p.Export.FooterRow, "", "", 0, "", true, 0, "")
+
 	} else {
 		p.pdf.CellFormat(p.columns.w4[17], p.Export.FooterRow, p.OwnerName, "LBR", 0, "C", true, 0, "")
 		p.printSignature()
 	}
 }
 
-// printSignature prints signature in the footer of the logbook
 func (p *PDFExporter) printSignature() {
 	if p.SignatureImage != "" {
 		p.pdf.Image("signature", p.pdf.GetX()-p.columns.w4[17], p.pdf.GetY()-p.Export.FooterRow*2, p.columns.w4[17],
@@ -576,14 +548,12 @@ func (p *PDFExporter) printSignature() {
 	}
 }
 
-// printPageNumber prints page number in the footer of the logbook
 func (p *PDFExporter) printPageNumber() {
 	p.pdf.SetFont(fontRegular, "", PageNumberFontSize)
 	p.pdf.SetY(p.pdf.GetY() + 2)
 	p.pdf.MultiCell(10, 1, fmt.Sprintf("page %d", p.pageCounter), "", "L", false)
 }
 
-// checkPageBreaks checks if we need to insert a page break and a new logbook started
 func (p *PDFExporter) checkPageBreaks() {
 	if len(p.pageBreaks) > 0 {
 		if fmt.Sprintf("%d", p.pageCounter) == p.pageBreaks[0] {
@@ -596,7 +566,6 @@ func (p *PDFExporter) checkPageBreaks() {
 	}
 }
 
-// formatLandings is a helper function and formats landings field in the logbook
 func formatLandings(landing int) string {
 	if landing == 0 {
 		return ""

@@ -3,11 +3,12 @@ package repository
 import (
 	"errors"
 	"fmt"
+	"time"
+
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/infrastructure"
 	"github.com/avialog/backend/internal/model"
 	"gorm.io/gorm"
-	"time"
 )
 
 //go:generate mockgen -source=flight.go -destination=flight_mock.go -package repository
@@ -25,6 +26,7 @@ type FlightRepository interface {
 	DeleteByIDTx(tx infrastructure.Database, id uint) error
 	GetByIDTx(tx infrastructure.Database, id uint) (model.Flight, error)
 	SaveTx(tx infrastructure.Database, flight model.Flight) (model.Flight, error)
+	GetFlightForLogbook(userID string) ([]model.Flight, error)
 }
 
 type flight struct {
@@ -166,4 +168,23 @@ func (f *flight) GetByIDTx(tx infrastructure.Database, id uint) (model.Flight, e
 	}
 
 	return flight, nil
+}
+
+func (f *flight) GetFlightForLogbook(userID string) ([]model.Flight, error) {
+	var flights []model.Flight
+
+	result := f.db.
+		Preload("Aircraft").
+		Preload("Passengers").
+		Preload("Landings").
+		Preload("User").
+		Where("user_id = ?", userID).
+		Order("takeoff_time DESC").
+		Find(&flights)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return flights, nil
 }

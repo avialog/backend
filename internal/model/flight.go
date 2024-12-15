@@ -22,6 +22,7 @@ type Flight struct {
 	MyRole              Role        `gorm:"required; not null; default:null" validate:"required,role"`
 	Remarks             *string
 	PersonalRemarks     *string
+	FSTDtype            *string // FNPT, FTD, FFS, OTD
 	TotalBlockTime      *time.Duration
 	PilotInCommandTime  *time.Duration
 	SecondInCommandTime *time.Duration
