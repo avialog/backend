@@ -45,22 +45,36 @@ func (c *logbookController) GetLogbookEntries(ctx *gin.Context) {
 	var start time.Time
 	var end time.Time
 
-	var getLogbookRequest dto.GetLogbookRequest
-	if err := ctx.ShouldBindJSON(&getLogbookRequest); err != nil {
-		util.NewError(ctx, 212, err) //http.StatusBadRequest, err)
+	// Get start and end from query parameters
+	startStr := ctx.Query("start")
+	endStr := ctx.Query("end")
+
+	// Check if either both or neither parameters are provided
+	if (startStr == "") != (endStr == "") {
+		util.NewError(ctx, http.StatusBadRequest, errors.New("both start and end time must be provided or neither"))
 		return
 	}
 
-	if getLogbookRequest.Start == nil && getLogbookRequest.End != nil || getLogbookRequest.Start != nil && getLogbookRequest.End == nil {
-		util.NewError(ctx, http.StatusBadRequest, errors.New("both start and end time must be provided or neither"))
-		return
-	} else if getLogbookRequest.Start == nil && getLogbookRequest.End == nil {
+	if startStr == "" && endStr == "" {
+		// Default to last 90 days if no dates provided
 		start = time.Now().AddDate(0, 0, -90)
 		end = time.Now()
 	} else {
-		start = time.Unix(*getLogbookRequest.Start, 0)
-		end = time.Unix(*getLogbookRequest.End, 0)
+		// Parse the Unix timestamps from strings
+		startUnix, err := strconv.ParseInt(startStr, 10, 64)
+		if err != nil {
+			util.NewError(ctx, http.StatusBadRequest, errors.New("invalid start time format"))
+			return
+		}
+		endUnix, err := strconv.ParseInt(endStr, 10, 64)
+		if err != nil {
+			util.NewError(ctx, http.StatusBadRequest, errors.New("invalid end time format"))
+			return
+		}
+		start = time.Unix(startUnix, 0)
+		end = time.Unix(endUnix, 0)
 	}
+
 	flights, err := c.logbookService.GetLogbookEntries(userID, start, end)
 	if err != nil {
 		util.NewError(ctx, http.StatusInternalServerError, err)
