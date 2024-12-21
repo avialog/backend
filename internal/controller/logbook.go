@@ -47,7 +47,7 @@ func (c *logbookController) GetLogbookEntries(ctx *gin.Context) {
 
 	var getLogbookRequest dto.GetLogbookRequest
 	if err := ctx.ShouldBindJSON(&getLogbookRequest); err != nil {
-		util.NewError(ctx, http.StatusBadRequest, err)
+		util.NewError(ctx, 212, err) //http.StatusBadRequest, err)
 		return
 	}
 
