@@ -197,23 +197,23 @@ func (c *logbookController) DeleteLogbookEntry(ctx *gin.Context) {
 // @Failure 500 {object} util.HTTPError
 // @Router /logbook/download [get]
 func (c *logbookController) DownloadLogbookPDF(ctx *gin.Context) {
-		userID := ctx.GetString(common.UserID)
+	userID := ctx.GetString(common.UserID)
 
-		pdf, err := c.logbookService.GeneratePDF(userID)
-		if err != nil {
-			if errors.Is(err, dto.ErrNotFound) {
-				util.NewError(ctx, http.StatusNotFound, err)
-				return
-			}
-			util.NewError(ctx, http.StatusInternalServerError, err)
+	pdf, err := c.logbookService.GeneratePDF(userID)
+	if err != nil {
+		if errors.Is(err, dto.ErrNotFound) {
+			util.NewError(ctx, http.StatusNotFound, err)
 			return
 		}
+		util.NewError(ctx, http.StatusInternalServerError, err)
+		return
+	}
 
-		// Set PDF response headers
-		ctx.Header("Content-Description", "File Transfer")
-		ctx.Header("Content-Disposition", "attachment; filename=logbook.pdf")
-		ctx.Header("Content-Type", "application/pdf")
+	// Set PDF response headers
+	ctx.Header("Content-Description", "File Transfer")
+	ctx.Header("Content-Disposition", "attachment; filename=logbook.pdf")
+	ctx.Header("Content-Type", "application/pdf")
 
-		ctx.Data(http.StatusOK, "application/pdf", pdf)
-	
+	ctx.Data(http.StatusOK, "application/pdf", pdf)
+
 }
