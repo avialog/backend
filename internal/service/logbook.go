@@ -121,7 +121,7 @@ func (l *logbookService) GeneratePDF(userID string) ([]byte, error) {
 	exporter, err := pdfexport.NewPDFExporter(
 		"A4",
 		*user.FirstName+" "+*user.LastName,
-		*user.LicenseNumber,
+		*user.LicenseNumber, // number of license
 		*user.Address,
 		"",
 		"",
