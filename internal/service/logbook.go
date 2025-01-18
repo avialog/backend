@@ -113,13 +113,17 @@ func (l *logbookService) GeneratePDF(userID string) ([]byte, error) {
 			SimTime:   "Time",
 		},
 	}
+	user, err := l.userRepository.GetByID(userID)
+	if err != nil {
+		return nil, err
+	}
 
 	exporter, err := pdfexport.NewPDFExporter(
 		"A4",
-		"Maciej Pawłowski",
-		"PPL123",
-		"Grodzka 7, 31-500 Kraków",
-		"Maciej Pawłowski",
+		*user.FirstName+" "+*user.LastName,
+		*user.LicenseNumber,
+		*user.Address,
+		"",
 		"",
 		exportConfig,
 	)
