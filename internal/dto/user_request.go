@@ -9,8 +9,7 @@ type UserRequest struct {
 	SignatureURL *string        `json:"signature_url"`
 	Country      *model.Country `json:"country"`
 	Phone        *string        `json:"phone"`
-	Street       *string        `json:"street"`
-	City         *string        `json:"city"`
-	Company      *string        `json:"company"`
+	Address      *string        `json:"address"`
 	Timezone     *string        `json:"timezone"`
+	LicenseNumber *string        `json:"license_number"`
 }

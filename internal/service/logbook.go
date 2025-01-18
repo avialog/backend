@@ -41,7 +41,11 @@ func newLogbookService(flightRepository repository.FlightRepository, landingRepo
 		passengerRepository, aircraftRepository, userRepository, validator, config}
 }
 func (l *logbookService) GeneratePDF(userID string) ([]byte, error) {
-	// Create a buffer to store the PDF
+	user, err := l.userRepository.GetByID(userID)
+	if err != nil {
+		return nil, err
+	}
+
 	buf := new(bytes.Buffer)
 
 	// Create export configuration
@@ -116,10 +120,10 @@ func (l *logbookService) GeneratePDF(userID string) ([]byte, error) {
 
 	exporter, err := pdfexport.NewPDFExporter(
 		"A4",
-		"Maciej Pawłowski",
-		"PPL123",
-		"Grodzka 7, 31-500 Kraków",
-		"Maciej Pawłowski",
+		*user.FirstName+" "+*user.LastName,
+		*user.LicenseNumber,
+		*user.Address,
+		"",
 		"",
 		exportConfig,
 	)
@@ -661,7 +665,7 @@ func (l *logbookService) mapToSingleLogbookEntry(userID string) []pdfexport.Sing
 		if flight.MyRole == "PIC" {
 			picName = "SELF"
 		} else {
-			// Look for PIC in passengers
+
 			for _, passenger := range flight.Passengers {
 				if passenger.Role == "PIC" {
 					picName = fmt.Sprintf("%s %s", passenger.FirstName, *passenger.LastName)
@@ -670,18 +674,15 @@ func (l *logbookService) mapToSingleLogbookEntry(userID string) []pdfexport.Sing
 			}
 		}
 
-		// Check if it's a multi-pilot flight
 		isMultiPilot := false
 		qualifiedPassengers := 0
 
-		// Check if my role qualifies
 		if flight.MyRole == "PIC" || flight.MyRole == "SIC" ||
 			flight.MyRole == "INS" || flight.MyRole == "EXM" ||
 			flight.MyRole == "P1S" {
 			qualifiedPassengers++
 		}
 
-		// Count qualified passengers
 		for _, passenger := range flight.Passengers {
 			if passenger.Role == "PIC" || passenger.Role == "SIC" ||
 				passenger.Role == "INS" || passenger.Role == "EXM" ||
@@ -690,7 +691,6 @@ func (l *logbookService) mapToSingleLogbookEntry(userID string) []pdfexport.Sing
 			}
 		}
 
-		// Multi-pilot requires at least 2 qualified crew members
 		isMultiPilot = qualifiedPassengers >= 2
 
 		// Convert all duration fields

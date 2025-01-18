@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: avialog
-          image: ghcr.io/avialog/backend:30cb310
+          image: ghcr.io/avialog/backend:30cb310 #docker yaml pushuje obraz do resejtru na github do github register ghcr
           ports:
             - containerPort: 3000
           livenessProbe:
