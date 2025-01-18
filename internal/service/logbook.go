@@ -114,14 +114,13 @@ func (l *logbookService) GeneratePDF(userID string) ([]byte, error) {
 		},
 	}
 
-	// Create PDF exporter
 	exporter, err := pdfexport.NewPDFExporter(
 		"A4",
-		"John Doe",         // Owner name
-		"PPL123",           // License number
-		"123 Aviation Way", // Address
-		"John Doe",         // Signature
-		"",                 // Signature image
+		"Maciej Pawłowski",
+		"PPL123",
+		"Grodzka 7, 31-500 Kraków",
+		"Maciej Pawłowski",
+		"",
 		exportConfig,
 	)
 	if err != nil {
@@ -818,9 +817,9 @@ func (l *logbookService) translateDurationToString(durationNano int64) string {
 		return ""
 	}
 
-	duration := time.Duration(durationNano)
-	hours := int(duration.Hours())
-	minutes := int(duration.Minutes()) % 60
+	// Convert directly from seconds to hours and minutes
+	hours := durationNano / 3600
+	minutes := (durationNano % 3600) / 60
 
 	return fmt.Sprintf("%d:%02d", hours, minutes)
 }
