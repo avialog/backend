@@ -11,4 +11,5 @@ type UserRequest struct {
 	Phone        *string        `json:"phone"`
 	Address      *string        `json:"address"`
 	Timezone     *string        `json:"timezone"`
+	LicenseNumber *string        `json:"license_number"`
 }

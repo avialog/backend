@@ -39,6 +39,6 @@ func (u *userService) UpdateProfile(id string, userRequest dto.UserRequest) (mod
 	user.Phone = userRequest.Phone
 	user.Address = userRequest.Address
 	user.Timezone = userRequest.Timezone
-
+	user.LicenseNumber = userRequest.LicenseNumber
 	return u.userRepository.Save(user)
 }
