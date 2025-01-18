@@ -18,9 +18,7 @@ type User struct {
 	SignatureURL  *string
 	Country       *Country
 	Phone         *string
-	Street        *string
-	City          *string
-	Company       *string
+	Address       *string
 	Timezone      *string
 	LicenseNumber *string
 	Contacts      []Contact  `gorm:"foreignKey:UserID" validate:"-"`

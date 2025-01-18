@@ -71,9 +71,7 @@ var _ = Describe("UserController", func() {
 			SignatureURL: util.String("https://signature.com"),
 			Country:      &country,
 			Phone:        util.String("123456789"),
-			Street:       util.String("Main St"),
-			City:         util.String("New York"),
-			Company:      util.String("Company"),
+			Address:      util.String("Main St"),
 			Timezone:     util.String("UTC"),
 		}
 	})

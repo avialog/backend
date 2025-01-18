@@ -1,13 +1,14 @@
 package controller
 
 import (
+	"net/http"
+
 	"github.com/avialog/backend/internal/common"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/service"
 	"github.com/avialog/backend/internal/util"
 	"github.com/gin-gonic/gin"
-	"net/http"
 )
 
 type UserController interface {
@@ -89,9 +90,7 @@ func (u *userController) adaptUser(user model.User) dto.UserResponse {
 		SignatureURL: user.SignatureURL,
 		Country:      user.Country,
 		Phone:        user.Phone,
-		Street:       user.Street,
-		City:         user.City,
-		Company:      user.Company,
+		Address:      user.Address,
 		Timezone:     user.Timezone,
 	}
 }

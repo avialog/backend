@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/avialog/backend/internal/config"
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
@@ -36,9 +37,7 @@ var _ = Describe("UserService", func() {
 			SignatureURL: util.String("https://example.com/signature.jpg"),
 			Country:      &country,
 			Phone:        util.String("1234567890"),
-			Street:       util.String("1234 Main St"),
-			City:         util.String("Any town"),
-			Company:      util.String("Test Company"),
+			Address:      util.String("1234 Main St"),
 			Timezone:     util.String("America/New_York"),
 		}
 		userRequest = dto.UserRequest{
@@ -48,9 +47,7 @@ var _ = Describe("UserService", func() {
 			SignatureURL: util.String("https://example.com/signature.jpg"),
 			Country:      &country,
 			Phone:        util.String("1234567890"),
-			Street:       util.String("1234 Main St"),
-			City:         util.String("Any town"),
-			Company:      util.String("Test Company"),
+			Address:      util.String("23232"),
 			Timezone:     util.String("America/New_York"),
 		}
 
