@@ -357,6 +357,7 @@ func (l *logbookService) GetLogbookEntries(userID string, start, end time.Time) 
 	logbookResponses := make([]dto.LogbookResponse, 0)
 
 	flights, err := l.flightRepository.GetByUserIDAndDate(userID, start, end)
+
 	if err != nil {
 		return logbookResponses, err
 	}
@@ -398,6 +399,7 @@ func (l *logbookService) GetLogbookEntries(userID string, start, end time.Time) 
 		}
 
 		logbookResponse := dto.LogbookResponse{
+			FlightID:            flight.ID,
 			AircraftID:          flight.AircraftID,
 			TakeoffTime:         flight.TakeoffTime,
 			TakeoffAirportCode:  flight.TakeoffAirportCode,
