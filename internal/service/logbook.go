@@ -10,6 +10,7 @@ import (
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/repository"
+	"github.com/avialog/backend/internal/util"
 	"github.com/go-playground/validator/v10"
 
 	"github.com/avialog/backend/internal/pdfexport"
@@ -117,7 +118,12 @@ func (l *logbookService) GeneratePDF(userID string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-
+	if user.LicenseNumber == nil {
+		user.LicenseNumber = util.String("")
+	}
+	if user.Address == nil {
+		user.Address = util.String("")
+	}
 	exporter, err := pdfexport.NewPDFExporter(
 		"A4",
 		*user.FirstName+" "+*user.LastName,

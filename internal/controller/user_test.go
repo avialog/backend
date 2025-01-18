@@ -4,6 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"net/http"
+	"net/http/httptest"
+
 	"github.com/avialog/backend/internal/dto"
 	"github.com/avialog/backend/internal/model"
 	"github.com/avialog/backend/internal/service"
@@ -12,8 +15,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"go.uber.org/mock/gomock"
-	"net/http"
-	"net/http/httptest"
 )
 
 var _ = Describe("UserController", func() {
@@ -38,29 +39,27 @@ var _ = Describe("UserController", func() {
 		country = "US"
 
 		userRequest = dto.UserRequest{
-			FirstName:    util.String("John"),
-			LastName:     util.String("Doe"),
-			AvatarURL:    util.String("https://avatar.com"),
-			SignatureURL: util.String("https://signature.com"),
-			Country:      &country,
-			Phone:        util.String("123456789"),
-			Street:       util.String("Main St"),
-			City:         util.String("New York"),
-			Company:      util.String("Company"),
-			Timezone:     util.String("UTC"),
+			FirstName:     util.String("John"),
+			LastName:      util.String("Doe"),
+			AvatarURL:     util.String("https://avatar.com"),
+			SignatureURL:  util.String("https://signature.com"),
+			Country:       &country,
+			Phone:         util.String("123456789"),
+			Address:       util.String("Main St"),
+			Timezone:      util.String("UTC"),
+			LicenseNumber: util.String("123456789"),
 		}
 		expectedResponse = dto.UserResponse{
-			FirstName:    util.String("John"),
-			LastName:     util.String("Doe"),
-			Email:        "test@test.com",
-			AvatarURL:    util.String("https://avatar.com"),
-			SignatureURL: util.String("https://signature.com"),
-			Country:      &country,
-			Phone:        util.String("123456789"),
-			Street:       util.String("Main St"),
-			City:         util.String("New York"),
-			Company:      util.String("Company"),
-			Timezone:     util.String("UTC"),
+			FirstName:     util.String("John"),
+			LastName:      util.String("Doe"),
+			Email:         "test@test.com",
+			AvatarURL:     util.String("https://avatar.com"),
+			SignatureURL:  util.String("https://signature.com"),
+			Country:       &country,
+			Phone:         util.String("123456789"),
+			Address:       util.String("Main St"),
+			Timezone:      util.String("UTC"),
+			LicenseNumber: util.String("123456789"),
 		}
 		userMock = model.User{
 			ID:           "1",
